@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Heritage Bengal - Gold Plated Jewellery</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div id="cart-popup" style="display:none; position:fixed; top:32px; left:50%; transform:translateX(-50%); background:#bfa14a; color:#fff; padding:1rem 2.5rem; border-radius:24px; font-size:1.2rem; box-shadow:0 2px 12px rgba(191,161,74,0.18); z-index:9999; transition:opacity 0.3s; text-align:center;"></div>
+  <header>
+    <nav class="navbar">
+      <a href="index.html" class="logo" style="background:#4B0000;border-radius:8px;padding:2px 8px;display:inline-block;">
+        <img src="assets/HB_icon_wb.png" alt="Heritage Bengal Logo" style="height:130px;display:block;margin:auto;">
+      </a>
+      <div class="nav-right">
+        <a href="cart.html" class="cart-icon" style="position:relative;">
+          <img id="cart-bucket" src="assets/cart-bucket.svg" alt="Cart" style="height:28px;vertical-align:middle;filter:drop-shadow(0 2px 4px rgba(191,161,74,0.15));">
+          <span id="cart-count" class="cart-count">0</span>
+        </a>
+        <div class="hamburger" id="hamburger">
+          <span></span><span></span><span></span>
+        </div>
+        <ul class="nav-links" id="nav-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="products.html">Products</a></li>
+          <li><a href="about.html">About Us</a></li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+  <main>
+<section class="hero" style="background: url('assets/banner1.jpg') center center/cover no-repeat; min-height: 440px;">
+      <div class="hero-content">
+        <h1 id="typed-title"></h1>
+        <p>Inspired by Bengal's rich heritage. Discover timeless beauty.</p>
+        <a href="products.html" class="cta-btn" style="display:block; margin: 1.2rem auto 0 auto; padding:0.5rem 1.5rem; min-width:unset; max-width:220px; font-size:1rem; text-align:center; border-radius:30px;">Shop Now</a>
+      </div>
+      <div class="golden-ribbon"></div>
+    </section>
+    <section class="featured-products">
+      <h2 class="fade-in-up">Featured Products</h2>
+      <div class="product-grid">
+        <!-- Example products -->
+        <div class="product-card fade-in-up">
+          <img src="assets/necklace.jpg" alt="Gold Plated Necklace">
+          <h3>Gold Plated Necklace</h3>
+          <p>₹2,499</p>
+          <div class="card-actions">
+            <a href="product-details.html?id=1" class="details-btn cart-btn">View Details</a>
+            <a href="#" onclick="addToCart(1, 'Gold Plated Necklace', 2499, 'assets/necklace.jpg')" class="details-btn cart-btn">Add to Cart</a>
+          </div>
+        </div>
+        <div class="product-card fade-in-up">
+          <img src="assets/earrings.jpg" alt="Traditional Earrings">
+          <h3>Traditional Earrings</h3>
+          <p>₹1,299</p>
+          <div class="card-actions">
+            <a href="product-details.html?id=2" class="details-btn cart-btn">View Details</a>
+            <a href="#" onclick="addToCart(2, 'Traditional Earrings', 1299, 'assets/earrings.jpg')" class="details-btn cart-btn">Add to Cart</a>
+          </div>
+        </div>
+        <div class="product-card fade-in-up">
+          <img src="assets/bangle.jpg" alt="Elegant Bangle">
+          <h3>Elegant Bangle</h3>
+          <p>₹1,999</p>
+          <div class="card-actions">
+            <a href="product-details.html?id=3" class="details-btn cart-btn">View Details</a>
+            <a href="#" onclick="addToCart(3, 'Elegant Bangle', 1999, 'assets/bangle.jpg')" class="details-btn cart-btn">Add to Cart</a>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="brand-intro">
+      <h2>Why Heritage Bengal?</h2>
+      <p>Our jewellery is crafted with passion, blending tradition and modern elegance. Each piece tells a story of Bengal's rich culture and artistry.</p>
+    </section>
+  </main>
+  <footer>
+    <p>&copy; 2025 Heritage Bengal. All rights reserved.</p>
+  </footer>
+  <script src="js/main.js"></script>
+
+  <script>
+function updateCartCount() {
+  const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+  document.getElementById('cart-count').textContent = cart.length;
+}
+function animateBucket() {
+  const bucket = document.getElementById('cart-bucket');
+  bucket.style.transform = 'scale(1.25) rotate(-18deg)';
+  bucket.style.transition = 'transform 0.3s';
+  setTimeout(() => {
+    bucket.style.transform = '';
+  }, 350);
+}
+function showCartPopup(msg) {
+  const popup = document.getElementById('cart-popup');
+  popup.textContent = msg;
+  popup.style.display = 'block';
+  popup.style.opacity = 1;
+  setTimeout(() => {
+    popup.style.opacity = 0;
+    setTimeout(() => popup.style.display = 'none', 400);
+  }, 3000);
+}
+function addToCart(id, name, price, image) {
+  let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+  cart.push({id, name, price, image});
+  localStorage.setItem('cart', JSON.stringify(cart));
+  showCartPopup('Added to cart!');
+  animateBucket();
+  updateCartCount();
+}
+window.addEventListener('DOMContentLoaded', function() {
+  updateCartCount();
+  // Typing animation for hero title
+  const text = 'Elegant Gold Plated Jewellery';
+  const typedTitle = document.getElementById('typed-title');
+  let idx = 0;
+  function typeTitle() {
+    if (idx <= text.length) {
+      typedTitle.textContent = text.slice(0, idx);
+      idx++;
+      setTimeout(typeTitle, 80);
+    }
+  }
+  typeTitle();
+});
+
+// Hamburger menu animation
+const hamburger = document.getElementById('hamburger');
+const navLinks = document.getElementById('nav-links');
+hamburger.onclick = function() {
+  navLinks.classList.toggle('open');
+  hamburger.classList.toggle('active');
+};
+  </script>
+</body>
+</html>

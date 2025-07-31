@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Details - Heritage Bengal</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div id="cart-popup"></div>
+  <header>
+    <nav class="navbar">
+      <a href="index.html" class="logo" style="background:#4B0000;border-radius:8px;padding:2px 8px;display:inline-block;">
+        <img src="assets/HB_icon_wb.png" alt="Heritage Bengal Logo" style="height:130px;display:block;margin:auto;">
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="products.html">Products</a></li>
+        <li><a href="about.html">About Us</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="cart.html" class="cart-icon" style="position:relative;">
+          <img id="cart-bucket" src="assets/cart-bucket-new.svg" alt="Cart" style="height:28px;vertical-align:middle;">
+          <span id="cart-count" class="cart-count">0</span>
+        </a></li>
+      </ul>
+    </nav>
+  </header>
+  <main>
+    <section class="product-details">
+      <div id="product-info">
+        <!-- Product details will be loaded by JS -->
+      </div>
+      <!-- Removed duplicate Add to Cart button. Only use the one rendered by JS -->
+    </section>
+  </main>
+  <footer>
+    <p>&copy; 2025 Heritage Bengal. All rights reserved.</p>
+  </footer>
+  <script src="js/product.js"></script>
+  <div id="cart-popup" class="cart-popup" style="display:none;"></div>
+  <script>
+function updateCartCount() {
+  const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+  document.getElementById('cart-count').textContent = cart.length;
+}
+function animateBucket() {
+  const bucket = document.getElementById('cart-bucket');
+  bucket.style.transform = 'scale(1.25) rotate(-18deg)';
+  bucket.style.transition = 'transform 0.3s';
+  setTimeout(() => {
+    bucket.style.transform = '';
+  }, 350);
+}
+function showCartPopup(msg) {
+  const popup = document.getElementById('cart-popup');
+  popup.textContent = msg;
+  popup.style.display = 'block';
+  popup.style.opacity = 1;
+  popup.style.position = 'fixed';
+  popup.style.top = '32px';
+  popup.style.left = '50%';
+  popup.style.transform = 'translateX(-50%)';
+  popup.style.background = '#bfa14a';
+  popup.style.color = '#fff';
+  popup.style.padding = '1rem 2.5rem';
+  popup.style.borderRadius = '24px';
+  popup.style.fontSize = '1.2rem';
+  popup.style.boxShadow = '0 2px 12px rgba(191,161,74,0.18)';
+  popup.style.zIndex = '9999';
+  popup.style.transition = 'opacity 0.3s';
+  popup.style.textAlign = 'center';
+  setTimeout(() => {
+    popup.style.opacity = 0;
+    setTimeout(() => popup.style.display = 'none', 400);
+  }, 3000);
+}
+function addToCart(id, name, price, image) {
+  let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+  cart.push({id, name, price, image});
+  localStorage.setItem('cart', JSON.stringify(cart));
+  showCartPopup('Added to cart!');
+  animateBucket();
+  updateCartCount();
+}
+// Scroll fade/melt effect for sections
+function handleScroll() {
+  document.querySelectorAll('section').forEach(section => {
+    const rect = section.getBoundingClientRect();
+    if (rect.top < window.innerHeight && rect.bottom > 0) {
+      section.style.opacity = 1;
+      section.style.transform = 'translateY(0) scale(1)';
+    } else {
+      section.style.opacity = 0.3;
+      section.style.transform = 'translateY(40px) scale(0.98)';
+    }
+  });
+}
+window.addEventListener('scroll', handleScroll);
+window.addEventListener('DOMContentLoaded', () => {
+  handleScroll();
+  updateCartCount();
+});
+  </script>
+</body>
+</html>

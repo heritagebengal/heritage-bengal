@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout - Heritage Bengal</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <a href="index.html" class="logo" style="background:#4B0000;border-radius:8px;padding:2px 8px;display:inline-block;">
+        <img src="assets/HB_icon_wb.png" alt="Heritage Bengal Logo" style="height:130px;display:block;margin:auto;">
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="products.html">Products</a></li>
+        <li><a href="about.html">About Us</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="cart.html">Cart</a></li>
+      </ul>
+    </nav>
+  </header>
+  <main>
+    <section class="checkout-section">
+      <h1>Checkout</h1>
+      <div id="checkout-items"></div>
+      <div id="checkout-total"></div>
+      <div class="coupon-section" style="margin:1.5rem 0; text-align:center;">
+        <div style="display:flex; align-items:center; gap:0.7rem; justify-content:flex-start;">
+          <input type="text" id="checkout-coupon-code" placeholder="Enter coupon code" style="padding:0.7rem 1.2rem; border-radius:24px; border:1px solid #bfa14a; font-size:1rem; min-width:180px;">
+          <button onclick="applyCheckoutCoupon()" class="cta-btn" style="border-radius:24px; margin-left:-8px;margin-bottom: 17px;">Apply</button>
+        </div>
+      </div>
+      <button id="pay-btn" class="cta-btn">Proceed To Pay</button>
+    </section>
+  </main>
+  <footer>
+    <p>&copy; 2025 Heritage Bengal. All rights reserved.</p>
+  </footer>
+  <script src="js/checkout.js"></script>
+</body>
+</html>

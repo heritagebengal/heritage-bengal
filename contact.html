@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact - Heritage Bengal</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div id="cart-popup" style="display:none; position:fixed; top:32px; left:50%; transform:translateX(-50%); background:#bfa14a; color:#fff; padding:1rem 2.5rem; border-radius:24px; font-size:1.2rem; box-shadow:0 2px 12px rgba(191,161,74,0.18); z-index:9999; transition:opacity 0.3s; text-align:center;"></div>
+  <header>
+    <nav class="navbar">
+      <a href="index.html" class="logo" style="background:#4B0000;border-radius:8px;padding:2px 8px;display:inline-block;">
+        <img src="assets/HB_icon_wb.png" alt="Heritage Bengal Logo" style="height:130px;display:block;margin:auto;">
+      </a>
+      <div class="nav-right">
+        <a href="cart.html" class="cart-icon" style="position:relative;">
+          <img id="cart-bucket" src="assets/cart-bucket.svg" alt="Cart" style="height:28px;vertical-align:middle;filter:drop-shadow(0 2px 4px rgba(191,161,74,0.15));">
+          <span id="cart-count" class="cart-count">0</span>
+        </a>
+        <div class="hamburger" id="hamburger">
+          <span></span><span></span><span></span>
+        </div>
+        <ul class="nav-links" id="nav-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="products.html">Products</a></li>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+  <main>
+    <section class="contact-section">
+      <h1>Contact Us</h1>
+      <form class="contact-form">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+        <label for="message">Message:</label>
+        <textarea id="message" name="message" required></textarea>
+        <button type="submit">Send Message</button>
+      </form>
+      <div class="contact-info">
+        <p>Email: info@heritagebengal.com</p>
+        <p>Phone: +91 98765 43210</p>
+        <p>Address: Kolkata, West Bengal, India</p>
+      </div>
+    </section>
+  </main>
+  <footer>
+    <p>&copy; 2025 Heritage Bengal. All rights reserved.</p>
+  </footer>
+  <script src="js/main.js"></script>
+</body>
+</html>

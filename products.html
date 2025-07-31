@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Products - Heritage Bengal</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header>
+  <nav class="navbar">
+      <a href="index.html" class="logo" style="background:#4B0000;border-radius:8px;padding:2px 8px;display:inline-block;">
+        <img src="assets/HB_icon_wb.png" alt="Heritage Bengal Logo" style="height:130px;display:block;margin:auto;">
+      </a>
+    <div class="nav-right">
+      <a href="cart.html" class="cart-icon" style="position:relative;">
+        <img id="cart-bucket" src="assets/cart-bucket.svg" alt="Cart" style="height:28px;vertical-align:middle;filter:drop-shadow(0 2px 4px rgba(191,161,74,0.15));">
+        <span id="cart-count" class="cart-count">0</span>
+      </a>
+      <div class="hamburger" id="hamburger">
+        <span></span><span></span><span></span>
+      </div>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="products.html">Products</a></li>
+        <li><a href="about.html">About Us</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </div>
+  </nav>
+</header>
+  <main>
+      <h1>Our Collection</h1>
+      <div class="product-grid">
+        <!-- Products will be loaded here by JS -->
+      </div>
+    </section>
+  </main>
+  <footer>
+    <p>&copy; 2025 Heritage Bengal. All rights reserved.</p>
+  </footer>
+  <script src="js/main.js"></script>
+  <script src="js/products-api.js"></script>
+  <div id="cart-popup" class="cart-popup" style="display:none;"></div>
+  <script>
+function updateCartCount() {
+  const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+  document.getElementById('cart-count').textContent = cart.length;
+}
+function animateBucket() {
+  const bucket = document.getElementById('cart-bucket');
+  bucket.style.transform = 'scale(1.25) rotate(-18deg)';
+  bucket.style.transition = 'transform 0.3s';
+  setTimeout(() => {
+    bucket.style.transform = '';
+  }, 350);
+}
+function showCartPopup(msg) {
+  const popup = document.getElementById('cart-popup');
+  popup.textContent = msg;
+  popup.style.display = 'block';
+  popup.style.opacity = 1;
+  setTimeout(() => {
+    popup.style.opacity = 0;
+    setTimeout(() => popup.style.display = 'none', 400);
+  }, 1200);
+}
+function addToCart(id, name, price, image) {
+  let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+  cart.push({id, name, price, image});
+  localStorage.setItem('cart', JSON.stringify(cart));
+  showCartPopup('Added to cart!');
+  animateBucket();
+  updateCartCount();
+}
+window.addEventListener('DOMContentLoaded', updateCartCount);
+// Scroll fade/melt effect for sections
+function handleScroll() {
+  document.querySelectorAll('section').forEach(section => {
+    const rect = section.getBoundingClientRect();
+    if (rect.top < window.innerHeight && rect.bottom > 0) {
+      section.style.opacity = 1;
+
+      section.style.transform = 'translateY(0) scale(1)';
+    } else {
+      section.style.opacity = 0.3;
+      section.style.transform = 'translateY(40px) scale(0.98)';
+    }
+  });
+}
+window.addEventListener('scroll', handleScroll);
+window.addEventListener('DOMContentLoaded', handleScroll);
+</script>
+</body>
+</html>
