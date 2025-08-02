@@ -4,7 +4,7 @@ async function fetchAndRenderProducts() {
   if (!grid) return;
   grid.innerHTML = '<p>Loading...</p>';
   try {
-    const res = await fetch('http://localhost:5000/products');
+    const res = await fetch('/products');
     const products = await res.json();
     if (!Array.isArray(products) || products.length === 0) {
       grid.innerHTML = '<p>No products found.</p>';

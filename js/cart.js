@@ -7,7 +7,7 @@ async function applyCoupon() {
   const cart = getCart();
   let total = cart.reduce((sum, item) => sum + item.price, 0);
   try {
-    const res = await fetch('http://localhost:5000/api/coupons/apply', {
+    const res = await fetch('/api/coupons/apply', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ code, total })
