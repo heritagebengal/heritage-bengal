@@ -27,21 +27,39 @@ header {
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
+  position: relative;
+}
+
+.mobile-left,
+.mobile-right {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+}
+
+.mobile-left {
+  justify-content: flex-start;
+}
+
+.mobile-right {
+  justify-content: flex-end;
+}
+
+.logo {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .logo img {
-  height: 80px;
+  height: 60px;
   display: block;
-}
-
-.nav-right {
-  display: flex;
-  align-items: center;
-  gap: 15px;
 }
 
 .cart-icon {
   position: relative;
+  margin-right: 10px;
 }
 
 .cart-icon img {
@@ -63,13 +81,32 @@ header {
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 4px;
+  padding: 8px;
+  width: 35px;
+  height: 35px;
+  justify-content: center;
+  align-items: center;
 }
 
 .hamburger span {
-  width: 25px;
-  height: 3px;
-  background: #fff;
+  width: 22px;
+  height: 2px;
+  background-color: #BFA14A;
+  transition: all 0.3s ease;
+  display: block;
+  border-radius: 1px;
+}
+
+/* Hamburger 'X' animation */
+.hamburger.active span:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+.hamburger.active span:nth-child(2) {
+  opacity: 0;
+}
+.hamburger.active span:nth-child(3) {
+  transform: rotate(-45deg) translate(5px, -5px);
 }
 
 /* === Navigation Links === */
@@ -123,6 +160,7 @@ header {
   display: inline-block;
   margin-top: 1rem;
   text-decoration: none;
+  border-radius: 30px;
 }
 
 /* === Products Grid === */
@@ -225,5 +263,47 @@ footer {
 
   .hero-content h1 {
     font-size: 2.8rem;
+  }
+
+  .navbar {
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .mobile-left {
+    display: none;
+  }
+
+  .mobile-right {
+    display: flex;
+    order: 2;
+    margin-left: auto;
+    margin-right: 20px;
+  }
+
+  .logo {
+    order: 1;
+    justify-content: flex-start;
+    flex: 0 0 auto;
+  }
+
+  .nav-links {
+    display: flex !important;
+    flex-direction: row;
+    justify-content: flex-end;
+    gap: 2rem;
+    padding: 0;
+    width: auto;
+    background: none;
+    order: 3;
+  }
+
+  .nav-links li {
+    padding: 0;
+  }
+
+  .cart-icon {
+    margin-right: 0;
   }
 }

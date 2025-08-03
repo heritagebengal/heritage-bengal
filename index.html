@@ -9,25 +9,33 @@
 <body>
   <div id="cart-popup" style="display:none; position:fixed; top:32px; left:50%; transform:translateX(-50%); background:#bfa14a; color:#fff; padding:1rem 2.5rem; border-radius:24px; font-size:1.2rem; box-shadow:0 2px 12px rgba(191,161,74,0.18); z-index:9999; transition:opacity 0.3s; text-align:center;"></div>
   <header>
-  <nav class="navbar">
-    <a href="index.html" class="logo">
-      <img src="https://heritage-bengal-1.onrender.com/HB_icon_wb.PNG" alt="Heritage Bengal Logo">
-    </a>
-    <div class="nav-right">
-      <a href="cart.html" class="cart-icon">
-        <img id="cart-bucket" src="assets/cart-bucket.svg" alt="Cart">
-        <span id="cart-count" class="cart-count">0</span>
-      </a>
-      <div class="hamburger" id="hamburger">
-        <span></span><span></span><span></span>
-      </div>
+<nav class="navbar">
+  <div class="mobile-left">
+    <div class="hamburger" id="hamburger">
+      <span></span>
+      <span></span>
+      <span></span>
     </div>
-    <ul class="nav-links" id="nav-links">
-      <li><a href="index.html">Home</a></li>
-      <li><a href="products.html">Products</a></li>
-      <li><a href="about.html">About Us</a></li>
-    </ul>
-  </nav>
+  </div>
+
+  <a href="index.html" class="logo">
+    <img src="https://heritage-bengal-1.onrender.com/HB_icon_wb.PNG" alt="Heritage Bengal Logo">
+  </a>
+
+  <div class="mobile-right">
+    <a href="cart.html" class="cart-icon">
+      <img id="cart-bucket" src="assets/cart-bucket.svg" alt="Cart" style="margin-top: 8px;">
+      <span id="cart-count" class="cart-count" style="top: 5px;">0</span>
+    </a>
+  </div>
+
+  <ul class="nav-links" id="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="products.html">Products</a></li>
+    <li><a href="about.html">About Us</a></li>
+  </ul>
+</nav>
+
 </header>
   <main>
 <section class="hero" style="background: url('assets/banner1.jpg') center center/cover no-repeat; min-height: 440px;">
