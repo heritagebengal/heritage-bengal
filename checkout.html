@@ -4,41 +4,215 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Checkout - Heritage Bengal</title>
-  <link rel="stylesheet" href="css/styles.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'heritage-red': '#4B0000',
+            'heritage-gold': '#BFA14A',
+            'heritage-cream': '#fff8f0',
+            'heritage-light-gold': '#d4af37',
+            'heritage-dark-gold': '#f9e6b1'
+          },
+          fontFamily: {
+            'serif': ['Georgia', 'serif'],
+          },
+        }
+      }
+    }
+  </script>
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
-<body>
-  <header>
-    <nav class="navbar">
-      <a href="index.html" class="logo" style="background:#4B0000;border-radius:8px;padding:2px 8px;display:inline-block;">
-        <img src="https://heritage-bengal-1.onrender.com/HB_icon_wb.PNG" alt="Heritage Bengal Logo" style="height:130px;display:block;margin:auto;">
+<body class="font-serif bg-heritage-cream text-gray-800 leading-relaxed">
+  
+  <!-- Cart Popup -->
+  <div id="cart-popup" class="hidden fixed top-8 left-1/2 transform -translate-x-1/2 bg-heritage-gold text-white px-10 py-4 rounded-3xl text-xl shadow-lg z-50 transition-opacity text-center"></div>
+  
+  <header class="bg-heritage-red sticky top-0 z-40">
+    <nav class="flex justify-between items-center flex-wrap relative bg-heritage-red px-4 py-3">
+      
+      <!-- Mobile Hamburger (Left) -->
+      <div class="flex items-center justify-center md:hidden z-50 w-12 h-12">
+        <button class="hamburger cursor-pointer flex flex-col gap-1 p-3 w-12 h-12 justify-center items-center bg-heritage-red hover:bg-heritage-red active:bg-heritage-red focus:bg-heritage-red rounded transition-colors focus:outline-none" id="hamburger" type="button">
+          <span class="w-6 h-0.5 bg-heritage-gold transition-all duration-300 block rounded-sm"></span>
+          <span class="w-6 h-0.5 bg-heritage-gold transition-all duration-300 block rounded-sm"></span>
+          <span class="w-6 h-0.5 bg-heritage-gold transition-all duration-300 block rounded-sm"></span>
+        </button>
+      </div>
+
+      <!-- Logo (Center on mobile, Left on desktop) -->
+      <a href="index.html" class="flex items-center justify-center md:justify-start">
+        <img src="https://heritage-bengal-1.onrender.com/HB_icon_wb.PNG" alt="Heritage Bengal Logo" class="h-16 md:h-20 block">
       </a>
-      <ul class="nav-links">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="products.html">Products</a></li>
-        <li><a href="about.html">About Us</a></li>
-        <li><a href="contact.html">Contact</a></li>
-        <li><a href="cart.html">Cart</a></li>
+
+      <!-- Desktop Navigation & Cart Container -->
+      <div class="hidden md:flex md:items-center md:gap-8">
+        <!-- Cart Icon -->
+        <a href="cart.html" class="relative">
+          <img id="cart-bucket" src="assets/cart-bucket.svg" alt="Cart" class="h-7">
+          <span id="cart-count" class="absolute -top-1 -right-2 bg-heritage-gold text-white rounded-full px-1.5 py-0.5 text-xs">0</span>
+        </a>
+        
+        <!-- Desktop Navigation Links -->
+        <ul class="flex flex-row gap-8">
+          <li>
+            <a href="index.html" class="text-white no-underline font-bold hover:text-heritage-gold transition-colors">Home</a>
+          </li>
+          <li>
+            <a href="products.html" class="text-white no-underline font-bold hover:text-heritage-gold transition-colors">Products</a>
+          </li>
+          <li>
+            <a href="about.html" class="text-white no-underline font-bold hover:text-heritage-gold transition-colors">About Us</a>
+          </li>
+          <li>
+            <a href="contact.html" class="text-white no-underline font-bold hover:text-heritage-gold transition-colors">Contact</a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Mobile Cart Icon (Right) -->
+      <div class="flex items-center justify-center md:hidden w-12 h-12">
+        <a href="cart.html" class="relative flex items-center justify-center">
+          <img id="cart-bucket-mobile" src="assets/cart-bucket.svg" alt="Cart" class="h-7">
+          <span id="cart-count-mobile" class="absolute -top-1 -right-2 bg-heritage-gold text-white rounded-full px-1.5 py-0.5 text-xs">0</span>
+        </a>
+      </div>
+
+      <!-- Mobile Navigation Links (Hidden by default) -->
+      <ul class="nav-links hidden flex-col w-full text-center bg-heritage-red pt-3 md:hidden" id="nav-links">
+        <li class="list-none py-3">
+          <a href="index.html" class="text-white no-underline font-bold hover:text-heritage-gold transition-colors">Home</a>
+        </li>
+        <li class="list-none py-3">
+          <a href="products.html" class="text-white no-underline font-bold hover:text-heritage-gold transition-colors">Products</a>
+        </li>
+        <li class="list-none py-3">
+          <a href="about.html" class="text-white no-underline font-bold hover:text-heritage-gold transition-colors">About Us</a>
+        </li>
+        <li class="list-none py-3">
+          <a href="contact.html" class="text-white no-underline font-bold hover:text-heritage-gold transition-colors">Contact</a>
+        </li>
       </ul>
     </nav>
   </header>
-  <main>
-    <section class="checkout-section">
-      <h1>Checkout</h1>
-      <div id="checkout-items"></div>
-      <div id="checkout-total"></div>
-      <div class="coupon-section" style="margin:1.5rem 0; text-align:center;">
-        <div style="display:flex; align-items:center; gap:0.7rem; justify-content:flex-start;">
-          <input type="text" id="checkout-coupon-code" placeholder="Enter coupon code" style="padding:0.7rem 1.2rem; border-radius:24px; border:1px solid #bfa14a; font-size:1rem; min-width:180px;">
-          <button onclick="applyCheckoutCoupon()" class="cta-btn" style="border-radius:24px; margin-left:-8px;margin-bottom: 17px;">Apply</button>
+  <main class="min-h-screen">
+    <!-- Hero Section for Checkout -->
+    <section class="bg-gradient-to-r from-heritage-red to-red-900 text-white py-16 px-4">
+      <div class="max-w-4xl mx-auto text-center">
+        <h1 class="text-4xl md:text-5xl font-bold mb-4 fade-in-up">Secure Checkout</h1>
+        <p class="text-lg md:text-xl text-heritage-cream">Complete your Heritage Bengal jewelry purchase</p>
+      </div>
+    </section>
+
+    <!-- Checkout Content Section -->
+    <section class="py-12 px-4 bg-heritage-cream">
+      <div class="max-w-4xl mx-auto">
+        <!-- Checkout Items Container -->
+        <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
+          <h2 class="text-2xl font-bold text-heritage-red mb-6">Order Summary</h2>
+          <div id="checkout-items" class="space-y-4 mb-6">
+            <!-- Checkout items will be populated by JavaScript -->
+          </div>
+        </div>
+
+        <!-- Order Details -->
+        <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
+          <h2 class="text-2xl font-bold text-heritage-red mb-6">Order Total</h2>
+          <div id="checkout-total" class="text-xl font-semibold text-heritage-red mb-6">
+            <!-- Total will be populated by JavaScript -->
+          </div>
+          
+          <!-- Coupon Section -->
+          <div class="bg-heritage-cream rounded-xl p-6 mb-6">
+            <h3 class="text-lg font-bold text-heritage-red mb-4">Have a Coupon?</h3>
+            <div class="flex flex-col sm:flex-row gap-4">
+              <input 
+                type="text" 
+                id="checkout-coupon-code" 
+                placeholder="Enter coupon code" 
+                class="flex-1 px-4 py-3 border-2 border-heritage-gold rounded-full text-gray-800 focus:outline-none focus:border-heritage-red transition-colors shadow-inner"
+              >
+              <button 
+                onclick="applyCheckoutCoupon()" 
+                class="bg-heritage-gold text-heritage-red px-8 py-3 rounded-full font-bold hover:bg-heritage-light-gold transition-all transform hover:scale-105 shadow-lg border-2 border-heritage-gold"
+              >
+                Apply
+              </button>
+            </div>
+          </div>
+
+          <!-- Payment Button -->
+          <div class="text-center">
+            <button 
+              id="pay-btn" 
+              class="bg-gradient-to-r from-heritage-red to-red-900 text-white px-12 py-4 rounded-full font-bold text-lg hover:from-red-900 hover:to-heritage-red transition-all transform hover:scale-105 shadow-xl border-2 border-heritage-red"
+            >
+              🔒 Proceed to Secure Payment
+            </button>
+            <p class="text-sm text-gray-600 mt-3">
+              Your payment information is secure and encrypted
+            </p>
+          </div>
         </div>
       </div>
-      <button id="pay-btn" class="cta-btn">Proceed To Pay</button>
     </section>
   </main>
-  <footer>
-    <p>&copy; 2025 Heritage Bengal. All rights reserved.</p>
+  <!-- Footer -->
+  <footer class="text-center py-6 bg-heritage-red text-white">
+    <div class="max-w-4xl mx-auto px-4">
+      <p class="text-lg">&copy; 2025 Heritage Bengal. All rights reserved.</p>
+      <div class="flex justify-center gap-6 mt-4">
+        <a href="about.html" class="text-heritage-gold hover:text-white transition-colors">About</a>
+        <a href="contact.html" class="text-heritage-gold hover:text-white transition-colors">Contact</a>
+        <a href="products.html" class="text-heritage-gold hover:text-white transition-colors">Products</a>
+      </div>
+    </div>
   </footer>
   <script src="js/checkout.js"></script>
+  <script>
+    function updateCartCount() {
+      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      document.getElementById('cart-count').textContent = cart.length;
+      document.getElementById('cart-count-mobile').textContent = cart.length;
+    }
+    
+    function showCartPopup(msg) {
+      const popup = document.getElementById('cart-popup');
+      popup.textContent = msg;
+      popup.classList.remove('hidden');
+      popup.style.opacity = 1;
+      setTimeout(() => {
+        popup.style.opacity = 0;
+        setTimeout(() => popup.classList.add('hidden'), 400);
+      }, 3000);
+    }
+    
+    window.addEventListener('DOMContentLoaded', function() {
+      updateCartCount();
+    });
+
+    // Hamburger menu animation
+    const hamburger = document.getElementById('hamburger');
+    const navLinks = document.getElementById('nav-links');
+    hamburger.onclick = function() {
+      navLinks.classList.toggle('flex');
+      navLinks.classList.toggle('hidden');
+      hamburger.classList.toggle('active');
+      
+      // Animate hamburger
+      const spans = hamburger.querySelectorAll('span');
+      if (hamburger.classList.contains('active')) {
+        spans[0].style.transform = 'rotate(45deg) translate(5px, 5px)';
+        spans[1].style.opacity = '0';
+        spans[2].style.transform = 'rotate(-45deg) translate(5px, -5px)';
+      } else {
+        spans[0].style.transform = '';
+        spans[1].style.opacity = '1';
+        spans[2].style.transform = '';
+      }
+    };
+  </script>
 </body>
 </html>

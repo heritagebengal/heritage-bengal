@@ -4,37 +4,117 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Product Details - Heritage Bengal</title>
-  <link rel="stylesheet" href="css/styles.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'heritage-red': '#4B0000',
+            'heritage-gold': '#BFA14A',
+            'heritage-cream': '#fff8f0',
+            'heritage-light-gold': '#d4af37',
+            'heritage-dark-gold': '#f9e6b1'
+          },
+          fontFamily: {
+            'serif': ['Georgia', 'serif'],
+          },
+        }
+      }
+    }
+  </script>
 </head>
-<body>
+<body class="font-serif bg-heritage-cream text-gray-800 leading-relaxed">
   <div id="cart-popup"></div>
-  <header>
-    <nav class="navbar">
-      <a href="index.html" class="logo" style="background:#4B0000;border-radius:8px;padding:2px 8px;display:inline-block;">
-        <img src="https://heritage-bengal-1.onrender.com/HB_icon_wb.PNG" alt="Heritage Bengal Logo" style="height:130px;display:block;margin:auto;">
+  <header class="bg-heritage-red sticky top-0 z-40">
+  <nav class="flex justify-between items-center flex-wrap relative bg-heritage-red px-4 py-3">
+      
+      <!-- Mobile Hamburger (Left) -->
+      <div class="flex items-center justify-center md:hidden z-50 w-12 h-12">
+        <button class="hamburger cursor-pointer flex flex-col gap-1 p-3 w-12 h-12 justify-center items-center bg-heritage-red hover:bg-heritage-red active:bg-heritage-red focus:bg-heritage-red rounded transition-colors focus:outline-none" id="hamburger" type="button">
+          <span class="w-6 h-0.5 bg-heritage-gold transition-all duration-300 block rounded-sm"></span>
+          <span class="w-6 h-0.5 bg-heritage-gold transition-all duration-300 block rounded-sm"></span>
+          <span class="w-6 h-0.5 bg-heritage-gold transition-all duration-300 block rounded-sm"></span>
+        </button>
+      </div>
+
+      <!-- Logo (Center on mobile, Left on desktop) -->
+      <a href="index.html" class="flex items-center justify-center md:justify-start">
+        <img src="https://heritage-bengal-1.onrender.com/HB_icon_wb.PNG" alt="Heritage Bengal Logo" class="h-16 md:h-20 block">
       </a>
-      <ul class="nav-links">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="products.html">Products</a></li>
-        <li><a href="about.html">About Us</a></li>
-        <li><a href="contact.html">Contact</a></li>
-        <li><a href="cart.html" class="cart-icon" style="position:relative;">
-          <img id="cart-bucket" src="assets/cart-bucket-new.svg" alt="Cart" style="height:28px;vertical-align:middle;">
-          <span id="cart-count" class="cart-count">0</span>
-        </a></li>
+
+      <!-- Desktop Navigation & Cart Container -->
+      <div class="hidden md:flex md:items-center md:gap-8">
+        <!-- Cart Icon -->
+        <a href="cart.html" class="relative">
+          <img id="cart-bucket" src="assets/cart-bucket.svg" alt="Cart" class="h-7">
+          <span id="cart-count" class="absolute -top-1 -right-2 bg-heritage-gold text-white rounded-full px-1.5 py-0.5 text-xs">0</span>
+        </a>
+        
+        <!-- Desktop Navigation Links -->
+        <ul class="flex flex-row gap-8">
+          <li>
+            <a href="index.html" class="text-white no-underline font-bold hover:text-heritage-gold transition-colors">Home</a>
+          </li>
+          <li>
+            <a href="products.html" class="text-white no-underline font-bold hover:text-heritage-gold transition-colors">Products</a>
+          </li>
+          <li>
+            <a href="about.html" class="text-white no-underline font-bold hover:text-heritage-gold transition-colors">About Us</a>
+          </li>
+          <li>
+            <a href="contact.html" class="text-white no-underline font-bold hover:text-heritage-gold transition-colors">Contact</a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Mobile Cart Icon (Right) -->
+      <div class="flex items-center justify-center md:hidden w-12 h-12">
+        <a href="cart.html" class="relative flex items-center justify-center">
+          <img id="cart-bucket-mobile" src="assets/cart-bucket.svg" alt="Cart" class="h-7">
+          <span id="cart-count-mobile" class="absolute -top-1 -right-2 bg-heritage-gold text-white rounded-full px-1.5 py-0.5 text-xs">0</span>
+        </a>
+      </div>
+
+      <!-- Mobile Navigation Links (Hidden by default) -->
+      <ul class="nav-links hidden flex-col w-full text-center bg-heritage-red pt-3 md:hidden" id="nav-links">
+        <li class="list-none py-3">
+          <a href="index.html" class="text-white no-underline font-bold hover:text-heritage-gold transition-colors">Home</a>
+        </li>
+        <li class="list-none py-3">
+          <a href="products.html" class="text-white no-underline font-bold hover:text-heritage-gold transition-colors">Products</a>
+        </li>
+        <li class="list-none py-3">
+          <a href="about.html" class="text-white no-underline font-bold hover:text-heritage-gold transition-colors">About Us</a>
+        </li>
+        <li class="list-none py-3">
+          <a href="contact.html" class="text-white no-underline font-bold hover:text-heritage-gold transition-colors">Contact</a>
+        </li>
       </ul>
     </nav>
   </header>
-  <main>
-    <section class="product-details">
-      <div id="product-info">
-        <!-- Product details will be loaded by JS -->
+  <main class="min-h-screen bg-heritage-cream">
+    <!-- Product Details Section -->
+    <section class="py-12 px-4">
+      <div class="max-w-4xl mx-auto">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+          <div id="product-info" class="space-y-6">
+            <!-- Product details will be loaded by JavaScript -->
+          </div>
+        </div>
       </div>
-      <!-- Removed duplicate Add to Cart button. Only use the one rendered by JS -->
     </section>
   </main>
-  <footer>
-    <p>&copy; 2025 Heritage Bengal. All rights reserved.</p>
+  <!-- Footer -->
+  <footer class="text-center py-6 bg-heritage-red text-white">
+    <div class="max-w-4xl mx-auto px-4">
+      <p class="text-lg">&copy; 2025 Heritage Bengal. All rights reserved.</p>
+      <div class="flex justify-center gap-6 mt-4">
+        <a href="about.html" class="text-heritage-gold hover:text-white transition-colors">About</a>
+        <a href="contact.html" class="text-heritage-gold hover:text-white transition-colors">Contact</a>
+        <a href="products.html" class="text-heritage-gold hover:text-white transition-colors">Products</a>
+      </div>
+    </div>
   </footer>
   <script src="js/product.js"></script>
   <div id="cart-popup" class="cart-popup" style="display:none;"></div>
@@ -100,6 +180,49 @@ window.addEventListener('DOMContentLoaded', () => {
   handleScroll();
   updateCartCount();
 });
+  </script>
+  <script>
+    function updateCartCount() {
+      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      document.getElementById('cart-count').textContent = cart.length;
+      document.getElementById('cart-count-mobile').textContent = cart.length;
+    }
+    
+    function showCartPopup(msg) {
+      const popup = document.getElementById('cart-popup');
+      popup.textContent = msg;
+      popup.classList.remove('hidden');
+      popup.style.opacity = 1;
+      setTimeout(() => {
+        popup.style.opacity = 0;
+        setTimeout(() => popup.classList.add('hidden'), 400);
+      }, 3000);
+    }
+    
+    window.addEventListener('DOMContentLoaded', function() {
+      updateCartCount();
+    });
+
+    // Hamburger menu animation
+    const hamburger = document.getElementById('hamburger');
+    const navLinks = document.getElementById('nav-links');
+    hamburger.onclick = function() {
+      navLinks.classList.toggle('flex');
+      navLinks.classList.toggle('hidden');
+      hamburger.classList.toggle('active');
+      
+      // Animate hamburger
+      const spans = hamburger.querySelectorAll('span');
+      if (hamburger.classList.contains('active')) {
+        spans[0].style.transform = 'rotate(45deg) translate(5px, 5px)';
+        spans[1].style.opacity = '0';
+        spans[2].style.transform = 'rotate(-45deg) translate(5px, -5px)';
+      } else {
+        spans[0].style.transform = '';
+        spans[1].style.opacity = '1';
+        spans[2].style.transform = '';
+      }
+    };
   </script>
 </body>
 </html>

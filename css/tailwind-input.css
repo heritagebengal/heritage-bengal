@@ -1,0 +1,129 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom Heritage Bengal Components */
+@layer components {
+  .navbar-heritage {
+    @apply bg-heritage-red sticky top-0 z-50 px-4 py-3;
+  }
+  
+  .logo-heritage {
+    @apply flex items-center justify-center;
+  }
+  
+  .logo-heritage img {
+    @apply h-16 md:h-20 block;
+  }
+  
+  .hamburger-heritage {
+    @apply cursor-pointer flex flex-col gap-1 p-2 w-9 h-9 justify-center items-center;
+  }
+  
+  .hamburger-heritage span {
+    @apply w-6 h-0.5 bg-heritage-gold transition-all duration-300 block rounded-sm;
+  }
+  
+  .hamburger-heritage.active span:nth-child(1) {
+    @apply rotate-45 translate-x-1 translate-y-1;
+  }
+  
+  .hamburger-heritage.active span:nth-child(2) {
+    @apply opacity-0;
+  }
+  
+  .hamburger-heritage.active span:nth-child(3) {
+    @apply -rotate-45 translate-x-1 -translate-y-1;
+  }
+  
+  .cart-icon-heritage {
+    @apply relative;
+  }
+  
+  .cart-icon-heritage img {
+    @apply h-7;
+  }
+  
+  .cart-count-heritage {
+    @apply absolute -top-1.5 -right-2 bg-heritage-gold text-white rounded-full px-1.5 py-0.5 text-xs;
+  }
+  
+  .nav-links-heritage {
+    @apply hidden flex-col w-full text-center bg-heritage-red pt-3 md:flex md:flex-row md:justify-end md:gap-8 md:p-0 md:w-auto md:bg-transparent;
+  }
+  
+  .nav-links-heritage.open {
+    @apply flex;
+  }
+  
+  .nav-links-heritage li {
+    @apply list-none py-3 md:py-0;
+  }
+  
+  .nav-links-heritage a {
+    @apply text-white no-underline font-bold hover:text-heritage-gold transition-colors;
+  }
+  
+  .hero-heritage {
+    @apply text-white text-center py-16 px-5 relative min-h-[440px] bg-cover bg-center;
+  }
+  
+  .hero-heritage h1 {
+    @apply text-3xl md:text-4xl lg:text-5xl mb-2 font-serif;
+  }
+  
+  .hero-heritage p {
+    @apply text-base md:text-lg;
+  }
+  
+  .cta-btn-heritage {
+    @apply bg-heritage-dark-gold text-heritage-red font-bold py-2 px-6 inline-block mt-4 no-underline rounded-full hover:bg-heritage-gold transition-colors;
+  }
+  
+  .product-grid-heritage {
+    @apply grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3;
+  }
+  
+  .product-card-heritage {
+    @apply bg-heritage-light-gold rounded-lg p-4 text-center text-black shadow-lg hover:shadow-xl transition-shadow;
+  }
+  
+  .product-card-heritage img {
+    @apply w-full max-h-48 object-contain rounded;
+  }
+  
+  .product-card-heritage h3 {
+    @apply mt-2 text-lg font-semibold;
+  }
+  
+  .product-card-heritage p {
+    @apply text-base my-2 font-bold;
+  }
+  
+  .card-actions-heritage {
+    @apply flex flex-col gap-2 mt-3;
+  }
+  
+  .cart-btn-heritage {
+    @apply bg-heritage-red text-white py-2 px-4 rounded-full no-underline text-sm hover:bg-opacity-90 transition-all;
+  }
+}
+
+/* Mobile-first responsive navbar */
+@layer utilities {
+  .mobile-nav-container {
+    @apply flex items-center justify-between md:justify-start;
+  }
+  
+  .mobile-left {
+    @apply flex items-center md:hidden;
+  }
+  
+  .mobile-right {
+    @apply flex items-center md:order-2 md:ml-auto md:mr-5;
+  }
+  
+  .desktop-nav {
+    @apply hidden md:flex md:order-3 md:ml-auto;
+  }
+}
