@@ -109,55 +109,223 @@
     <!-- Checkout Content Section -->
     <section class="py-12 px-4 bg-heritage-cream">
       <div class="max-w-4xl mx-auto">
-        <!-- Checkout Items Container -->
-        <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
-          <h2 class="text-2xl font-bold text-heritage-red mb-6">Order Summary</h2>
-          <div id="checkout-items" class="space-y-4 mb-6">
-            <!-- Checkout items will be populated by JavaScript -->
-          </div>
-        </div>
-
-        <!-- Order Details -->
-        <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
-          <h2 class="text-2xl font-bold text-heritage-red mb-6">Order Total</h2>
-          <div id="checkout-total" class="text-xl font-semibold text-heritage-red mb-6">
-            <!-- Total will be populated by JavaScript -->
-          </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
           
-          <!-- Coupon Section -->
-          <div class="bg-heritage-cream rounded-xl p-6 mb-6">
-            <h3 class="text-lg font-bold text-heritage-red mb-4">Have a Coupon?</h3>
-            <div class="flex flex-col sm:flex-row gap-4">
-              <input 
-                type="text" 
-                id="checkout-coupon-code" 
-                placeholder="Enter coupon code" 
-                class="flex-1 px-4 py-3 border-2 border-heritage-gold rounded-full text-gray-800 focus:outline-none focus:border-heritage-red transition-colors shadow-inner"
-              >
-              <button 
-                onclick="applyCheckoutCoupon()" 
-                class="bg-heritage-gold text-heritage-red px-8 py-3 rounded-full font-bold hover:bg-heritage-light-gold transition-all transform hover:scale-105 shadow-lg border-2 border-heritage-gold"
-              >
-                Apply
-              </button>
-            </div>
+          <!-- Customer Details Form -->
+          <div class="bg-white rounded-2xl shadow-xl p-8">
+            <h2 class="text-2xl font-bold text-heritage-red mb-6 flex items-center">
+              <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+              </svg>
+              Customer Details
+            </h2>
+            
+            <form id="checkout-form" class="space-y-6">
+              <div>
+                <label for="customer-name" class="block text-heritage-red font-semibold mb-2">Full Name *</label>
+                <input 
+                  type="text" 
+                  id="customer-name" 
+                  name="customerName"
+                  required 
+                  class="w-full px-4 py-3 border-2 border-heritage-gold rounded-xl focus:outline-none focus:border-heritage-red transition-colors shadow-inner"
+                  placeholder="Enter your full name"
+                >
+              </div>
+              
+              <div>
+                <label for="customer-phone" class="block text-heritage-red font-semibold mb-2">Phone Number *</label>
+                <input 
+                  type="tel" 
+                  id="customer-phone" 
+                  name="customerPhone"
+                  required 
+                  pattern="[0-9]{10}"
+                  class="w-full px-4 py-3 border-2 border-heritage-gold rounded-xl focus:outline-none focus:border-heritage-red transition-colors shadow-inner"
+                  placeholder="Enter 10-digit mobile number"
+                >
+              </div>
+              
+              <div>
+                <label for="customer-email" class="block text-heritage-red font-semibold mb-2">Email Address *</label>
+                <input 
+                  type="email" 
+                  id="customer-email" 
+                  name="customerEmail"
+                  required 
+                  class="w-full px-4 py-3 border-2 border-heritage-gold rounded-xl focus:outline-none focus:border-heritage-red transition-colors shadow-inner"
+                  placeholder="Enter your email address"
+                >
+              </div>
+              
+              <div>
+                <label for="customer-address" class="block text-heritage-red font-semibold mb-2">Complete Address *</label>
+                <textarea 
+                  id="customer-address" 
+                  name="address"
+                  required 
+                  rows="3"
+                  class="w-full px-4 py-3 border-2 border-heritage-gold rounded-xl focus:outline-none focus:border-heritage-red transition-colors shadow-inner resize-none"
+                  placeholder="Enter your complete delivery address"
+                ></textarea>
+              </div>
+              
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label for="customer-pincode" class="block text-heritage-red font-semibold mb-2">Pincode *</label>
+                  <input 
+                    type="text" 
+                    id="customer-pincode" 
+                    name="pincode"
+                    required 
+                    pattern="[0-9]{6}"
+                    class="w-full px-4 py-3 border-2 border-heritage-gold rounded-xl focus:outline-none focus:border-heritage-red transition-colors shadow-inner"
+                    placeholder="6-digit pincode"
+                  >
+                </div>
+                
+                <div>
+                  <label for="customer-city" class="block text-heritage-red font-semibold mb-2">City</label>
+                  <input 
+                    type="text" 
+                    id="customer-city" 
+                    name="city"
+                    class="w-full px-4 py-3 border-2 border-heritage-gold rounded-xl focus:outline-none focus:border-heritage-red transition-colors shadow-inner"
+                    placeholder="Your city"
+                  >
+                </div>
+              </div>
+              
+              <div>
+                <label for="customer-state" class="block text-heritage-red font-semibold mb-2">State</label>
+                <select 
+                  id="customer-state" 
+                  name="state"
+                  class="w-full px-4 py-3 border-2 border-heritage-gold rounded-xl focus:outline-none focus:border-heritage-red transition-colors shadow-inner"
+                >
+                  <option value="">Select State</option>
+                  <option value="West Bengal">West Bengal</option>
+                  <option value="Maharashtra">Maharashtra</option>
+                  <option value="Delhi">Delhi</option>
+                  <option value="Karnataka">Karnataka</option>
+                  <option value="Tamil Nadu">Tamil Nadu</option>
+                  <option value="Gujarat">Gujarat</option>
+                  <option value="Rajasthan">Rajasthan</option>
+                  <option value="Uttar Pradesh">Uttar Pradesh</option>
+                  <option value="Madhya Pradesh">Madhya Pradesh</option>
+                  <option value="Bihar">Bihar</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+            </form>
           </div>
 
-          <!-- Payment Button -->
-          <div class="text-center">
+          <!-- Order Summary -->
+          <div class="bg-white rounded-2xl shadow-xl p-8">
+            <h2 class="text-2xl font-bold text-heritage-red mb-6 flex items-center">
+              <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+              </svg>
+              Order Summary
+            </h2>
+            
+            <!-- Cart Items -->
+            <div id="checkout-items" class="space-y-4 mb-6">
+              <!-- Items will be populated by JavaScript -->
+            </div>
+            
+            <!-- Empty Cart Message -->
+            <div id="empty-cart-checkout" class="text-center py-8 hidden">
+              <div class="w-16 h-16 bg-heritage-light-gold rounded-full mx-auto mb-4 flex items-center justify-center">
+                <svg class="w-8 h-8 text-heritage-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                </svg>
+              </div>
+              <p class="text-gray-600 mb-4">Your cart is empty</p>
+              <a href="products.html" class="bg-heritage-red text-white py-2 px-6 rounded-full font-bold hover:bg-opacity-90 transition-all">
+                Shop Now
+              </a>
+            </div>
+
+            <!-- Coupon Section -->
+            <div class="bg-heritage-cream rounded-xl p-4 mb-6" id="coupon-section">
+              <h3 class="text-lg font-bold text-heritage-red mb-3">Have a Coupon?</h3>
+              <div class="flex flex-col sm:flex-row gap-3">
+                <input 
+                  type="text" 
+                  id="checkout-coupon-code" 
+                  placeholder="Enter coupon code" 
+                  class="flex-1 px-3 py-2 border-2 border-heritage-gold rounded-full text-gray-800 focus:outline-none focus:border-heritage-red transition-colors"
+                >
+                <button 
+                  onclick="applyCheckoutCoupon()" 
+                  class="bg-heritage-gold text-heritage-red px-6 py-2 rounded-full font-bold hover:bg-heritage-light-gold transition-all"
+                >
+                  Apply
+                </button>
+              </div>
+            </div>
+
+            <!-- Order Total -->
+            <div id="checkout-total" class="bg-gradient-to-r from-heritage-red to-red-900 text-white rounded-xl p-6 mb-6 text-center">
+              <!-- Total will be populated by JavaScript -->
+            </div>
+
+            <!-- Place Order Button -->
             <button 
-              id="pay-btn" 
-              class="bg-gradient-to-r from-heritage-red to-red-900 text-white px-12 py-4 rounded-full font-bold text-lg hover:from-red-900 hover:to-heritage-red transition-all transform hover:scale-105 shadow-xl border-2 border-heritage-red"
+              id="place-order-btn" 
+              onclick="placeOrder()"
+              class="w-full bg-gradient-to-r from-heritage-red to-red-900 text-white py-4 rounded-xl font-bold text-lg hover:from-red-900 hover:to-heritage-red transition-all transform hover:scale-105 shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled
             >
-              🔒 Proceed to Secure Payment
+              <span class="flex items-center justify-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                </svg>
+                Place Secure Order
+              </span>
             </button>
-            <p class="text-sm text-gray-600 mt-3">
-              Your payment information is secure and encrypted
+            
+            <p class="text-sm text-gray-600 mt-3 text-center">
+              🔒 Your information is secure and encrypted
             </p>
           </div>
         </div>
       </div>
     </section>
+
+    <!-- Order Confirmation Modal -->
+    <div id="order-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl p-8 max-w-md w-full">
+        <div class="text-center">
+          <div class="w-16 h-16 bg-green-500 rounded-full mx-auto mb-4 flex items-center justify-center">
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+          </div>
+          <h3 class="text-2xl font-bold text-heritage-red mb-4">Order Placed Successfully!</h3>
+          <div id="order-details" class="space-y-2 mb-6">
+            <!-- Order details will be populated -->
+          </div>
+          <div class="space-y-3">
+            <a 
+              id="track-order-btn" 
+              href="#" 
+              target="_blank"
+              class="block bg-heritage-red text-white py-3 px-6 rounded-full font-bold hover:bg-opacity-90 transition-all"
+            >
+              Track Your Order
+            </a>
+            <button 
+              onclick="closeOrderModal()" 
+              class="block w-full bg-heritage-gold text-heritage-red py-2 px-6 rounded-full font-bold hover:bg-heritage-light-gold transition-all"
+            >
+              Continue Shopping
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </main>
   <!-- Footer -->
   <footer class="text-center py-6 bg-heritage-red text-white">
@@ -170,7 +338,8 @@
       </div>
     </div>
   </footer>
-  <script src="js/checkout.js"></script>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script src="js/heritage-checkout.js"></script>
   <script>
     function updateCartCount() {
       const cart = JSON.parse(localStorage.getItem('cart') || '[]');

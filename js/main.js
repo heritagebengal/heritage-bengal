@@ -143,7 +143,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Update cart count function
   window.updateCartCount = function() {
     const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+    const totalItems = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
     
     const countElements = [
       document.getElementById('cart-count'),
@@ -186,38 +186,6 @@ document.addEventListener('DOMContentLoaded', function() {
           behavior: 'smooth',
           block: 'start'
         });
-      }
-    });
-  });
-});
-
-// Enhanced cart functionality
-function updateCartCount() {
-  const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-  const cartCount = cart.reduce((total, item) => total + (item.quantity || 1), 0);
-  
-  // Update desktop cart count
-  const cartCountElement = document.getElementById('cart-count');
-  if (cartCountElement) {
-    cartCountElement.textContent = cartCount;
-    // Add badge animation when count changes
-    if (cartCount > 0) {
-      cartCountElement.classList.add('animate-bounce');
-      setTimeout(() => cartCountElement.classList.remove('animate-bounce'), 500);
-    }
-  }
-  
-  // Update mobile cart count
-  const cartCountMobile = document.getElementById('cart-count-mobile');
-  if (cartCountMobile) {
-    cartCountMobile.textContent = cartCount;
-    // Add badge animation when count changes
-    if (cartCount > 0) {
-      cartCountMobile.classList.add('animate-bounce');
-      setTimeout(() => cartCountMobile.classList.remove('animate-bounce'), 500);
-    }
-  }
-}
 
 // Enhanced notification system
 function showNotification(message, type = 'info') {

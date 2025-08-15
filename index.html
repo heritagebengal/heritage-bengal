@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Heritage Bengal - Gold Plated Jewellery</title>
+  <link rel="icon" type="image/svg+xml" href="assets/HB_icon.svg">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -19,6 +20,15 @@
           fontFamily: {
             'serif': ['Georgia', 'serif'],
           },
+          animation: {
+            'scroll': 'scroll 15s linear infinite',
+          },
+          keyframes: {
+            scroll: {
+              '0%': { transform: 'translateX(100%)' },
+              '100%': { transform: 'translateX(-100%)' },
+            }
+          }
         }
       }
     }
@@ -28,6 +38,13 @@
   
   <!-- Cart Popup -->
   <div id="cart-popup" class="hidden fixed top-8 left-1/2 transform -translate-x-1/2 bg-heritage-gold text-white px-10 py-4 rounded-3xl text-xl shadow-lg z-50 transition-opacity text-center"></div>
+  
+  <!-- Announcement Ribbon -->
+  <div class="bg-white text-heritage-red py-2 overflow-hidden relative">
+    <div class="announcement-text whitespace-nowrap animate-scroll text-sm md:text-base font-medium">
+      We are coming soon, to pre-order click on 'Shop Now' button below. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Exclusive deals are coming soon. Stay Tuned!!
+    </div>
+  </div>
   
   <!-- Header -->
   <header class="bg-heritage-red px-4 py-3 sticky top-0 z-40">
@@ -104,13 +121,13 @@
       <div class="hero-content">
         <h1 id="typed-title" class="text-3xl md:text-4xl lg:text-5xl mb-2 font-serif"></h1>
         <p class="text-base md:text-lg">Inspired by Bengal's rich heritage. Discover timeless beauty.</p>
-        <a href="products.html" class="bg-heritage-dark-gold text-heritage-red font-bold py-3 px-8 inline-block mt-6 no-underline rounded-full hover:bg-heritage-gold transition-all transform hover:scale-105 shadow-lg">Shop Now</a>
+        <a href="https://www.instagram.com/heritagebengaljewellery?igsh=YWU3dTg2Y2dwZzF5" class="bg-heritage-dark-gold text-heritage-red font-bold py-3 px-8 inline-block mt-6 no-underline rounded-full hover:bg-heritage-gold transition-all transform hover:scale-105 shadow-lg">Shop Now</a>
       </div>
     </section>
 
     <!-- Featured Products -->
     <section class="py-12 px-4 bg-heritage-red text-white text-center">
-      <h2 class="text-2xl md:text-3xl mb-8 fade-in-up">Featured Products</h2>
+      <h2 class="text-2xl md:text-3xl mb-8 fade-in-up">Featured Price Categories</h2>
       <div class="grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto">
         
         <!-- Product Card 1 -->
@@ -197,8 +214,9 @@
   <script>
     function updateCartCount() {
       const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-      document.getElementById('cart-count').textContent = cart.length;
-      document.getElementById('cart-count-mobile').textContent = cart.length;
+      const totalItems = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+      document.getElementById('cart-count').textContent = totalItems;
+      document.getElementById('cart-count-mobile').textContent = totalItems;
     }
     
     function animateBucket() {
@@ -223,7 +241,7 @@
     
     function addToCart(id, name, price, image) {
       let cart = JSON.parse(localStorage.getItem('cart') || '[]');
-      cart.push({id, name, price, image});
+      cart.push({id, name, price, image, quantity: 1});
       localStorage.setItem('cart', JSON.stringify(cart));
       showCartPopup('Added to cart!');
       animateBucket();
