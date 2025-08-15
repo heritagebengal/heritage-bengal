@@ -33,8 +33,34 @@
       }
     }
   </script>
+  <style>
+    .heritage-bg {
+      background-image: url('assets/Bengal_Vintage.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      position: relative;
+    }
+    
+    .heritage-bg::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(255, 255, 255, 0.85);
+      pointer-events: none;
+      z-index: 0;
+    }
+    
+    .heritage-bg > * {
+      position: relative;
+      z-index: 1;
+    }
+  </style>
 </head>
-<body class="font-serif bg-heritage-cream text-gray-800 leading-relaxed">
+<body class="font-serif heritage-bg text-gray-800 leading-relaxed">
   
   <!-- Cart Popup -->
   <div id="cart-popup" class="hidden fixed top-8 left-1/2 transform -translate-x-1/2 bg-heritage-gold text-white px-10 py-4 rounded-3xl text-xl shadow-lg z-50 transition-opacity text-center"></div>
@@ -125,41 +151,44 @@
       </div>
     </section>
 
-    <!-- Featured Products -->
+    <!-- Featured Price Categories -->
     <section class="py-12 px-4 bg-heritage-red text-white text-center">
       <h2 class="text-2xl md:text-3xl mb-8 fade-in-up">Featured Price Categories</h2>
       <div class="grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto">
         
-        <!-- Product Card 1 -->
-        <div class="bg-heritage-light-gold rounded-xl p-6 text-center text-black shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 fade-in-up">
-          <img src="assets/necklace.jpg" alt="Gold Plated Necklace" class="w-full max-h-48 object-contain rounded-lg mb-4">
-          <h3 class="mt-2 text-xl font-bold">Gold Plated Necklace</h3>
-          <p class="text-lg my-3 font-bold text-heritage-red">₹2,499</p>
-          <div class="flex flex-col gap-3 mt-4">
-            <a href="product-details.html?id=1" class="bg-heritage-red text-white py-3 px-6 rounded-full no-underline text-sm hover:bg-opacity-90 transition-all transform hover:scale-105">View Details</a>
-            <a href="#" onclick="addToCart(1, 'Gold Plated Necklace', 2499, 'assets/necklace.jpg')" class="bg-white text-heritage-red border-2 border-heritage-red py-3 px-6 rounded-full no-underline text-sm hover:bg-heritage-red hover:text-white transition-all transform hover:scale-105">Add to Cart</a>
+        <!-- Under 999 Category -->
+        <div class="bg-heritage-light-gold rounded-xl p-8 text-center text-black shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 fade-in-up">
+          <div class="w-20 h-20 bg-heritage-red rounded-full mx-auto mb-6 flex items-center justify-center">
+            <span class="text-heritage-gold text-3xl font-bold">₹</span>
+          </div>
+          <h3 class="text-2xl font-bold text-heritage-red mb-4">Under ₹999</h3>
+          <p class="text-lg mb-6 text-gray-700 leading-relaxed">Affordable elegance for every occasion</p>
+          <div class="flex flex-col gap-3 mt-6">
+            <a href="products.html?minPrice=0&maxPrice=999&sort=price-desc" class="bg-heritage-red text-white py-3 px-6 rounded-full no-underline text-sm hover:bg-opacity-90 transition-all transform hover:scale-105 font-bold">View Products</a>
           </div>
         </div>
 
-        <!-- Product Card 2 -->
-        <div class="bg-heritage-light-gold rounded-xl p-6 text-center text-black shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 fade-in-up">
-          <img src="assets/earrings.jpg" alt="Traditional Earrings" class="w-full max-h-48 object-contain rounded-lg mb-4">
-          <h3 class="mt-2 text-xl font-bold">Traditional Earrings</h3>
-          <p class="text-lg my-3 font-bold text-heritage-red">₹1,299</p>
-          <div class="flex flex-col gap-3 mt-4">
-            <a href="product-details.html?id=2" class="bg-heritage-red text-white py-3 px-6 rounded-full no-underline text-sm hover:bg-opacity-90 transition-all transform hover:scale-105">View Details</a>
-            <a href="#" onclick="addToCart(2, 'Traditional Earrings', 1299, 'assets/earrings.jpg')" class="bg-white text-heritage-red border-2 border-heritage-red py-3 px-6 rounded-full no-underline text-sm hover:bg-heritage-red hover:text-white transition-all transform hover:scale-105">Add to Cart</a>
+        <!-- Under 1499 Category -->
+        <div class="bg-heritage-light-gold rounded-xl p-8 text-center text-black shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 fade-in-up">
+          <div class="w-20 h-20 bg-heritage-red rounded-full mx-auto mb-6 flex items-center justify-center">
+            <span class="text-heritage-gold text-3xl font-bold">₹₹</span>
+          </div>
+          <h3 class="text-2xl font-bold text-heritage-red mb-4">Under ₹1,499</h3>
+          <p class="text-lg mb-6 text-gray-700 leading-relaxed">Premium designs at great value for money</p>
+          <div class="flex flex-col gap-3 mt-6">
+            <a href="products.html?minPrice=0&maxPrice=1499&sort=price-desc" class="bg-heritage-red text-white py-3 px-6 rounded-full no-underline text-sm hover:bg-opacity-90 transition-all transform hover:scale-105 font-bold">View Products</a>
           </div>
         </div>
 
-        <!-- Product Card 3 -->
-        <div class="bg-heritage-light-gold rounded-xl p-6 text-center text-black shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 fade-in-up">
-          <img src="assets/bangle.jpg" alt="Elegant Bangle" class="w-full max-h-48 object-contain rounded-lg mb-4">
-          <h3 class="mt-2 text-xl font-bold">Elegant Bangle</h3>
-          <p class="text-lg my-3 font-bold text-heritage-red">₹1,999</p>
-          <div class="flex flex-col gap-3 mt-4">
-            <a href="product-details.html?id=3" class="bg-heritage-red text-white py-3 px-6 rounded-full no-underline text-sm hover:bg-opacity-90 transition-all transform hover:scale-105">View Details</a>
-            <a href="#" onclick="addToCart(3, 'Elegant Bangle', 1999, 'assets/bangle.jpg')" class="bg-white text-heritage-red border-2 border-heritage-red py-3 px-6 rounded-full no-underline text-sm hover:bg-heritage-red hover:text-white transition-all transform hover:scale-105">Add to Cart</a>
+        <!-- Under 2599 Category -->
+        <div class="bg-heritage-light-gold rounded-xl p-8 text-center text-black shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 fade-in-up">
+          <div class="w-20 h-20 bg-heritage-red rounded-full mx-auto mb-6 flex items-center justify-center">
+            <span class="text-heritage-gold text-2xl font-bold">₹₹₹</span>
+          </div>
+          <h3 class="text-2xl font-bold text-heritage-red mb-4">Under ₹2,599</h3>
+          <p class="text-lg mb-6 text-gray-700 leading-relaxed">Luxury collection for special moments</p>
+          <div class="flex flex-col gap-3 mt-6">
+            <a href="products.html?minPrice=0&maxPrice=2599&sort=price-desc" class="bg-heritage-red text-white py-3 px-6 rounded-full no-underline text-sm hover:bg-opacity-90 transition-all transform hover:scale-105 font-bold">View Products</a>
           </div>
         </div>
       </div>

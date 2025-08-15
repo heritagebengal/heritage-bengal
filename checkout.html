@@ -24,8 +24,34 @@
     }
   </script>
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <style>
+    .heritage-bg {
+      background-image: url('assets/Bengal_Vintage.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      position: relative;
+    }
+    
+    .heritage-bg::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(255, 255, 255, 0.85);
+      pointer-events: none;
+      z-index: 0;
+    }
+    
+    .heritage-bg > * {
+      position: relative;
+      z-index: 1;
+    }
+  </style>
 </head>
-<body class="font-serif bg-heritage-cream text-gray-800 leading-relaxed">
+<body class="font-serif heritage-bg text-gray-800 leading-relaxed">
   
   <!-- Cart Popup -->
   <div id="cart-popup" class="hidden fixed top-8 left-1/2 transform -translate-x-1/2 bg-heritage-gold text-white px-10 py-4 rounded-3xl text-xl shadow-lg z-50 transition-opacity text-center"></div>
@@ -107,7 +133,7 @@
     </section>
 
     <!-- Checkout Content Section -->
-    <section class="py-12 px-4 bg-heritage-cream">
+    <section class="py-12 px-4">
       <div class="max-w-4xl mx-auto">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
           

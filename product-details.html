@@ -24,6 +24,31 @@
     }
   </script>
   <style>
+    .heritage-bg {
+      background-image: url('assets/Bengal_Vintage.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      position: relative;
+    }
+    
+    .heritage-bg::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(255, 255, 255, 0.85);
+      pointer-events: none;
+      z-index: 0;
+    }
+    
+    .heritage-bg > * {
+      position: relative;
+      z-index: 1;
+    }
+    
     /* Loading animation */
     @keyframes spin {
       to { transform: rotate(360deg); }
@@ -103,7 +128,7 @@
     }
   </style>
 </head>
-<body class="font-serif bg-heritage-cream text-gray-800 leading-relaxed">
+<body class="font-serif heritage-bg text-gray-800 leading-relaxed">
   <div id="cart-popup"></div>
   <header class="bg-heritage-red sticky top-0 z-40">
   <nav class="flex justify-between items-center flex-wrap relative bg-heritage-red px-4 py-3">
@@ -172,7 +197,7 @@
       </ul>
     </nav>
   </header>
-  <main class="min-h-screen bg-heritage-cream">
+  <main class="min-h-screen">
     <!-- Breadcrumb Navigation -->
     <section class="py-4 px-4 bg-white shadow-sm">
       <div class="max-w-6xl mx-auto">

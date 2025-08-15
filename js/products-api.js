@@ -11,9 +11,44 @@ class ProductManager {
 
   async init() {
     await this.fetchProducts();
+    this.handleURLParameters(); // Handle URL parameters for filtering and sorting
     this.setupEventListeners();
     this.renderProducts();
     this.updateCategoryCounts();
+  }
+
+  // Handle URL parameters for automatic filtering and sorting
+  handleURLParameters() {
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    // Handle price filtering
+    const minPrice = urlParams.get('minPrice');
+    const maxPrice = urlParams.get('maxPrice');
+    const sort = urlParams.get('sort');
+    
+    if (minPrice !== null || maxPrice !== null) {
+      // Set price filter values
+      if (minPrice !== null) {
+        this.priceFilter.min = parseFloat(minPrice);
+        document.getElementById('min-price').value = minPrice;
+      }
+      if (maxPrice !== null) {
+        this.priceFilter.max = parseFloat(maxPrice);
+        document.getElementById('max-price').value = maxPrice;
+      }
+      
+      // Apply price filtering
+      this.applyCurrentFilters();
+    }
+    
+    // Handle sorting
+    if (sort) {
+      this.currentSort = sort;
+      const sortSelect = document.getElementById('sort-select');
+      if (sortSelect) {
+        sortSelect.value = sort;
+      }
+    }
   }
 
   async fetchProducts() {
