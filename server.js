@@ -5,6 +5,7 @@ const path = require('path');
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
 const axios = require('axios');
+const mongoose = require('mongoose');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -13,6 +14,67 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
+
+// MongoDB connection
+const mongoUri = process.env.MONGODB_URI || 'mongodb+srv://sadhu1616:NYhYajU4Qm7eFioB@cluster.xqikjxq.mongodb.net/?retryWrites=true&w=majority&appName=Cluster';
+const dbName = process.env.DB_NAME || 'Hertiage_Bengal_Jewellery';
+
+mongoose.connect(mongoUri, { dbName })
+    .then(() => console.log('MongoDB connected successfully'))
+    .catch(err => console.error('MongoDB connection error:', err));
+
+// Product schema and model
+const productSchema = new mongoose.Schema({
+    name: String,
+    price: Number,
+    description: String,
+    category: String,
+    image: String,
+    stock: Number,
+    features: [String], // Array of product features
+    care_instructions: [String], // Array of care instructions
+    rating: { type: Number, default: 4.8 }, // Product rating
+    reviews_count: { type: Number, default: 0 } // Number of reviews
+});
+
+const Product = mongoose.model('Product', productSchema, 'Products');
+
+// Product routes
+app.get('/products', async (req, res) => {
+    try {
+        const products = await Product.find();
+        res.json(products);
+    } catch (err) {
+        console.error('Error fetching products:', err);
+        res.status(500).json({ error: 'Failed to fetch products' });
+    }
+});
+
+app.post('/products', async (req, res) => {
+    try {
+        const product = new Product(req.body);
+        await product.save();
+        res.status(201).json(product);
+    } catch (err) {
+        console.error('Error adding product:', err);
+        res.status(400).json({ error: 'Failed to add product' });
+    }
+});
+
+app.delete('/products/:id', async (req, res) => {
+    try {
+        const result = await Product.findByIdAndDelete(req.params.id);
+        if (!result) return res.status(404).json({ error: 'Product not found' });
+        res.json({ message: 'Product deleted' });
+    } catch (err) {
+        console.error('Error deleting product:', err);
+        res.status(400).json({ error: 'Failed to delete product' });
+    }
+});
+
+// Include coupon routes
+const couponsRouter = require('./routes/coupons');
+app.use('/api/coupons', couponsRouter);
 
 // Initialize Razorpay
 const razorpay = new Razorpay({

@@ -1,0 +1,9 @@
+<!-- Simple placeholder SVG for missing product images -->
+<svg width="300" height="200" xmlns="http://www.w3.org/2000/svg">
+  <rect width="100%" height="100%" fill="#fff8f0"/>
+  <circle cx="150" cy="80" r="30" fill="#BFA14A" opacity="0.3"/>
+  <rect x="120" y="120" width="60" height="4" fill="#4B0000" opacity="0.2"/>
+  <rect x="130" y="130" width="40" height="3" fill="#4B0000" opacity="0.1"/>
+  <text x="150" y="160" text-anchor="middle" font-family="Georgia, serif" font-size="12" fill="#4B0000" opacity="0.5">Heritage Bengal</text>
+  <text x="150" y="175" text-anchor="middle" font-family="Georgia, serif" font-size="10" fill="#BFA14A" opacity="0.7">Jewelry</text>
+</svg>

@@ -23,6 +23,72 @@
       }
     }
   </script>
+  <style>
+    .category-btn.active {
+      background-color: #4B0000 !important;
+      color: white !important;
+    }
+    
+    .product-card {
+      transition: all 0.3s ease;
+    }
+    
+    .product-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+    
+    .line-clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    
+    .category-btn:hover {
+      background-color: #fff8f0;
+      transform: translateX(5px);
+    }
+    
+    .category-btn.active:hover {
+      background-color: #4B0000 !important;
+      transform: translateX(5px);
+    }
+    
+    /* Loading animation */
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    .animate-spin {
+      animation: spin 1s linear infinite;
+    }
+    
+    /* Smooth transitions for grid */
+    .product-grid {
+      transition: all 0.3s ease;
+    }
+    
+    /* Custom scrollbar for sidebar */
+    .sidebar::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    .sidebar::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 3px;
+    }
+    
+    .sidebar::-webkit-scrollbar-thumb {
+      background: #BFA14A;
+      border-radius: 3px;
+    }
+    
+    .sidebar::-webkit-scrollbar-thumb:hover {
+      background: #d4af37;
+    }
+  </style>
 </head>
 <body class="font-serif bg-heritage-cream text-gray-800 leading-relaxed">
   
@@ -107,9 +173,122 @@
 
     <!-- Products Grid Section -->
     <section class="py-12 px-4 bg-heritage-cream">
-      <div class="max-w-6xl mx-auto">
-        <div class="product-grid grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-          <!-- Products will be loaded here by JavaScript -->
+      <div class="max-w-7xl mx-auto">
+        <div class="flex flex-col lg:flex-row gap-8">
+          
+          <!-- Sidebar Categories -->
+          <div class="lg:w-1/4 w-full">
+            <div class="bg-white rounded-lg shadow-lg p-6 sticky top-24">
+              <h3 class="text-xl font-bold text-heritage-red mb-4 border-b border-heritage-gold pb-2">Product Categories</h3>
+              <ul class="space-y-3" id="category-list">
+                <li>
+                  <button class="category-btn w-full text-left py-2 px-3 rounded-lg hover:bg-heritage-cream transition-colors text-heritage-red font-medium active" data-category="all">
+                    All Products <span class="category-count text-heritage-gold text-sm">(0)</span>
+                  </button>
+                </li>
+                <li>
+                  <button class="category-btn w-full text-left py-2 px-3 rounded-lg hover:bg-heritage-cream transition-colors text-heritage-red font-medium" data-category="bestseller">
+                    Best Seller <span class="category-count text-heritage-gold text-sm">(0)</span>
+                  </button>
+                </li>
+                <li>
+                  <button class="category-btn w-full text-left py-2 px-3 rounded-lg hover:bg-heritage-cream transition-colors text-heritage-red font-medium" data-category="necklace">
+                    Necklace <span class="category-count text-heritage-gold text-sm">(0)</span>
+                  </button>
+                </li>
+                <li>
+                  <button class="category-btn w-full text-left py-2 px-3 rounded-lg hover:bg-heritage-cream transition-colors text-heritage-red font-medium" data-category="bangle">
+                    Bangle <span class="category-count text-heritage-gold text-sm">(0)</span>
+                  </button>
+                </li>
+                <li>
+                  <button class="category-btn w-full text-left py-2 px-3 rounded-lg hover:bg-heritage-cream transition-colors text-heritage-red font-medium" data-category="earrings">
+                    Earrings <span class="category-count text-heritage-gold text-sm">(0)</span>
+                  </button>
+                </li>
+                <li>
+                  <button class="category-btn w-full text-left py-2 px-3 rounded-lg hover:bg-heritage-cream transition-colors text-heritage-red font-medium" data-category="komor bondhoni">
+                    Komor Bondhoni <span class="category-count text-heritage-gold text-sm">(0)</span>
+                  </button>
+                </li>
+                <li>
+                  <button class="category-btn w-full text-left py-2 px-3 rounded-lg hover:bg-heritage-cream transition-colors text-heritage-red font-medium" data-category="tikli">
+                    Tikli <span class="category-count text-heritage-gold text-sm">(0)</span>
+                  </button>
+                </li>
+                <li>
+                  <button class="category-btn w-full text-left py-2 px-3 rounded-lg hover:bg-heritage-cream transition-colors text-heritage-red font-medium" data-category="khopar saaj">
+                    Khopar Saaj <span class="category-count text-heritage-gold text-sm">(0)</span>
+                  </button>
+                </li>
+              </ul>
+
+              <!-- Price Filter -->
+              <div class="mt-8 pt-6 border-t border-heritage-gold">
+                <h4 class="text-lg font-bold text-heritage-red mb-4">Filter by Price</h4>
+                <div class="space-y-3">
+                  <div class="flex items-center justify-between">
+                    <label for="min-price" class="text-sm text-heritage-red">Min:</label>
+                    <input type="number" id="min-price" placeholder="₹0" class="w-20 px-2 py-1 border border-heritage-gold rounded text-sm">
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <label for="max-price" class="text-sm text-heritage-red">Max:</label>
+                    <input type="number" id="max-price" placeholder="₹10000" class="w-20 px-2 py-1 border border-heritage-gold rounded text-sm">
+                  </div>
+                  <button id="apply-filter" class="w-full bg-heritage-red text-white py-2 px-4 rounded-lg hover:bg-red-900 transition-colors text-sm font-medium">
+                    Apply Filter
+                  </button>
+                  <button id="clear-filter" class="w-full bg-heritage-gold text-heritage-red py-2 px-4 rounded-lg hover:bg-heritage-light-gold transition-colors text-sm font-medium">
+                    Clear Filter
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Main Content Area -->
+          <div class="lg:w-3/4 w-full">
+            
+            <!-- Filter and Sort Controls -->
+            <div class="bg-white rounded-lg shadow-lg p-4 mb-6">
+              <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div class="flex items-center gap-4">
+                  <span class="text-heritage-red font-medium">
+                    <span id="product-count">0</span> Products Found
+                  </span>
+                  <span class="text-heritage-gold text-sm" id="active-filters"></span>
+                </div>
+                
+                <div class="flex items-center gap-3">
+                  <label for="sort-select" class="text-heritage-red font-medium text-sm">Sort by:</label>
+                  <select id="sort-select" class="border border-heritage-gold rounded-lg px-3 py-2 text-sm bg-white text-heritage-red">
+                    <option value="name-asc">Name A to Z</option>
+                    <option value="name-desc">Name Z to A</option>
+                    <option value="price-asc">Price Low to High</option>
+                    <option value="price-desc">Price High to Low</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Products Grid -->
+            <div class="product-grid grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" id="products-container">
+              <!-- Products will be loaded here by JavaScript -->
+            </div>
+
+            <!-- Loading State -->
+            <div id="loading-state" class="text-center py-12">
+              <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-heritage-red"></div>
+              <p class="mt-4 text-heritage-red">Loading products...</p>
+            </div>
+
+            <!-- No Products State -->
+            <div id="no-products-state" class="text-center py-12 hidden">
+              <div class="text-6xl text-heritage-gold mb-4">📦</div>
+              <h3 class="text-xl font-bold text-heritage-red mb-2">No Products Found</h3>
+              <p class="text-heritage-red">Try adjusting your filters or browse other categories.</p>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -131,7 +310,9 @@
   <script>
 function updateCartCount() {
   const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-  document.getElementById('cart-count').textContent = cart.length;
+  const totalItems = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+  document.getElementById('cart-count').textContent = totalItems;
+  document.getElementById('cart-count-mobile').textContent = totalItems;
 }
 function animateBucket() {
   const bucket = document.getElementById('cart-bucket');
@@ -153,7 +334,18 @@ function showCartPopup(msg) {
 }
 function addToCart(id, name, price, image) {
   let cart = JSON.parse(localStorage.getItem('cart') || '[]');
-  cart.push({id, name, price, image});
+  
+  // Check if item already exists
+  const existingItemIndex = cart.findIndex(item => item.id === id);
+  
+  if (existingItemIndex >= 0) {
+    // Update quantity of existing item
+    cart[existingItemIndex].quantity = (cart[existingItemIndex].quantity || 1) + 1;
+  } else {
+    // Add new item to cart
+    cart.push({id, name, price, image, quantity: 1});
+  }
+  
   localStorage.setItem('cart', JSON.stringify(cart));
   showCartPopup('Added to cart!');
   animateBucket();
@@ -180,8 +372,9 @@ window.addEventListener('DOMContentLoaded', handleScroll);
   <script>
     function updateCartCount() {
       const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-      document.getElementById('cart-count').textContent = cart.length;
-      document.getElementById('cart-count-mobile').textContent = cart.length;
+      const totalItems = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+      document.getElementById('cart-count').textContent = totalItems;
+      document.getElementById('cart-count-mobile').textContent = totalItems;
     }
     
     function showCartPopup(msg) {

@@ -23,6 +23,85 @@
       }
     }
   </script>
+  <style>
+    /* Loading animation */
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    .animate-spin {
+      animation: spin 1s linear infinite;
+    }
+    
+    /* Image hover effect */
+    .product-image-container {
+      overflow: hidden;
+    }
+    
+    .product-image-container img {
+      transition: transform 0.3s ease;
+    }
+    
+    .product-image-container:hover img {
+      transform: scale(1.05);
+    }
+    
+    /* Button animations */
+    .action-button {
+      transition: all 0.3s ease;
+      transform: translateY(0);
+    }
+    
+    .action-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+
+    
+    /* Fade in animation */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeIn 0.6s ease forwards;
+    }
+    
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    /* Breadcrumb hover effect */
+    .breadcrumb-link {
+      position: relative;
+    }
+    
+    .breadcrumb-link::after {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 2px;
+      bottom: -2px;
+      left: 0;
+      background-color: #BFA14A;
+      transition: width 0.3s ease;
+    }
+    
+    .breadcrumb-link:hover::after {
+      width: 100%;
+    }
+    
+    /* Line clamp utility */
+    .line-clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+  </style>
 </head>
 <body class="font-serif bg-heritage-cream text-gray-800 leading-relaxed">
   <div id="cart-popup"></div>
@@ -94,13 +173,134 @@
     </nav>
   </header>
   <main class="min-h-screen bg-heritage-cream">
+    <!-- Breadcrumb Navigation -->
+    <section class="py-4 px-4 bg-white shadow-sm">
+      <div class="max-w-6xl mx-auto">
+        <nav class="flex items-center text-sm text-heritage-red">
+          <a href="index.html" class="hover:text-heritage-gold transition-colors">Home</a>
+          <span class="mx-2">/</span>
+          <a href="products.html" class="hover:text-heritage-gold transition-colors">Products</a>
+          <span class="mx-2">/</span>
+          <span class="text-heritage-gold" id="breadcrumb-product-name">Product Details</span>
+        </nav>
+      </div>
+    </section>
+
     <!-- Product Details Section -->
     <section class="py-12 px-4">
-      <div class="max-w-4xl mx-auto">
-        <div class="bg-white rounded-2xl shadow-xl p-8">
-          <div id="product-info" class="space-y-6">
-            <!-- Product details will be loaded by JavaScript -->
+      <div class="max-w-6xl mx-auto">
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+          
+          <!-- Loading State -->
+          <div id="loading-state" class="text-center py-16">
+            <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-heritage-red"></div>
+            <p class="mt-4 text-heritage-red">Loading product details...</p>
           </div>
+
+          <!-- Product Not Found State -->
+          <div id="not-found-state" class="text-center py-16 hidden">
+            <div class="text-6xl text-heritage-gold mb-4">🔍</div>
+            <h2 class="text-2xl font-bold text-heritage-red mb-4">Product Not Found</h2>
+            <p class="text-heritage-red mb-6">The product you're looking for doesn't exist or has been removed.</p>
+            <a href="products.html" class="bg-heritage-red text-white py-3 px-6 rounded-lg hover:bg-red-900 transition-colors inline-block">
+              Browse All Products
+            </a>
+          </div>
+
+          <!-- Product Content -->
+          <div id="product-content" class="hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 p-8">
+              
+              <!-- Product Image Section -->
+              <div class="space-y-4">
+                <div class="aspect-square bg-heritage-cream rounded-xl overflow-hidden shadow-lg">
+                  <img id="product-image" src="" alt="" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+                </div>
+                
+                <!-- Image Gallery (for future enhancement) -->
+                <div class="hidden grid grid-cols-4 gap-2">
+                  <div class="aspect-square bg-heritage-cream rounded-lg overflow-hidden border-2 border-heritage-gold">
+                    <img src="" alt="" class="w-full h-full object-cover cursor-pointer hover:opacity-80 transition-opacity">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Product Information Section -->
+              <div class="space-y-6">
+                
+                <!-- Product Header -->
+                <div>
+                  <div class="flex items-center gap-3 mb-2">
+                    <span id="product-category" class="bg-heritage-red text-white px-3 py-1 rounded-full text-sm font-medium"></span>
+                    <span id="product-stock" class="text-heritage-gold text-sm font-medium"></span>
+                  </div>
+                  <h1 id="product-name" class="text-3xl lg:text-4xl font-bold text-heritage-red mb-4"></h1>
+                  <div class="flex items-center gap-4 mb-4">
+                    <span id="product-price" class="text-4xl font-bold text-heritage-gold"></span>
+                    <div class="flex items-center text-heritage-red text-sm">
+                      <span id="product-rating">⭐⭐⭐⭐⭐ (4.8/5)</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Product Description -->
+                <div class="border-t border-heritage-cream pt-6">
+                  <h3 class="text-lg font-bold text-heritage-red mb-3">Description</h3>
+                  <p id="product-description" class="text-gray-700 leading-relaxed"></p>
+                </div>
+
+                <!-- Product Features -->
+                <div class="border-t border-heritage-cream pt-6">
+                  <h3 class="text-lg font-bold text-heritage-red mb-3">Features</h3>
+                  <ul id="product-features-list" class="space-y-2 text-gray-700">
+                    <!-- Features will be loaded dynamically -->
+                  </ul>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="border-t border-heritage-cream pt-6 space-y-4">
+                  <div class="grid grid-cols-1 gap-4">
+                    <button id="add-to-cart-btn" class="w-full bg-heritage-red text-white py-4 px-6 rounded-lg hover:bg-red-900 transition-colors font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed">
+                      <span class="flex items-center justify-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13h10M17 13v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6"></path>
+                        </svg>
+                        Add to Cart
+                      </span>
+                    </button>
+                  </div>
+                  <a href="products.html" class="w-full bg-heritage-cream text-heritage-red py-4 px-6 rounded-lg hover:bg-gray-100 transition-colors font-bold text-lg border-2 border-heritage-gold block text-center">
+                    <span class="flex items-center justify-center">
+                      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                      </svg>
+                      Back to Products
+                    </span>
+                  </a>
+                </div>
+
+                <!-- Product Care Instructions -->
+                <div class="border-t border-heritage-cream pt-6">
+                  <h3 class="text-lg font-bold text-heritage-red mb-3">Care Instructions</h3>
+                  <div class="bg-heritage-cream p-4 rounded-lg">
+                    <ul id="care-instructions-list" class="space-y-1 text-sm text-gray-700">
+                      <!-- Care instructions will be loaded dynamically -->
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Related Products Section -->
+    <section class="py-12 px-4 bg-white">
+      <div class="max-w-6xl mx-auto">
+        <h2 class="text-2xl font-bold text-heritage-red mb-8 text-center">You May Also Like</h2>
+        <div id="related-products" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <!-- Related products will be loaded here -->
         </div>
       </div>
     </section>
@@ -121,21 +321,31 @@
   <script>
 function updateCartCount() {
   const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-  document.getElementById('cart-count').textContent = cart.length;
+  const totalItems = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+  document.getElementById('cart-count').textContent = totalItems;
+  document.getElementById('cart-count-mobile').textContent = totalItems;
 }
+
 function animateBucket() {
   const bucket = document.getElementById('cart-bucket');
-  bucket.style.transform = 'scale(1.25) rotate(-18deg)';
-  bucket.style.transition = 'transform 0.3s';
-  setTimeout(() => {
-    bucket.style.transform = '';
-  }, 350);
+  const mobileBucket = document.getElementById('cart-bucket-mobile');
+  
+  [bucket, mobileBucket].forEach(el => {
+    if (el) {
+      el.style.transform = 'scale(1.25) rotate(-18deg)';
+      el.style.transition = 'transform 0.3s';
+      setTimeout(() => {
+        el.style.transform = '';
+      }, 350);
+    }
+  });
 }
+
 function showCartPopup(msg) {
   const popup = document.getElementById('cart-popup');
   popup.textContent = msg;
   popup.style.display = 'block';
-  popup.style.opacity = 1;
+  popup.style.opacity = '1';
   popup.style.position = 'fixed';
   popup.style.top = '32px';
   popup.style.left = '50%';
@@ -145,23 +355,17 @@ function showCartPopup(msg) {
   popup.style.padding = '1rem 2.5rem';
   popup.style.borderRadius = '24px';
   popup.style.fontSize = '1.2rem';
-  popup.style.boxShadow = '0 2px 12px rgba(191,161,74,0.18)';
+  popup.style.boxShadow = '0 4px 20px rgba(191,161,74,0.3)';
   popup.style.zIndex = '9999';
   popup.style.transition = 'opacity 0.3s';
   popup.style.textAlign = 'center';
+  popup.style.fontWeight = 'bold';
   setTimeout(() => {
-    popup.style.opacity = 0;
+    popup.style.opacity = '0';
     setTimeout(() => popup.style.display = 'none', 400);
   }, 3000);
 }
-function addToCart(id, name, price, image) {
-  let cart = JSON.parse(localStorage.getItem('cart') || '[]');
-  cart.push({id, name, price, image});
-  localStorage.setItem('cart', JSON.stringify(cart));
-  showCartPopup('Added to cart!');
-  animateBucket();
-  updateCartCount();
-}
+
 // Scroll fade/melt effect for sections
 function handleScroll() {
   document.querySelectorAll('section').forEach(section => {
@@ -180,49 +384,27 @@ window.addEventListener('DOMContentLoaded', () => {
   handleScroll();
   updateCartCount();
 });
-  </script>
-  <script>
-    function updateCartCount() {
-      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-      document.getElementById('cart-count').textContent = cart.length;
-      document.getElementById('cart-count-mobile').textContent = cart.length;
-    }
-    
-    function showCartPopup(msg) {
-      const popup = document.getElementById('cart-popup');
-      popup.textContent = msg;
-      popup.classList.remove('hidden');
-      popup.style.opacity = 1;
-      setTimeout(() => {
-        popup.style.opacity = 0;
-        setTimeout(() => popup.classList.add('hidden'), 400);
-      }, 3000);
-    }
-    
-    window.addEventListener('DOMContentLoaded', function() {
-      updateCartCount();
-    });
 
-    // Hamburger menu animation
-    const hamburger = document.getElementById('hamburger');
-    const navLinks = document.getElementById('nav-links');
-    hamburger.onclick = function() {
-      navLinks.classList.toggle('flex');
-      navLinks.classList.toggle('hidden');
-      hamburger.classList.toggle('active');
-      
-      // Animate hamburger
-      const spans = hamburger.querySelectorAll('span');
-      if (hamburger.classList.contains('active')) {
-        spans[0].style.transform = 'rotate(45deg) translate(5px, 5px)';
-        spans[1].style.opacity = '0';
-        spans[2].style.transform = 'rotate(-45deg) translate(5px, -5px)';
-      } else {
-        spans[0].style.transform = '';
-        spans[1].style.opacity = '1';
-        spans[2].style.transform = '';
-      }
-    };
+// Hamburger menu animation
+const hamburger = document.getElementById('hamburger');
+const navLinks = document.getElementById('nav-links');
+hamburger.onclick = function() {
+  navLinks.classList.toggle('flex');
+  navLinks.classList.toggle('hidden');
+  hamburger.classList.toggle('active');
+  
+  // Animate hamburger
+  const spans = hamburger.querySelectorAll('span');
+  if (hamburger.classList.contains('active')) {
+    spans[0].style.transform = 'rotate(45deg) translate(5px, 5px)';
+    spans[1].style.opacity = '0';
+    spans[2].style.transform = 'rotate(-45deg) translate(5px, -5px)';
+  } else {
+    spans[0].style.transform = '';
+    spans[1].style.opacity = '1';
+    spans[2].style.transform = '';
+  }
+};
   </script>
 </body>
 </html>

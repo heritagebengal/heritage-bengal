@@ -298,8 +298,9 @@ document.addEventListener('DOMContentLoaded', renderCart);
   <script>
     function updateCartCount() {
       const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-      document.getElementById('cart-count').textContent = cart.length;
-      document.getElementById('cart-count-mobile').textContent = cart.length;
+      const totalItems = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+      document.getElementById('cart-count').textContent = totalItems;
+      document.getElementById('cart-count-mobile').textContent = totalItems;
     }
     
     function showCartPopup(msg) {
