@@ -70,7 +70,7 @@ function displayOrderDetails(orderData) {
         ${orderData.amount ? `
           <div class="flex justify-between py-2 border-b border-gray-200">
             <span class="font-semibold text-gray-700">Amount Paid:</span>
-            <span class="text-green-600 font-bold">₹${parseInt(orderData.amount).toLocaleString()}</span>
+            <span class="text-green-600 font-bold font-number">₹${parseInt(orderData.amount).toLocaleString()}</span>
           </div>
         ` : ''}
         ${orderData.estimatedDelivery ? `

@@ -217,7 +217,7 @@ class ProductManager {
   }
 
   updateCategoryCounts() {
-    const categories = ['all', 'bestseller', 'necklace', 'bangle', 'earrings', 'komor bondhoni', 'tikli', 'khopar saaj'];
+    const categories = ['all', 'bestseller', 'necklace', 'bangle', 'earrings', 'komor bondhoni', 'tikli', 'khopar saaj', 'event'];
     
     categories.forEach(category => {
       let count;
@@ -273,19 +273,19 @@ class ProductManager {
           <p class="text-sm text-gray-600 mb-3 line-clamp-2">${product.description || 'Beautiful handcrafted jewelry piece.'}</p>
           
           <div class="flex items-center justify-between mb-4">
-            <span class="text-2xl font-bold text-heritage-gold">₹${product.price.toLocaleString()}</span>
-            <span class="text-sm text-heritage-red ${product.stock > 0 ? '' : 'text-red-500'}">
+            <span class="text-lg sm:text-2xl font-bold text-heritage-gold font-number">₹${product.price.toLocaleString()}</span>
+            <span class="text-sm text-heritage-red stock-text-mobile ${product.stock > 0 ? '' : 'text-red-500'}">
               ${product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}
             </span>
           </div>
           
-          <div class="flex gap-2">
+          <div class="flex flex-col gap-2 sm:flex-row">
             <a href="product-details.html?id=${product._id}" 
-               class="flex-1 bg-heritage-gold text-heritage-red py-2 px-4 rounded-lg hover:bg-heritage-light-gold transition-colors text-center text-sm font-medium">
+               class="w-full sm:flex-1 bg-heritage-gold text-heritage-red py-2.5 px-4 rounded-lg hover:bg-heritage-light-gold transition-colors text-center text-sm font-medium">
               View Details
             </a>
             <button onclick="addToCart('${product._id}', '${product.name}', ${product.price}, '${product.image || ''}')" 
-                    class="flex-1 bg-heritage-red text-white py-2 px-4 rounded-lg hover:bg-red-900 transition-colors text-sm font-medium ${product.stock <= 0 ? 'opacity-50 cursor-not-allowed' : ''}"
+                    class="w-full sm:flex-1 bg-heritage-red text-white py-2.5 px-4 rounded-lg hover:bg-red-900 transition-colors text-sm font-medium ${product.stock <= 0 ? 'opacity-50 cursor-not-allowed' : ''}"
                     ${product.stock <= 0 ? 'disabled' : ''}>
               Add to Cart
             </button>

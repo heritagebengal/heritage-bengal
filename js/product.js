@@ -384,7 +384,7 @@ class ProductDetailsManager {
         </div>
         <div class="p-4">
           <h4 class="font-bold text-heritage-red mb-2 line-clamp-2">${product.name}</h4>
-          <p class="text-lg font-bold text-heritage-gold mb-3">₹${product.price.toLocaleString()}</p>
+          <p class="text-base sm:text-lg font-bold text-heritage-gold mb-3 font-number">₹${product.price.toLocaleString()}</p>
           <a href="product-details.html?id=${product._id}" 
              class="block w-full bg-heritage-red text-white py-2 px-4 rounded-lg hover:bg-red-900 transition-colors text-center text-sm font-medium">
             View Details

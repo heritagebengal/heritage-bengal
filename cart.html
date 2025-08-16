@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Shopping Cart - Heritage Bengal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -18,6 +21,7 @@
           },
           fontFamily: {
             'serif': ['Georgia', 'serif'],
+            'number': ['EB Garamond', 'Georgia', 'serif'],
           },
         }
       }
@@ -47,6 +51,11 @@
     .heritage-bg > * {
       position: relative;
       z-index: 1;
+    }
+    
+    /* EB Garamond font for numbers */
+    .font-number {
+      font-family: 'EB Garamond', 'Georgia', serif !important;
     }
   </style>
 </head>
@@ -227,6 +236,7 @@
       </div>
     </div>
   </footer>
+  <script src="js/main.js"></script>
   <script src="js/cart.js"></script>
   <script>
 function renderCart() {
@@ -260,7 +270,7 @@ function renderCart() {
           </div>
           <div class="flex-1 text-center sm:text-left">
             <h3 class="text-xl font-bold text-heritage-red mb-2">${item.name}</h3>
-            <p class="text-2xl font-bold text-heritage-gold">₹${item.price.toLocaleString()}</p>
+            <p class="text-lg sm:text-2xl font-bold text-heritage-gold font-number">₹${item.price.toLocaleString()}</p>
           </div>
           <div class="flex-shrink-0">
             <button 
@@ -281,7 +291,7 @@ function renderCart() {
   cartTotal.innerHTML = `
     <div class="text-center">
       <h2 class="text-2xl md:text-3xl font-bold mb-2">Cart Summary</h2>
-      <div class="text-3xl md:text-4xl font-bold text-heritage-cream">
+      <div class="text-2xl sm:text-3xl md:text-4xl font-bold text-heritage-cream font-number">
         Total: ₹${total.toLocaleString()}
       </div>
       <p class="text-heritage-cream mt-2 opacity-90">${cart.length} item${cart.length > 1 ? 's' : ''} in your cart</p>

@@ -87,7 +87,7 @@ class HeritageCheckout {
             <div class="flex-1">
               <h4 class="font-semibold text-heritage-red">${item.name}</h4>
               <p class="text-sm text-gray-600">Quantity: ${item.quantity || 1}</p>
-              <p class="font-bold text-heritage-gold">₹${itemTotal.toLocaleString()}</p>
+              <p class="font-bold text-heritage-gold font-number">₹${itemTotal.toLocaleString()}</p>
             </div>
           </div>
         `;
@@ -107,12 +107,12 @@ class HeritageCheckout {
         <div>
           <div class="flex justify-between mb-2">
             <span>Subtotal:</span>
-            <span>₹${this.totalAmount.toLocaleString()}</span>
+            <span class="font-number">₹${this.totalAmount.toLocaleString()}</span>
           </div>
           ${this.discountApplied > 0 ? `
             <div class="flex justify-between mb-2 text-green-400">
               <span>Discount:</span>
-              <span>-₹${this.discountApplied.toLocaleString()}</span>
+              <span class="font-number">-₹${this.discountApplied.toLocaleString()}</span>
             </div>
           ` : ''}
           <div class="flex justify-between mb-2">
@@ -122,7 +122,7 @@ class HeritageCheckout {
           <hr class="border-heritage-cream my-3">
           <div class="flex justify-between text-xl font-bold">
             <span>Total:</span>
-            <span>₹${finalAmount.toLocaleString()}</span>
+            <span class="font-number">₹${finalAmount.toLocaleString()}</span>
           </div>
           <p class="text-sm text-heritage-cream mt-2 opacity-90">
             ${this.cartItems.length} item${this.cartItems.length > 1 ? 's' : ''} • Free shipping across India

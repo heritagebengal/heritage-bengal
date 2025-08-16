@@ -2,8 +2,19 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial    
+    /* EB Garamond font for numbers */
+    .font-number {
+      font-family: 'EB Garamond', 'Georgia', serif !important;
+    }
+  </style>=1.0">
   <title>Product Details - Heritage Bengal</title>
+  
+  <!-- Google Fonts for EB Garamond -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -18,6 +29,7 @@
           },
           fontFamily: {
             'serif': ['Georgia', 'serif'],
+            'number': ['EB Garamond', 'Georgia', 'serif'],
           },
         }
       }
@@ -125,6 +137,11 @@
       line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
+    }
+    
+    /* Helvetica font for numbers */
+    .font-number {
+      font-family: 'Helvetica', 'Arial', sans-serif !important;
     }
   </style>
 </head>
@@ -261,7 +278,7 @@
                   </div>
                   <h1 id="product-name" class="text-3xl lg:text-4xl font-bold text-heritage-red mb-4"></h1>
                   <div class="flex items-center gap-4 mb-4">
-                    <span id="product-price" class="text-4xl font-bold text-heritage-gold"></span>
+                    <span id="product-price" class="text-2xl sm:text-4xl font-bold text-heritage-gold font-number"></span>
                     <div class="flex items-center text-heritage-red text-sm">
                       <span id="product-rating">⭐⭐⭐⭐⭐ (4.8/5)</span>
                     </div>
@@ -341,6 +358,7 @@
       </div>
     </div>
   </footer>
+  <script src="js/main.js"></script>
   <script src="js/product.js"></script>
   <div id="cart-popup" class="cart-popup" style="display:none;"></div>
   <script>

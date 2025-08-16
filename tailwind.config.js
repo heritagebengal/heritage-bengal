@@ -12,6 +12,7 @@ module.exports = {
       },
       fontFamily: {
         'serif': ['Georgia', 'serif'],
+        'number': ['EB Garamond', 'Georgia', 'serif'],
       },
     },
   },
