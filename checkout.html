@@ -84,14 +84,8 @@
         <img src="https://heritage-bengal-1.onrender.com/HB_icon_wb.PNG" alt="Heritage Bengal Logo" class="h-16 md:h-20 block">
       </a>
 
-      <!-- Desktop Navigation & Cart Container -->
+      <!-- Desktop Navigation Container -->
       <div class="hidden md:flex md:items-center md:gap-8">
-        <!-- Cart Icon -->
-        <a href="cart.html" class="relative">
-          <img id="cart-bucket" src="assets/cart-bucket.svg" alt="Cart" class="h-7">
-          <span id="cart-count" class="absolute -top-1 -right-2 bg-heritage-gold text-white rounded-full px-1.5 py-0.5 text-xs">0</span>
-        </a>
-        
         <!-- Desktop Navigation Links -->
         <ul class="flex flex-row gap-8">
           <li>
@@ -109,12 +103,9 @@
         </ul>
       </div>
 
-      <!-- Mobile Cart Icon (Right) -->
+      <!-- Mobile Menu Icon Placeholder (Right) -->
       <div class="flex items-center justify-center md:hidden w-12 h-12">
-        <a href="cart.html" class="relative flex items-center justify-center">
-          <img id="cart-bucket-mobile" src="assets/cart-bucket.svg" alt="Cart" class="h-7">
-          <span id="cart-count-mobile" class="absolute -top-1 -right-2 bg-heritage-gold text-white rounded-full px-1.5 py-0.5 text-xs">0</span>
-        </a>
+        <!-- Empty space to balance the layout -->
       </div>
 
       <!-- Mobile Navigation Links (Hidden by default) -->
@@ -139,7 +130,7 @@
     <section class="bg-gradient-to-r from-heritage-red to-red-900 text-white py-16 px-4">
       <div class="max-w-4xl mx-auto text-center">
         <h1 class="text-4xl md:text-5xl font-bold mb-4 fade-in-up">Secure Checkout</h1>
-        <p class="text-lg md:text-xl text-heritage-cream">Complete your Heritage Bengal jewelry purchase</p>
+        <p class="text-lg md:text-xl text-heritage-cream">Note: We are not accepting any order now. Don't place any order.</p>
       </div>
     </section>
 
@@ -308,20 +299,38 @@
               <!-- Total will be populated by JavaScript -->
             </div>
 
-            <!-- Place Order Button -->
-            <button 
-              id="place-order-btn" 
-              onclick="placeOrder()"
-              class="w-full bg-gradient-to-r from-heritage-red to-red-900 text-white py-4 rounded-xl font-bold text-lg hover:from-red-900 hover:to-heritage-red transition-all transform hover:scale-105 shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled
-            >
-              <span class="flex items-center justify-center">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-                </svg>
-                Place Secure Order
-              </span>
-            </button>
+            <!-- Place Order Buttons -->
+            <div class="space-y-4">
+              <!-- Razorpay Payment Button -->
+              <button 
+                id="place-order-btn" 
+                onclick="placeOrder()"
+                class="w-full bg-gradient-to-r from-heritage-red to-red-900 text-white py-4 rounded-xl font-bold text-lg hover:from-red-900 hover:to-heritage-red transition-all transform hover:scale-105 shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled
+              >
+                <span class="flex items-center justify-center">
+                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                  </svg>
+                  Place Secure Order (Online Payment)
+                </span>
+              </button>
+
+              <!-- COD Payment Button -->
+              <button 
+                id="place-cod-order-btn" 
+                onclick="placeCODOrder()"
+                class="w-full bg-gradient-to-r from-heritage-gold to-heritage-light-gold text-heritage-red py-4 rounded-xl font-bold text-lg hover:from-heritage-light-gold hover:to-heritage-gold transition-all transform hover:scale-105 shadow-xl disabled:opacity-50 disabled:cursor-not-allowed border-2 border-heritage-red"
+                disabled
+              >
+                <span class="flex items-center justify-center">
+                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-3a2 2 0 00-2-2H9a2 2 0 00-2 2v3a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+                  </svg>
+                  Pay with Cash (Cash on Delivery)
+                </span>
+              </button>
+            </div>
             
             <p class="text-sm text-gray-600 mt-3 text-center">
               🔒 Your information is secure and encrypted
@@ -377,48 +386,6 @@
   </footer>
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script src="js/heritage-checkout.js"></script>
-  <script>
-    function updateCartCount() {
-      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-      document.getElementById('cart-count').textContent = cart.length;
-      document.getElementById('cart-count-mobile').textContent = cart.length;
-    }
-    
-    function showCartPopup(msg) {
-      const popup = document.getElementById('cart-popup');
-      popup.textContent = msg;
-      popup.classList.remove('hidden');
-      popup.style.opacity = 1;
-      setTimeout(() => {
-        popup.style.opacity = 0;
-        setTimeout(() => popup.classList.add('hidden'), 400);
-      }, 3000);
-    }
-    
-    window.addEventListener('DOMContentLoaded', function() {
-      updateCartCount();
-    });
-
-    // Hamburger menu animation
-    const hamburger = document.getElementById('hamburger');
-    const navLinks = document.getElementById('nav-links');
-    hamburger.onclick = function() {
-      navLinks.classList.toggle('flex');
-      navLinks.classList.toggle('hidden');
-      hamburger.classList.toggle('active');
-      
-      // Animate hamburger
-      const spans = hamburger.querySelectorAll('span');
-      if (hamburger.classList.contains('active')) {
-        spans[0].style.transform = 'rotate(45deg) translate(5px, 5px)';
-        spans[1].style.opacity = '0';
-        spans[2].style.transform = 'rotate(-45deg) translate(5px, -5px)';
-      } else {
-        spans[0].style.transform = '';
-        spans[1].style.opacity = '1';
-        spans[2].style.transform = '';
-      }
-    };
-  </script>
+  <script src="js/whatsapp-widget.js"></script>
 </body>
 </html>

@@ -167,30 +167,57 @@ class HeritageCheckout {
   validateForm() {
     const form = document.getElementById('checkout-form');
     const placeOrderBtn = document.getElementById('place-order-btn');
+    const placeCODOrderBtn = document.getElementById('place-cod-order-btn');
     
-    if (!form || !placeOrderBtn) return;
+    if (!form) return;
     
     const isValid = form.checkValidity() && this.cartItems.length > 0;
-    placeOrderBtn.disabled = !isValid;
+    
+    if (placeOrderBtn) placeOrderBtn.disabled = !isValid;
+    if (placeCODOrderBtn) placeCODOrderBtn.disabled = !isValid;
     
     if (isValid) {
-      placeOrderBtn.innerHTML = `
-        <span class="flex items-center justify-center">
-          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-          </svg>
-          Place Secure Order (₹${(this.totalAmount - this.discountApplied).toLocaleString()})
-        </span>
-      `;
+      if (placeOrderBtn) {
+        placeOrderBtn.innerHTML = `
+          <span class="flex items-center justify-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+            </svg>
+            Place Secure Order (₹${(this.totalAmount - this.discountApplied).toLocaleString()})
+          </span>
+        `;
+      }
+      if (placeCODOrderBtn) {
+        placeCODOrderBtn.innerHTML = `
+          <span class="flex items-center justify-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-3a2 2 0 00-2-2H9a2 2 0 00-2 2v3a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+            </svg>
+            Pay with Cash (₹${(this.totalAmount - this.discountApplied).toLocaleString()})
+          </span>
+        `;
+      }
     } else {
-      placeOrderBtn.innerHTML = `
-        <span class="flex items-center justify-center">
-          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-          </svg>
-          Complete All Fields
-        </span>
-      `;
+      if (placeOrderBtn) {
+        placeOrderBtn.innerHTML = `
+          <span class="flex items-center justify-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+            </svg>
+            Complete All Fields
+          </span>
+        `;
+      }
+      if (placeCODOrderBtn) {
+        placeCODOrderBtn.innerHTML = `
+          <span class="flex items-center justify-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-3a2 2 0 00-2-2H9a2 2 0 00-2 2v3a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+            </svg>
+            Complete All Fields
+          </span>
+        `;
+      }
     }
   }
 
@@ -390,6 +417,103 @@ class HeritageCheckout {
     this.showNotification(`Payment failed: ${errorMessage}. Please try again.`, 'error');
   }
 
+  async placeCODOrder() {
+    const form = document.getElementById('checkout-form');
+    const placeCODOrderBtn = document.getElementById('place-cod-order-btn');
+    
+    if (!form || !form.checkValidity() || this.cartItems.length === 0) {
+      this.showNotification('Please fill all required fields and ensure you have items in your cart.', 'error');
+      return;
+    }
+    
+    const formData = new FormData(form);
+    
+    // Show loading state
+    placeCODOrderBtn.disabled = true;
+    placeCODOrderBtn.innerHTML = `
+      <span class="flex items-center justify-center">
+        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-heritage-red" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        Creating COD Order...
+      </span>
+    `;
+    
+    try {
+      // Prepare order details for Shiprocket COD
+      const orderDetails = {
+        customerName: formData.get('customerName'),
+        customerPhone: formData.get('customerPhone'),
+        customerEmail: formData.get('customerEmail'),
+        address: formData.get('address'),
+        pincode: formData.get('pincode'),
+        city: formData.get('city') || 'Kolkata',
+        state: formData.get('state') || 'West Bengal',
+        cartItems: this.cartItems,
+        totalAmount: this.totalAmount - this.discountApplied
+      };
+      
+      console.log('Creating COD order for amount:', orderDetails.totalAmount);
+      
+      // Create COD order
+      const codOrderResponse = await fetch('/create-cod-order', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          orderDetails: orderDetails
+        })
+      });
+      
+      const codOrderResult = await codOrderResponse.json();
+      
+      if (!codOrderResult.success) {
+        throw new Error(codOrderResult.error || 'Failed to create COD order');
+      }
+      
+      console.log('COD order created:', codOrderResult);
+      
+      // Clear cart
+      localStorage.removeItem('cart');
+      this.updateCartCount();
+      
+      // Prepare data for order confirmation page
+      const confirmationData = {
+        orderId: codOrderResult.order_id,
+        shiprocketOrderId: codOrderResult.order_id,
+        shipmentId: codOrderResult.shipment_id,
+        amount: orderDetails.totalAmount,
+        estimatedDelivery: codOrderResult.estimated_delivery,
+        trackingUrl: codOrderResult.tracking_url,
+        customerName: orderDetails.customerName,
+        paymentMethod: 'Cash on Delivery'
+      };
+      
+      // Save to localStorage and redirect
+      localStorage.setItem('lastOrder', JSON.stringify(confirmationData));
+      
+      // Redirect to order confirmation page
+      window.location.href = `order-confirmation.html?orderId=${confirmationData.orderId}&amount=${confirmationData.amount}&customerName=${encodeURIComponent(confirmationData.customerName)}&paymentMethod=COD`;
+      
+    } catch (error) {
+      console.error('COD order creation error:', error);
+      this.handleCODOrderFailure(`Failed to create COD order: ${error.message}`);
+    }
+  }
+
+  handleCODOrderFailure(errorMessage) {
+    const placeCODOrderBtn = document.getElementById('place-cod-order-btn');
+    
+    // Reset button
+    placeCODOrderBtn.disabled = false;
+    this.validateForm();
+    
+    // Show error notification
+    this.showNotification(`COD Order failed: ${errorMessage}. Please try again.`, 'error');
+  }
+
   showOrderSuccess(orderData) {
     const modal = document.getElementById('order-modal');
     const orderDetails = document.getElementById('order-details');
@@ -491,5 +615,6 @@ const heritageCheckout = new HeritageCheckout();
 
 // Global functions for HTML onclick handlers
 window.placeOrder = () => heritageCheckout.placeOrder();
+window.placeCODOrder = () => heritageCheckout.placeCODOrder();
 window.applyCheckoutCoupon = () => heritageCheckout.applyCheckoutCoupon();
 window.closeOrderModal = () => heritageCheckout.closeOrderModal();

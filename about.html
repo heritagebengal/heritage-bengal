@@ -278,5 +278,50 @@
   </footer>
 
   <script src="js/main.js"></script>
+  <script src="js/whatsapp-widget.js"></script>
+  <script>
+    function updateCartCount() {
+      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      const totalItems = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+      document.getElementById('cart-count').textContent = totalItems;
+      document.getElementById('cart-count-mobile').textContent = totalItems;
+    }
+    
+    function showCartPopup(msg) {
+      const popup = document.getElementById('cart-popup');
+      popup.textContent = msg;
+      popup.classList.remove('hidden');
+      popup.style.opacity = 1;
+      setTimeout(() => {
+        popup.style.opacity = 0;
+        setTimeout(() => popup.classList.add('hidden'), 400);
+      }, 3000);
+    }
+    
+    window.addEventListener('DOMContentLoaded', function() {
+      updateCartCount();
+    });
+
+    // Hamburger menu animation
+    const hamburger = document.getElementById('hamburger');
+    const navLinks = document.getElementById('nav-links');
+    hamburger.onclick = function() {
+      navLinks.classList.toggle('flex');
+      navLinks.classList.toggle('hidden');
+      hamburger.classList.toggle('active');
+      
+      // Animate hamburger
+      const spans = hamburger.querySelectorAll('span');
+      if (hamburger.classList.contains('active')) {
+        spans[0].style.transform = 'rotate(45deg) translate(5px, 5px)';
+        spans[1].style.opacity = '0';
+        spans[2].style.transform = 'rotate(-45deg) translate(5px, -5px)';
+      } else {
+        spans[0].style.transform = '';
+        spans[1].style.opacity = '1';
+        spans[2].style.transform = '';
+      }
+    };
+  </script>
 </body>
 </html>
