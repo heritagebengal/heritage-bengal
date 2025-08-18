@@ -481,14 +481,15 @@ class HeritageCheckout {
       
       // Prepare data for order confirmation page
       const confirmationData = {
-        orderId: codOrderResult.order_id,
-        shiprocketOrderId: codOrderResult.order_id,
-        shipmentId: codOrderResult.shipment_id,
+        orderId: codOrderResult.orderId,
+        shiprocketOrderId: codOrderResult.shiprocketOrderId,
+        shipmentId: codOrderResult.shipmentId,
         amount: orderDetails.totalAmount,
         estimatedDelivery: codOrderResult.estimated_delivery,
         trackingUrl: codOrderResult.tracking_url,
         customerName: orderDetails.customerName,
-        paymentMethod: 'Cash on Delivery'
+        paymentMethod: 'Cash on Delivery',
+        cartItems: this.cartItems
       };
       
       // Save to localStorage and redirect

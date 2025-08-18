@@ -55,6 +55,26 @@ function displayOrderDetails(orderData) {
 
   // Display order details
   orderDetailsContainer.innerHTML = `
+    ${orderData.cartItems ? `
+      <div class="mb-6">
+        <h3 class="text-lg font-bold text-heritage-red mb-3">Order Items</h3>
+        <div class="space-y-3">
+          ${orderData.cartItems.map(item => {
+            const quantity = item.quantity || 1;
+            const itemTotal = item.price * quantity;
+            return `
+            <div class="flex items-center gap-4 p-3 bg-heritage-cream rounded-lg">
+              <img src="${item.image}" alt="${item.name}" class="w-12 h-12 object-cover rounded">
+              <div class="flex-1">
+                <h4 class="font-semibold text-heritage-red text-sm">${item.name}</h4>
+                <p class="text-xs text-gray-600">Quantity: ${quantity} × ₹${item.price.toLocaleString()} = ₹${itemTotal.toLocaleString()}</p>
+              </div>
+            </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    ` : ''}
     <div class="grid md:grid-cols-2 gap-6">
       <div class="space-y-3">
         <div class="flex justify-between py-2 border-b border-gray-200">

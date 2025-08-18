@@ -109,9 +109,32 @@ document.addEventListener('DOMContentLoaded', function() {
 // ===== Add to Cart =====
 window.addToCart = function(id, name, price, image) {
   let cart = JSON.parse(localStorage.getItem('cart') || '[]');
-  cart.push({id, name, price, image});
+  
+  // Check if item already exists in cart
+  const existingItemIndex = cart.findIndex(item => item.id === id);
+  
+  if (existingItemIndex >= 0) {
+    // Update quantity of existing item
+    cart[existingItemIndex].quantity = (cart[existingItemIndex].quantity || 1) + 1;
+    alert(`Updated ${name} quantity in cart!`);
+  } else {
+    // Add new item to cart with quantity
+    cart.push({
+      id: id,
+      name: name,
+      price: price,
+      image: image,
+      quantity: 1
+    });
+    alert(`${name} added to cart!`);
+  }
+  
   localStorage.setItem('cart', JSON.stringify(cart));
-  alert('Added to cart!');
+  
+  // Update cart count if function exists
+  if (typeof updateCartCount === 'function') {
+    updateCartCount();
+  }
 }
 
 // ===== Fade-in-up animation on scroll =====
