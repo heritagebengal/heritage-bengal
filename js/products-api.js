@@ -332,7 +332,7 @@ class ProductManager {
           <p class="text-sm text-gray-600 mb-3 line-clamp-2">${product.description || 'Beautiful handcrafted jewelry piece.'}</p>
           
           <div class="flex items-center justify-between mb-4">
-            <span class="text-lg sm:text-2xl font-bold text-heritage-gold font-number">₹${product.price.toLocaleString()}</span>
+            ${this.renderProductPrice(product)}
             <span class="text-sm text-heritage-red stock-text-mobile ${product.stock > 0 ? '' : 'text-red-500'}">
               ${product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}
             </span>
@@ -369,6 +369,28 @@ class ProductManager {
     });
     
     this.updateActiveFilters();
+  }
+
+  renderProductPrice(product) {
+    // Check if discount pricing is available
+    const hasDiscount = product.original_price && product.discount_percentage && 
+                       product.original_price > product.price && product.discount_percentage > 0;
+    
+    if (hasDiscount) {
+      // Discount pricing display
+      return `
+        <div class="flex flex-col gap-1">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-sm text-gray-500 line-through font-number">₹${product.original_price.toLocaleString()}</span>
+            <span class="bg-green-100 text-green-800 text-xs font-bold px-2 py-1 rounded">${product.discount_percentage}% off</span>
+          </div>
+          <div class="text-lg sm:text-2xl font-bold text-heritage-gold font-number">₹${product.price.toLocaleString()}</div>
+        </div>
+      `;
+    } else {
+      // Regular pricing display
+      return `<span class="text-lg sm:text-2xl font-bold text-heritage-gold font-number">₹${product.price.toLocaleString()}</span>`;
+    }
   }
 }
 

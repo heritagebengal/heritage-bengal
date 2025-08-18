@@ -1,0 +1,24 @@
+{
+  "name": "Heritage 24kt Gold Plated Bou-Rani Sitahar with Earring",
+  "description": "Our necklace collection celebrates the rich legacy of Bengal craftsmanship, where tradition meets artistry. Each piece is meticulously handcrafted by skilled Bengali artisans, inspired by the region's cultural heritage and intricate designs that have been passed down through generations.From delicate filigree work to bold statement pieces, our necklaces embody the soul of Bengal — elegance, detail, and timeless beauty. Whether worn for special occasions or as a mark of everyday grace, every necklace tells a story of heritage, devotion, and artistry.Discover the charm of authentic Bengal jewellery, where every curve, motif, and finish reflects passion and perfection.",
+  "price": 1999,
+  "original_price": 4000,
+  "discount_percentage": 50,
+  "category": "Necklace",
+  "stock": 12,
+  "image": "assets/Products/Bou-Rani-Nacklace.jpeg",
+  "features": [
+    "24kt Gold Plated",
+    "Traditional Bengali Design",
+    "Handcrafted Excellence",
+    "Premium Quality Finish"
+  ],
+  "care_instructions": [
+    "Store in provided jewellery box",
+    "Clean with soft, dry cotton only",
+    "Avoid contact with water and chemicals",
+    "Handle with care to maintain finish",
+    "Keep away from perfumes and lotions",
+    "Send it to us for repolishing(polishing charges apply)"
+  ]
+}

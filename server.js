@@ -1,496 +1,572 @@
-require('dotenv').config();
+// Express server for Heritage Bengal Jewellery
 const express = require('express');
+const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
-const Razorpay = require('razorpay');
-const crypto = require('crypto');
 const axios = require('axios');
-const mongoose = require('mongoose');
-const nodemailer = require('nodemailer');
-const ShiprocketManager = require('./ShiprocketManager');
+const Razorpay = require('razorpay');
+require('dotenv').config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
-
-// Initialize Shiprocket Manager
-const shiprocketManager = new ShiprocketManager();
-
-// Middleware
-app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname)));
+app.use(cors());
 
 // MongoDB connection
-const mongoUri = process.env.MONGODB_URI || 'mongodb+srv://sadhu1616:NYhYajU4Qm7eFioB@cluster.xqikjxq.mongodb.net/?retryWrites=true&w=majority&appName=Cluster';
-const dbName = process.env.DB_NAME || 'Hertiage_Bengal_Jewellery';
+const mongoUri = 'mongodb+srv://sadhu1616:NYhYajU4Qm7eFioB@cluster.xqikjxq.mongodb.net/?retryWrites=true&w=majority&appName=Cluster';
+const dbName = 'Hertiage_Bengal_Jewellery';
 
 mongoose.connect(mongoUri, { dbName })
-    .then(() => console.log('MongoDB connected successfully'))
-    .catch(err => console.error('MongoDB connection error:', err));
-
-// Email configuration
-const transporter = nodemailer.createTransport({
-    service: process.env.EMAIL_SERVICE || 'gmail',
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-    },
-    // Additional options for better compatibility
-    tls: {
-        rejectUnauthorized: false
-    }
-});
-
-// Email templates
-function generateOrderConfirmationEmail(orderData) {
-    const isCOD = orderData.paymentMethod === 'COD' || orderData.paymentMethod === 'Cash on Delivery';
-    const paymentText = isCOD ? 'Cash on Delivery' : 'Online Payment';
-    const trackingLink = orderData.trackingUrl || (orderData.shipmentId ? `https://shiprocket.in/tracking/${orderData.shipmentId}` : '');
-    
-    return `
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { background: #8B1538; color: white; padding: 20px; text-align: center; }
-        .content { padding: 20px; background: #f9f9f9; }
-        .order-details { background: white; padding: 20px; margin: 20px 0; border-radius: 8px; }
-        .tracking-button { 
-            display: inline-block; 
-            background: #8B1538; 
-            color: white; 
-            padding: 12px 24px; 
-            text-decoration: none; 
-            border-radius: 5px; 
-            margin: 15px 0;
-        }
-        .footer { text-align: center; padding: 20px; color: #666; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>Heritage Bengal Jewellery</h1>
-            <h2>Order Confirmation</h2>
-        </div>
-        
-        <div class="content">
-            <p>Dear ${orderData.customerName || 'Valued Customer'},</p>
-            
-            <p>Thank you for your order! We're excited to confirm that your order has been successfully placed.</p>
-            
-            <div class="order-details">
-                <h3>Order Details:</h3>
-                <p><strong>Order ID:</strong> ${orderData.orderId}</p>
-                ${orderData.shiprocketOrderId && orderData.shiprocketOrderId !== orderData.orderId ? 
-                    `<p><strong>Shiprocket Order ID:</strong> ${orderData.shiprocketOrderId}</p>` : ''
-                }
-                ${orderData.shipmentId ? 
-                    `<p><strong>Shipment ID:</strong> ${orderData.shipmentId}</p>` : ''
-                }
-                <p><strong>Payment Method:</strong> ${paymentText}</p>
-                ${orderData.amount ? 
-                    `<p><strong>Total Amount:</strong> ₹${parseInt(orderData.amount).toLocaleString()}</p>` : ''
-                }
-                ${orderData.estimatedDelivery ? 
-                    `<p><strong>Estimated Delivery:</strong> ${orderData.estimatedDelivery}</p>` : ''
-                }
-            </div>
-            
-            ${isCOD ? 
-                '<p><strong>Cash on Delivery:</strong> Please keep the exact amount ready for payment upon delivery.</p>' :
-                '<p><strong>Payment Status:</strong> Your payment has been processed successfully.</p>'
-            }
-            
-            ${trackingLink ? `
-                <!-- IMPORTANT NOTE SECTION -->
-                <div style="background: #fff3cd !important; border: 1px solid #ffeaa7 !important; padding: 15px !important; border-radius: 5px !important; margin: 20px 0 !important;">
-                    <p style="margin: 0 !important; color: #856404 !important; font-size: 14px !important;">
-                        <strong>📋 Important Note:</strong> Once your order gets shipped, you can track the order using the button below. 
-                        The tracking information may not appear before the order is actually shipped by our partner. 
-                        Please allow 24-48 hours after order placement for tracking to become active.
-                    </p>
-                </div>
-                <p>You can track your order using the link below:</p>
-                <a href="${trackingLink}" class="tracking-button">Track Your Order</a>
-            ` : ''}
-            
-            <p>If you have any questions about your order, please contact us at:</p>
-            <p>📧 Email: ${process.env.STORE_EMAIL || 'heritagebengal25@gmail.com'}</p>
-            <p>📞 Phone: ${process.env.STORE_PHONE || '+917439543717'}</p>
-            
-            <p>Thank you for choosing Heritage Bengal Jewellery!</p>
-        </div>
-        
-        <div class="footer">
-            <p>&copy; 2024 Heritage Bengal Jewellery. All rights reserved.</p>
-        </div>
-    </div>
-</body>
-</html>
-    `;
-}
-
-// Function to send order confirmation email
-async function sendOrderConfirmationEmail(orderData, customerEmail) {
-    try {
-        console.log('🔄 Attempting to send order confirmation email...');
-        console.log('📧 Customer email:', customerEmail);
-        console.log('📦 Order ID:', orderData.orderId);
-        
-        const emailHtml = generateOrderConfirmationEmail(orderData);
-        
-        const mailOptions = {
-            from: `"${process.env.EMAIL_FROM_NAME || 'Heritage Bengal Jewellery'}" <${process.env.EMAIL_USER}>`,
-            to: customerEmail,
-            subject: `Order Confirmation - ${orderData.orderId} | Heritage Bengal Jewellery`,
-            html: emailHtml
-        };
-        
-        console.log('📨 Sending email with options:', {
-            from: mailOptions.from,
-            to: mailOptions.to,
-            subject: mailOptions.subject
-        });
-        
-        const info = await transporter.sendMail(mailOptions);
-        console.log('✅ Order confirmation email sent successfully!');
-        console.log('📬 Message ID:', info.messageId);
-        return { success: true, messageId: info.messageId };
-    } catch (error) {
-        console.error('❌ Error sending order confirmation email:', error.message);
-        console.error('💀 Full error:', error);
-        return { success: false, error: error.message };
-    }
-}
-
-// Product schema and model
-const productSchema = new mongoose.Schema({
-    name: String,
-    price: Number,
-    description: String,
-    category: String,
-    image: {
-        type: mongoose.Schema.Types.Mixed, // Can be String (legacy) or Object (new format)
-        default: 'assets/placeholder.svg'
-        // New format supports:
-        // {
-        //   products_mobile: "path/to/products-mobile.jpg",    // 187.2 × 192px
-        //   products_desktop: "path/to/products-desktop.jpg",  // 216 × 192px
-        //   details_mobile: "path/to/details-mobile.jpg",      // 334.4 × 334.4px
-        //   details_desktop: "path/to/details-desktop.jpg"     // 528 × 528px
-        // }
-    },
-    stock: Number,
-    features: [String], // Array of product features
-    care_instructions: [String], // Array of care instructions
-    rating: { type: Number, default: 4.8 }, // Product rating
-    reviews_count: { type: Number, default: 0 } // Number of reviews
-});
-
-// Helper function to get appropriate image based on device and page type
-productSchema.methods.getImage = function(pageType = 'products', device = 'desktop') {
-    if (typeof this.image === 'string') {
-        // Legacy format - single image
-        return this.image;
-    } else if (typeof this.image === 'object' && this.image !== null) {
-        // New format - 4 different images
-        const imageKey = `${pageType}_${device}`;
-        
-        // Priority order for fallbacks
-        const fallbackOrder = [
-            `${pageType}_${device}`,     // Exact match
-            `${pageType}_${device === 'mobile' ? 'desktop' : 'mobile'}`, // Same page, other device
-            `details_${device}`,         // Details page, same device  
-            `details_${device === 'mobile' ? 'desktop' : 'mobile'}`, // Details page, other device
-            `products_${device}`,        // Products page, same device
-            `products_${device === 'mobile' ? 'desktop' : 'mobile'}`, // Products page, other device
-            'desktop',                   // Legacy desktop key
-            'mobile'                     // Legacy mobile key
-        ];
-        
-        for (const key of fallbackOrder) {
-            if (this.image[key]) {
-                return this.image[key];
-            }
-        }
-    }
-    return 'assets/placeholder.svg';
-};
-
-const Product = mongoose.model('Product', productSchema, 'Products');
-
-// Product routes
-app.get('/products', async (req, res) => {
-    try {
-        const products = await Product.find();
-        res.json(products);
-    } catch (err) {
-        console.error('Error fetching products:', err);
-        res.status(500).json({ error: 'Failed to fetch products' });
-    }
-});
-
-app.post('/products', async (req, res) => {
-    try {
-        const product = new Product(req.body);
-        await product.save();
-        res.status(201).json(product);
-    } catch (err) {
-        console.error('Error adding product:', err);
-        res.status(400).json({ error: 'Failed to add product' });
-    }
-});
-
-app.delete('/products/:id', async (req, res) => {
-    try {
-        const result = await Product.findByIdAndDelete(req.params.id);
-        if (!result) return res.status(404).json({ error: 'Product not found' });
-        res.json({ message: 'Product deleted' });
-    } catch (err) {
-        console.error('Error deleting product:', err);
-        res.status(400).json({ error: 'Failed to delete product' });
-    }
-});
-
-// Include coupon routes
-const couponsRouter = require('./routes/coupons');
-app.use('/api/coupons', couponsRouter);
+  .then(() => console.log('MongoDB connected'))
+  .catch(err => console.error('MongoDB connection error:', err));
 
 // Initialize Razorpay
 const razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID,
-    key_secret: process.env.RAZORPAY_KEY_SECRET
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
-// Create payment order endpoint
+// Product schema & routes
+const productSchema = new mongoose.Schema({
+  name: String,
+  price: Number,
+  description: String,
+  category: String,
+  image: String,
+  stock: Number
+});
+
+const Product = mongoose.model('Product', productSchema, 'Products');
+
+app.get('/products', async (req, res) => {
+  try {
+    const products = await Product.find();
+    res.json(products);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch products' });
+  }
+});
+
+app.post('/products', async (req, res) => {
+  try {
+    const product = new Product(req.body);
+    await product.save();
+    res.status(201).json(product);
+  } catch (err) {
+    res.status(400).json({ error: 'Failed to add product' });
+  }
+});
+
+app.delete('/products/:id', async (req, res) => {
+  try {
+    const result = await Product.findByIdAndDelete(req.params.id);
+    if (!result) return res.status(404).json({ error: 'Product not found' });
+    res.json({ message: 'Product deleted' });
+  } catch (err) {
+    res.status(400).json({ error: 'Failed to delete product' });
+  }
+});
+
+// Coupons route
+const couponsRouter = require('./routes/coupons');
+app.use('/api/coupons', couponsRouter);
+
+// === RAZORPAY INTEGRATION ===
+// Route to create Razorpay order
 app.post('/create-payment-order', async (req, res) => {
-    try {
-        const { amount, currency = 'INR' } = req.body;
-        
-        if (!amount) {
-            return res.status(400).json({ error: 'Amount is required' });
-        }
+  try {
+    const { amount, currency = 'INR', customerDetails } = req.body;
+    
+    console.log('Creating Razorpay order for amount:', amount);
+    
+    // Create Razorpay order
+    const orderOptions = {
+      amount: Math.round(amount * 100), // Amount in paise
+      currency: currency,
+      receipt: `HB_${Date.now()}`,
+      notes: {
+        customer_name: customerDetails?.name || 'Heritage Bengal Customer',
+        customer_email: customerDetails?.email || '',
+        customer_phone: customerDetails?.phone || ''
+      }
+    };
 
-        const options = {
-            amount: amount * 100, // Convert to paise
-            currency: currency,
-            receipt: `receipt_${Date.now()}`,
-            payment_capture: 1
-        };
-
-        const order = await razorpay.orders.create(options);
-        
-        res.json({
-            success: true,
-            order_id: order.id,
-            amount: order.amount,
-            currency: order.currency,
-            key_id: process.env.RAZORPAY_KEY_ID
-        });
-    } catch (error) {
-        console.error('Error creating payment order:', error);
-        res.status(500).json({ error: 'Failed to create payment order' });
-    }
-});
-
-// Verify payment and create Shiprocket order
-app.post('/verify-payment', async (req, res) => {
-    try {
-        const { 
-            razorpay_order_id, 
-            razorpay_payment_id, 
-            razorpay_signature,
-            orderDetails 
-        } = req.body;
-
-        // Verify Razorpay signature
-        const generated_signature = crypto
-            .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
-            .update(razorpay_order_id + '|' + razorpay_payment_id)
-            .digest('hex');
-
-        if (generated_signature !== razorpay_signature) {
-            return res.status(400).json({ error: 'Invalid payment signature' });
-        }
-
-        // Create Shiprocket order using the new manager
-        const shiprocketOrder = await shiprocketManager.createOrder(orderDetails, razorpay_payment_id, 'Prepaid');
-
-        // Prepare order data for email
-        const orderData = {
-            orderId: razorpay_order_id,
-            shiprocketOrderId: shiprocketOrder.order_id,
-            shipmentId: shiprocketOrder.shipment_id,
-            trackingUrl: shiprocketOrder.tracking_url,
-            estimatedDelivery: shiprocketOrder.estimated_delivery,
-            paymentMethod: 'Online Payment',
-            customerName: orderDetails.customerName,
-            amount: orderDetails.totalAmount
-        };
-
-        // Send order confirmation email
-        if (orderDetails.customerEmail) {
-            try {
-                const emailResult = await sendOrderConfirmationEmail(orderData, orderDetails.customerEmail);
-                if (emailResult.success) {
-                    console.log('Order confirmation email sent successfully');
-                } else {
-                    console.error('Failed to send order confirmation email:', emailResult.error);
-                }
-            } catch (emailError) {
-                console.error('Error sending order confirmation email:', emailError);
-                // Don't fail the order if email sending fails
-            }
-        } else {
-            console.log('No customer email provided, skipping email notification');
-        }
-
-        res.json({
-            success: true,
-            payment_verified: true,
-            payment_id: razorpay_payment_id,
-            order_id: razorpay_order_id,
-            shiprocket_order_id: shiprocketOrder.order_id,
-            shipment_id: shiprocketOrder.shipment_id,
-            tracking_url: shiprocketOrder.tracking_url,
-            estimated_delivery: shiprocketOrder.estimated_delivery,
-            email_sent: !!orderDetails.customerEmail
-        });
-
-    } catch (error) {
-        console.error('Error verifying payment:', error);
-        res.status(500).json({ error: 'Payment verification failed' });
-    }
-});
-
-// Create COD order endpoint
-app.post('/create-cod-order', async (req, res) => {
-    try {
-        console.log('🛒 COD order request received');
-        const { orderDetails } = req.body;
-        console.log('📦 Order details received:', orderDetails);
-        
-        if (!orderDetails) {
-            return res.status(400).json({ error: 'Order details are required' });
-        }
-
-        // Create Shiprocket order with COD using the new manager
-        const shiprocketOrder = await shiprocketManager.createOrder(orderDetails, null, 'COD');
-
-        // Prepare order data for email
-        const orderData = {
-            orderId: shiprocketOrder.order_id,
-            shiprocketOrderId: shiprocketOrder.order_id,
-            shipmentId: shiprocketOrder.shipment_id,
-            trackingUrl: shiprocketOrder.tracking_url,
-            estimatedDelivery: shiprocketOrder.estimated_delivery,
-            paymentMethod: 'COD',
-            customerName: orderDetails.customerName,
-            amount: orderDetails.totalAmount
-        };
-
-        // Send order confirmation email
-        if (orderDetails.customerEmail) {
-            console.log('🔄 Processing email for COD order...');
-            console.log('📧 Customer email from orderDetails:', orderDetails.customerEmail);
-            try {
-                const emailResult = await sendOrderConfirmationEmail(orderData, orderDetails.customerEmail);
-                if (emailResult.success) {
-                    console.log('✅ COD order confirmation email sent successfully');
-                } else {
-                    console.error('❌ Failed to send COD order confirmation email:', emailResult.error);
-                }
-            } catch (emailError) {
-                console.error('💥 Error sending COD order confirmation email:', emailError);
-                // Don't fail the order if email sending fails
-            }
-        } else {
-            console.log('⚠️ No customer email provided for COD order, skipping email notification');
-        }
-
-        res.json({
-            success: true,
-            order_id: shiprocketOrder.order_id,
-            shipment_id: shiprocketOrder.shipment_id,
-            tracking_url: shiprocketOrder.tracking_url,
-            estimated_delivery: shiprocketOrder.estimated_delivery,
-            payment_method: 'COD',
-            email_sent: !!orderDetails.customerEmail
-        });
-
-    } catch (error) {
-        console.error('Error creating COD order:', error);
-        res.status(500).json({ error: 'Failed to create COD order' });
-    }
-});
-
-// Shiprocket order creation is now handled by ShiprocketManager class
-
-// Health check endpoint for Shiprocket token
-app.get('/api/shiprocket/health', async (req, res) => {
-    try {
-        console.log('🔍 Checking Shiprocket token health...');
-        const isValid = await shiprocketManager.checkTokenValidity();
-        
-        res.json({
-            success: true,
-            token_valid: isValid,
-            message: isValid ? 'Shiprocket token is valid' : 'Shiprocket token needs refresh',
-            timestamp: new Date().toISOString()
-        });
-    } catch (error) {
-        console.error('❌ Shiprocket health check failed:', error);
-        res.status(500).json({
-            success: false,
-            error: error.message,
-            message: 'Shiprocket health check failed'
-        });
-    }
-});
-
-// Endpoint to manually refresh Shiprocket token
-app.post('/api/shiprocket/refresh-token', async (req, res) => {
-    try {
-        console.log('🔄 Manually refreshing Shiprocket token...');
-        const newToken = await shiprocketManager.refreshToken();
-        
-        res.json({
-            success: true,
-            message: 'Shiprocket token refreshed successfully',
-            token_refreshed: true,
-            timestamp: new Date().toISOString()
-        });
-    } catch (error) {
-        console.error('❌ Manual token refresh failed:', error);
-        res.status(500).json({
-            success: false,
-            error: error.message,
-            message: 'Failed to refresh Shiprocket token'
-        });
-    }
-});
-
-// WhatsApp configuration endpoint
-app.get('/api/whatsapp/config', (req, res) => {
+    const razorpayOrder = await razorpay.orders.create(orderOptions);
+    
+    console.log('Razorpay order created:', razorpayOrder.id);
+    
     res.json({
-        phone: process.env.WHATSAPP_PHONE || '+917439543717',
-        success: true
+      success: true,
+      order_id: razorpayOrder.id,
+      amount: razorpayOrder.amount,
+      currency: razorpayOrder.currency,
+      key: process.env.RAZORPAY_KEY_ID
     });
+    
+  } catch (error) {
+    console.error('Razorpay order creation error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to create payment order',
+      message: error.message
+    });
+  }
 });
 
-// Default route
+// Route to verify Razorpay payment
+app.post('/verify-payment', async (req, res) => {
+  try {
+    const { 
+      razorpay_order_id, 
+      razorpay_payment_id, 
+      razorpay_signature,
+      orderDetails 
+    } = req.body;
+    
+    console.log('Verifying payment:', { razorpay_order_id, razorpay_payment_id });
+    
+    // Verify payment signature
+    const crypto = require('crypto');
+    const expectedSignature = crypto
+      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+      .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+      .digest('hex');
+    
+    if (expectedSignature !== razorpay_signature) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid payment signature'
+      });
+    }
+    
+    console.log('Payment verified successfully');
+    
+    // Payment is verified, now create Shiprocket order
+    const shiprocketResponse = await createShiprocketOrder(orderDetails);
+    
+    res.json({
+      success: true,
+      payment_verified: true,
+      razorpay_order_id,
+      razorpay_payment_id,
+      ...shiprocketResponse
+    });
+    
+  } catch (error) {
+    console.error('Payment verification error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Payment verification failed',
+      message: error.message
+    });
+  }
+});
+
+// === SHIPROCKET INTEGRATION ===
+// Function to create Shiprocket order
+async function createShiprocketOrder(orderDetails) {
+  try {
+    const {
+      customerName,
+      customerPhone,
+      customerEmail,
+      address,
+      pincode,
+      city,
+      state,
+      cartItems,
+      totalAmount
+    } = orderDetails;
+    
+    // Generate unique order ID
+    const orderId = `HB${Date.now()}${Math.floor(Math.random() * 1000)}`;
+    const orderDate = new Date().toISOString().split('T')[0];
+    
+    // Calculate total weight and dimensions (estimates for jewelry)
+    const totalWeight = cartItems.length * 0.05; // 50g per item estimate
+    const packageLength = 15;
+    const packageBreadth = 10;
+    const packageHeight = 5;
+
+    // Prepare order data for Shiprocket
+    const orderData = {
+      order_id: orderId,
+      order_date: orderDate,
+      pickup_location: process.env.PICKUP_LOCATION || "Primary",
+      billing_customer_name: customerName,
+      billing_last_name: "",
+      billing_address: address,
+      billing_address_2: "",
+      billing_city: city || "Kolkata",
+      billing_pincode: pincode,
+      billing_state: state || "West Bengal",
+      billing_country: "India",
+      billing_email: customerEmail,
+      billing_phone: customerPhone,
+      shipping_is_billing: true,
+      order_items: cartItems.map(item => ({
+        name: item.name,
+        sku: `HB-${item.id}`,
+        units: item.quantity || 1,
+        selling_price: item.price,
+        discount: 0,
+        tax: 0,
+        hsn: 711311 // HSN code for jewelry
+      })),
+      payment_method: "Prepaid",
+      shipping_charges: 0,
+      giftwrap_charges: 0,
+      transaction_charges: 0,
+      total_discount: 0,
+      sub_total: totalAmount,
+      length: packageLength,
+      breadth: packageBreadth,
+      height: packageHeight,
+      weight: totalWeight
+    };
+
+    console.log('Creating Shiprocket order:', {
+      orderId,
+      customerName,
+      itemCount: cartItems.length,
+      totalAmount
+    });
+
+    // Check if Shiprocket is properly configured
+    const shiprocketToken = process.env.SHIPROCKET_TOKEN;
+    const isShiprocketConfigured = shiprocketToken && 
+      shiprocketToken !== 'your_shiprocket_jwt_token_here' && 
+      shiprocketToken.length > 20;
+
+    let shiprocketResponse = null;
+    
+    if (isShiprocketConfigured) {
+      try {
+        // Send request to Shiprocket API
+        shiprocketResponse = await axios.post(
+          `${process.env.SHIPROCKET_API_URL}/orders/create/adhoc`,
+          orderData,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${process.env.SHIPROCKET_TOKEN}`
+            }
+          }
+        );
+        console.log('Shiprocket response:', shiprocketResponse.data);
+      } catch (shiprocketError) {
+        console.error('Shiprocket API Error:', shiprocketError.response?.data || shiprocketError.message);
+        // Continue with local order processing if Shiprocket fails
+        shiprocketResponse = null;
+      }
+    } else {
+      console.log('Shiprocket not configured, processing order locally');
+    }
+
+    console.log('Shiprocket response:', shiprocketResponse?.data || 'No Shiprocket response');
+
+    // Extract relevant information from Shiprocket response or create fallback
+    let responseData = {
+      success: true,
+      order_id: orderId,
+      message: 'Order created successfully!',
+      estimated_delivery: '3-7 business days'
+    };
+
+    if (shiprocketResponse && shiprocketResponse.data) {
+      const {
+        order_id: shiprocketOrderId,
+        shipment_id,
+        status,
+        onboarding_completed_now
+      } = shiprocketResponse.data;
+
+      // Create tracking URL
+      const trackingUrl = shipment_id
+        ? `https://shiprocket.in/tracking/${shipment_id}`
+        : null;
+
+      responseData = {
+        ...responseData,
+        shiprocket_order_id: shiprocketOrderId,
+        shipment_id,
+        status,
+        tracking_url: trackingUrl,
+        shipping_integrated: true
+      };
+    } else {
+      responseData = {
+        ...responseData,
+        shipping_integrated: false,
+        message: 'Order received! We will contact you for shipping details.',
+        note: 'Shipping will be arranged manually'
+      };
+    }
+
+    return responseData;
+    
+  } catch (error) {
+    console.error('Shiprocket order creation error:', error);
+    throw error;
+  }
+}
+
+// Create order route for Shiprocket integration (for backward compatibility)
+app.post('/create-order', async (req, res) => {
+  console.log('=== CREATE ORDER REQUEST ===');
+  console.log('Request body:', req.body);
+  
+  try {
+    // Validate required fields
+    const {
+      customerName,
+      customerPhone,
+      customerEmail,
+      address,
+      pincode,
+      cartItems,
+      totalAmount
+    } = req.body;
+
+    if (!customerName || !customerPhone || !customerEmail || !address || !pincode || !cartItems || !totalAmount) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required fields',
+        required: ['customerName', 'customerPhone', 'customerEmail', 'address', 'pincode', 'cartItems', 'totalAmount']
+      });
+    }
+
+    // Create Shiprocket order using the extracted function
+    const orderResponse = await createShiprocketOrder(req.body);
+    
+    // Send success response
+    res.json(orderResponse);
+    
+  } catch (error) {
+    console.error('=== ORDER CREATION ERROR ===');
+    console.error('Error details:', error);
+    console.error('Error message:', error.message);
+    console.error('Stack trace:', error.stack);
+    
+    // Always return JSON response
+    res.status(500).json({
+      success: false,
+      error: 'Failed to create order',
+      message: 'Please try again or contact support',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+    const {
+      customerName,
+      customerPhone,
+      customerEmail,
+      address,
+      pincode,
+      city,
+      state,
+      cartItems,
+      totalAmount
+    } = req.body;
+
+    // Validate required fields
+    if (!customerName || !customerPhone || !customerEmail || !address || !pincode || !cartItems || !totalAmount) {
+      return res.status(400).json({ 
+        error: 'Missing required fields',
+        required: ['customerName', 'customerPhone', 'customerEmail', 'address', 'pincode', 'cartItems', 'totalAmount']
+      });
+    }
+
+    // Generate unique order ID
+    const orderId = `HB${Date.now()}${Math.floor(Math.random() * 1000)}`;
+    const orderDate = new Date().toISOString().split('T')[0];
+
+    // Calculate total weight and dimensions (estimates for jewelry)
+    const totalWeight = cartItems.length * 0.05; // 50g per item estimate
+    const packageLength = 15;
+    const packageBreadth = 10;
+    const packageHeight = 5;
+
+    // Prepare order data for Shiprocket
+    const orderData = {
+      order_id: orderId,
+      order_date: orderDate,
+      pickup_location: process.env.PICKUP_LOCATION || "Primary",
+      billing_customer_name: customerName,
+      billing_last_name: "",
+      billing_address: address,
+      billing_address_2: "",
+      billing_city: city || "Kolkata",
+      billing_pincode: pincode,
+      billing_state: state || "West Bengal",
+      billing_country: "India",
+      billing_email: customerEmail,
+      billing_phone: customerPhone,
+      shipping_is_billing: true,
+      order_items: cartItems.map(item => ({
+        name: item.name,
+        sku: `HB-${item.id}`,
+        units: item.quantity || 1,
+        selling_price: item.price,
+        discount: 0,
+        tax: 0,
+        hsn: 711311 // HSN code for jewelry
+      })),
+      payment_method: "Prepaid",
+      shipping_charges: 0,
+      giftwrap_charges: 0,
+      transaction_charges: 0,
+      total_discount: 0,
+      sub_total: totalAmount,
+      length: packageLength,
+      breadth: packageBreadth,
+      height: packageHeight,
+      weight: totalWeight
+    };
+
+    console.log('Creating Shiprocket order:', {
+      orderId,
+      customerName,
+      itemCount: cartItems.length,
+      totalAmount
+    });
+
+    // Check if Shiprocket is properly configured
+    const shiprocketToken = process.env.SHIPROCKET_TOKEN;
+    const isShiprocketConfigured = shiprocketToken && 
+      shiprocketToken !== 'your_shiprocket_jwt_token_here' && 
+      shiprocketToken.length > 20;
+
+    let shiprocketResponse = null;
+    
+    if (isShiprocketConfigured) {
+      try {
+        // Send request to Shiprocket API
+        shiprocketResponse = await axios.post(
+          `${process.env.SHIPROCKET_API_URL}/orders/create/adhoc`,
+          orderData,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${process.env.SHIPROCKET_TOKEN}`
+            }
+          }
+        );
+        console.log('Shiprocket response:', shiprocketResponse.data);
+      } catch (shiprocketError) {
+        console.error('Shiprocket API Error:', shiprocketError.response?.data || shiprocketError.message);
+        // Continue with local order processing if Shiprocket fails
+        shiprocketResponse = null;
+      }
+    } else {
+      console.log('Shiprocket not configured, processing order locally');
+    }
+
+    console.log('Shiprocket response:', shiprocketResponse?.data || 'No Shiprocket response');
+
+    // Extract relevant information from Shiprocket response or create fallback
+    let responseData = {
+      success: true,
+      order_id: orderId,
+      message: 'Order created successfully!',
+      estimated_delivery: '3-7 business days'
+    };
+
+    if (shiprocketResponse && shiprocketResponse.data) {
+      const {
+        order_id: shiprocketOrderId,
+        shipment_id,
+        status,
+        onboarding_completed_now
+      } = shiprocketResponse.data;
+
+      // Create tracking URL
+      const trackingUrl = shipment_id
+        ? `https://shiprocket.in/tracking/${shipment_id}`
+        : null;
+
+      responseData = {
+        ...responseData,
+        shiprocket_order_id: shiprocketOrderId,
+        shipment_id,
+        status,
+        tracking_url: trackingUrl,
+        shipping_integrated: true
+      };
+    } else {
+      responseData = {
+        ...responseData,
+        shipping_integrated: false,
+        message: 'Order received! We will contact you for shipping details.',
+        note: 'Shipping will be arranged manually'
+      };
+    }
+
+    // Send success response
+    res.json(responseData);  } catch (error) {
+    console.error('=== ORDER CREATION ERROR ===');
+    console.error('Error details:', error);
+    console.error('Error message:', error.message);
+    console.error('Stack trace:', error.stack);
+    
+    // Always return JSON response
+    res.status(500).json({
+      success: false,
+      error: 'Failed to create order',
+      message: 'Please try again or contact support',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
+// Test route for Shiprocket connection
+app.get('/test-shiprocket', async (req, res) => {
+  try {
+    const response = await axios.get(
+      `${process.env.SHIPROCKET_API_URL}/settings/company/pickup`,
+      {
+        headers: {
+          'Authorization': `Bearer ${process.env.SHIPROCKET_TOKEN}`
+        }
+      }
+    );
+    res.json({ 
+      status: 'Shiprocket connection successful',
+      pickup_locations: response.data.data
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'Shiprocket connection failed',
+      error: error.response?.data || error.message
+    });
+  }
+});
+
+// === NEW STATIC FRONTEND SETUP ===
+
+// Serve static files (CSS, JS, images, etc.)
+app.use(express.static(path.join(__dirname)));
+
+// Serve specific HTML files (adjust if needed)
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Start server
-app.listen(PORT, () => {
-    console.log(`Heritage Bengal Server running on port ${PORT}`);
-    console.log(`Access the application at http://localhost:${PORT}`);
+app.get('/cart', (req, res) => {
+  res.sendFile(path.join(__dirname, 'cart.html'));
 });
 
-module.exports = app;
+app.get('/checkout', (req, res) => {
+  res.sendFile(path.join(__dirname, 'checkout.html'));
+});
+
+app.get('/contact', (req, res) => {
+  res.sendFile(path.join(__dirname, 'contact.html'));
+});
+
+// Optional: catch-all route for 404 or SPA support
+// app.get('*', (req, res) => {
+//   res.sendFile(path.join(__dirname, 'index.html'));
+// });
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

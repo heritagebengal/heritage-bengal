@@ -180,7 +180,11 @@ class ProductDetailsManager {
     
     // Update product information
     document.getElementById('product-name').textContent = product.name;
-    document.getElementById('product-price').textContent = `₹${product.price.toLocaleString()}`;
+    
+    // Handle pricing with discount support
+    const priceContainer = document.getElementById('product-price');
+    this.renderProductPrice(product, priceContainer);
+    
     document.getElementById('product-description').textContent = 
       product.description || 'Beautiful handcrafted jewelry piece inspired by Bengal\'s rich heritage.';
     document.getElementById('product-category').textContent = product.category || 'Jewelry';
@@ -305,6 +309,28 @@ class ProductDetailsManager {
     careContainer.innerHTML = displayCare.map(instruction => `
       <li>• ${instruction}</li>
     `).join('');
+  }
+
+  renderProductPrice(product, container) {
+    // Check if discount pricing is available
+    const hasDiscount = product.original_price && product.discount_percentage && 
+                       product.original_price > product.price && product.discount_percentage > 0;
+    
+    if (hasDiscount) {
+      // Discount pricing display
+      container.innerHTML = `
+        <div class="flex flex-col gap-1">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-sm text-gray-500 line-through font-number">₹${product.original_price.toLocaleString()}</span>
+            <span class="bg-green-100 text-green-800 text-xs font-bold px-2 py-1 rounded">${product.discount_percentage}% off</span>
+          </div>
+          <div class="text-2xl font-bold text-heritage-gold font-number">₹${product.price.toLocaleString()}</div>
+        </div>
+      `;
+    } else {
+      // Regular pricing display
+      container.innerHTML = `<span class="text-2xl font-bold text-heritage-gold font-number">₹${product.price.toLocaleString()}</span>`;
+    }
   }
 
   // Image Magnification Feature for Product Details Page
