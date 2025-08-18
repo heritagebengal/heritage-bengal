@@ -11,14 +11,14 @@ class ProductManager {
 
   async init() {
     await this.fetchProducts();
-    this.handleURLParameters(); // Handle URL parameters for filtering and sorting
+    await this.handleURLParameters(); // Handle URL parameters for filtering and sorting
     this.setupEventListeners();
-    this.renderProducts();
+    await this.renderProducts();
     this.updateCategoryCounts();
   }
 
   // Handle URL parameters for automatic filtering and sorting
-  handleURLParameters() {
+  async handleURLParameters() {
     const urlParams = new URLSearchParams(window.location.search);
     
     // Handle price filtering
@@ -38,7 +38,7 @@ class ProductManager {
       }
       
       // Apply price filtering
-      this.applyCurrentFilters();
+      await this.applyCurrentFilters();
     }
     
     // Handle sorting
@@ -83,33 +83,33 @@ class ProductManager {
   setupEventListeners() {
     // Category buttons
     document.querySelectorAll('.category-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
+      btn.addEventListener('click', async (e) => {
         const category = e.target.dataset.category;
         this.setActiveCategory(category);
-        this.filterByCategory(category);
+        await this.filterByCategory(category);
       });
     });
 
     // Sort dropdown
-    document.getElementById('sort-select').addEventListener('change', (e) => {
+    document.getElementById('sort-select').addEventListener('change', async (e) => {
       this.currentSort = e.target.value;
-      this.applySorting();
+      await this.applySorting();
     });
 
     // Price filter
-    document.getElementById('apply-filter').addEventListener('click', () => {
-      this.applyPriceFilter();
+    document.getElementById('apply-filter').addEventListener('click', async () => {
+      await this.applyPriceFilter();
     });
 
-    document.getElementById('clear-filter').addEventListener('click', () => {
-      this.clearPriceFilter();
+    document.getElementById('clear-filter').addEventListener('click', async () => {
+      await this.clearPriceFilter();
     });
 
     // Enter key on price inputs
     ['min-price', 'max-price'].forEach(id => {
-      document.getElementById(id).addEventListener('keypress', (e) => {
+      document.getElementById(id).addEventListener('keypress', async (e) => {
         if (e.key === 'Enter') {
-          this.applyPriceFilter();
+          await this.applyPriceFilter();
         }
       });
     });
@@ -130,7 +130,7 @@ class ProductManager {
     this.currentCategory = category;
   }
 
-  filterByCategory(category) {
+  async filterByCategory(category) {
     if (category === 'all') {
       this.filteredProducts = [...this.allProducts];
     } else {
@@ -139,27 +139,27 @@ class ProductManager {
       );
     }
     
-    this.applyCurrentFilters();
+    await this.applyCurrentFilters();
   }
 
-  applyPriceFilter() {
+  async applyPriceFilter() {
     const minPrice = parseFloat(document.getElementById('min-price').value) || 0;
     const maxPrice = parseFloat(document.getElementById('max-price').value) || Infinity;
     
     this.priceFilter = { min: minPrice, max: maxPrice };
-    this.applyCurrentFilters();
+    await this.applyCurrentFilters();
     this.updateActiveFilters();
   }
 
-  clearPriceFilter() {
+  async clearPriceFilter() {
     document.getElementById('min-price').value = '';
     document.getElementById('max-price').value = '';
     this.priceFilter = { min: null, max: null };
-    this.applyCurrentFilters();
+    await this.applyCurrentFilters();
     this.updateActiveFilters();
   }
 
-  applyCurrentFilters() {
+  async applyCurrentFilters() {
     let products = [...this.filteredProducts];
     
     // Apply price filter
@@ -172,10 +172,10 @@ class ProductManager {
     }
     
     this.filteredProducts = products;
-    this.applySorting();
+    await this.applySorting();
   }
 
-  applySorting() {
+  async applySorting() {
     const [sortBy, order] = this.currentSort.split('-');
     
     this.filteredProducts.sort((a, b) => {
@@ -196,7 +196,7 @@ class ProductManager {
       }
     });
     
-    this.renderProducts();
+    await this.renderProducts();
   }
 
   updateActiveFilters() {
@@ -239,7 +239,22 @@ class ProductManager {
     });
   }
 
-  renderProducts() {
+  // Function to check if image exists and return appropriate src
+  async checkImageExists(imagePath) {
+    return new Promise((resolve) => {
+      if (!imagePath || imagePath.trim() === '' || imagePath === 'assets/placeholder.svg') {
+        resolve('assets/placeholder.svg');
+        return;
+      }
+      
+      const img = new Image();
+      img.onload = () => resolve(imagePath);
+      img.onerror = () => resolve('assets/placeholder.svg');
+      img.src = imagePath;
+    });
+  }
+
+  async renderProducts() {
     const grid = document.getElementById('products-container');
     const productCount = document.getElementById('product-count');
     const noProductsState = document.getElementById('no-products-state');
@@ -255,12 +270,56 @@ class ProductManager {
     
     noProductsState.style.display = 'none';
     
-    grid.innerHTML = this.filteredProducts.map(product => `
+    // Process products and check images
+    const productCards = await Promise.all(this.filteredProducts.map(async (product) => {
+      // Get appropriate image based on screen size for PRODUCTS page
+      const isMobile = window.innerWidth < 1024; // lg breakpoint
+      let imageSrc = 'assets/placeholder.svg';
+      
+      // Debug logging
+      console.log('Product:', product.name, 'Image type:', typeof product.image, 'Image value:', product.image);
+      
+      if (typeof product.image === 'string' && product.image && product.image.trim() !== '' && product.image !== 'assets/placeholder.svg') {
+        // Legacy format - single image (only if not empty and not already placeholder)
+        imageSrc = product.image;
+      } else if (typeof product.image === 'object' && product.image !== null) {
+        // New format - 4 different images
+        if (isMobile) {
+          imageSrc = product.image.products_mobile || 
+                     product.image.products_desktop || 
+                     product.image.details_mobile || 
+                     product.image.details_desktop || 
+                     product.image.mobile || 
+                     product.image.desktop || 
+                     'assets/placeholder.svg';
+        } else {
+          imageSrc = product.image.products_desktop || 
+                     product.image.products_mobile || 
+                     product.image.details_desktop || 
+                     product.image.details_mobile || 
+                     product.image.desktop || 
+                     product.image.mobile || 
+                     'assets/placeholder.svg';
+        }
+      }
+      
+      // Ensure we always have a valid image source
+      if (!imageSrc || imageSrc.trim() === '') {
+        imageSrc = 'assets/placeholder.svg';
+      }
+      
+      // Check if image actually exists
+      const validImageSrc = await this.checkImageExists(imageSrc);
+      
+      console.log('Final imageSrc for', product.name, ':', validImageSrc);
+      
+      return `
       <div class="product-card bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
         <div class="relative">
-          <img src="${product.image || 'assets/placeholder.svg'}" alt="${product.name}" 
+          <img src="${validImageSrc}" alt="${product.name}" 
                class="w-full h-48 object-cover"
-               onerror="this.src='assets/placeholder.svg'">
+               onerror="console.log('Image failed to load for ${product.name}:', this.src); this.onerror=null; this.src='assets/placeholder.svg';"
+               onload="console.log('Image loaded successfully for ${product.name}:', this.src);">
           <div class="absolute top-3 right-3">
             <span class="bg-heritage-red text-white px-2 py-1 rounded-full text-xs font-bold">
               ${product.category || 'Jewelry'}
@@ -284,7 +343,7 @@ class ProductManager {
                class="w-full sm:flex-1 bg-heritage-gold text-heritage-red py-2.5 px-4 rounded-lg hover:bg-heritage-light-gold transition-colors text-center text-sm font-medium">
               View Details
             </a>
-            <button onclick="addToCart('${product._id}', '${product.name}', ${product.price}, '${product.image || ''}')" 
+            <button onclick="addToCart('${product._id}', '${product.name}', ${product.price}, '${validImageSrc}')" 
                     class="w-full sm:flex-1 bg-heritage-red text-white py-2.5 px-4 rounded-lg hover:bg-red-900 transition-colors text-sm font-medium ${product.stock <= 0 ? 'opacity-50 cursor-not-allowed' : ''}"
                     ${product.stock <= 0 ? 'disabled' : ''}>
               Add to Cart
@@ -292,7 +351,10 @@ class ProductManager {
           </div>
         </div>
       </div>
-    `).join('');
+      `;
+    }));
+    
+    grid.innerHTML = productCards.join('');
     
     // Animate cards
     const cards = grid.querySelectorAll('.product-card');

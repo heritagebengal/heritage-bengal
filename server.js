@@ -173,13 +173,53 @@ const productSchema = new mongoose.Schema({
     price: Number,
     description: String,
     category: String,
-    image: String,
+    image: {
+        type: mongoose.Schema.Types.Mixed, // Can be String (legacy) or Object (new format)
+        default: 'assets/placeholder.svg'
+        // New format supports:
+        // {
+        //   products_mobile: "path/to/products-mobile.jpg",    // 187.2 × 192px
+        //   products_desktop: "path/to/products-desktop.jpg",  // 216 × 192px
+        //   details_mobile: "path/to/details-mobile.jpg",      // 334.4 × 334.4px
+        //   details_desktop: "path/to/details-desktop.jpg"     // 528 × 528px
+        // }
+    },
     stock: Number,
     features: [String], // Array of product features
     care_instructions: [String], // Array of care instructions
     rating: { type: Number, default: 4.8 }, // Product rating
     reviews_count: { type: Number, default: 0 } // Number of reviews
 });
+
+// Helper function to get appropriate image based on device and page type
+productSchema.methods.getImage = function(pageType = 'products', device = 'desktop') {
+    if (typeof this.image === 'string') {
+        // Legacy format - single image
+        return this.image;
+    } else if (typeof this.image === 'object' && this.image !== null) {
+        // New format - 4 different images
+        const imageKey = `${pageType}_${device}`;
+        
+        // Priority order for fallbacks
+        const fallbackOrder = [
+            `${pageType}_${device}`,     // Exact match
+            `${pageType}_${device === 'mobile' ? 'desktop' : 'mobile'}`, // Same page, other device
+            `details_${device}`,         // Details page, same device  
+            `details_${device === 'mobile' ? 'desktop' : 'mobile'}`, // Details page, other device
+            `products_${device}`,        // Products page, same device
+            `products_${device === 'mobile' ? 'desktop' : 'mobile'}`, // Products page, other device
+            'desktop',                   // Legacy desktop key
+            'mobile'                     // Legacy mobile key
+        ];
+        
+        for (const key of fallbackOrder) {
+            if (this.image[key]) {
+                return this.image[key];
+            }
+        }
+    }
+    return 'assets/placeholder.svg';
+};
 
 const Product = mongoose.model('Product', productSchema, 'Products');
 
