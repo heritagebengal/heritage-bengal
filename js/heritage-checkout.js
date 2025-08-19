@@ -6,11 +6,7 @@ class HeritageCheckout {
     this.cartItems = [];
     this.totalAmount = 0;
     this.discountApplied = 0;
-    this.validCoupons = {
-      'HERITAGE10': { discount: 0.10, type: 'percentage' },
-      'WELCOME15': { discount: 0.15, type: 'percentage' },
-      'NEWUSER20': { discount: 0.20, type: 'percentage' }
-    };
+    this.appliedCouponData = null; // Store coupon data
     
     this.init();
   }
@@ -554,27 +550,123 @@ class HeritageCheckout {
     }
   }
 
-  applyCheckoutCoupon() {
+  async applyCheckoutCoupon() {
     const couponInput = document.getElementById('checkout-coupon-code');
     if (!couponInput) return;
 
-    const couponCode = couponInput.value.trim().toUpperCase();
+    const couponCode = couponInput.value.trim();
     
     if (!couponCode) {
       this.showNotification('Please enter a coupon code', 'error');
       return;
     }
     
-    if (this.validCoupons[couponCode]) {
-      const coupon = this.validCoupons[couponCode];
-      this.discountApplied = Math.round(this.totalAmount * coupon.discount);
+    // Check if coupon is already applied
+    if (this.appliedCouponData) {
+      this.showNotification('Coupon already applied. Remove current coupon to apply a new one.', 'error');
+      return;
+    }
+    
+    try {
+      console.log('Applying checkout coupon:', { code: couponCode, total: this.totalAmount });
+      
+      const response = await fetch('/api/coupons/apply', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ 
+          code: couponCode, 
+          total: this.totalAmount 
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log('Checkout coupon response:', data);
+      
+      if (!data.valid) {
+        const errorMessage = data.message || (data.expired ? 'Coupon has expired' : 'Invalid or expired coupon');
+        this.showNotification(errorMessage, 'error');
+        return;
+      }
+      
+      // Apply the discount
+      this.discountApplied = this.totalAmount - data.discountedTotal;
+      this.appliedCouponData = {
+        code: data.code,
+        percent: data.percent,
+        discountAmount: this.discountApplied,
+        originalTotal: this.totalAmount,
+        discountedTotal: data.discountedTotal
+      };
+      
+      // Update total display
       this.updateOrderTotal();
       this.validateForm();
-      this.showNotification(`Coupon applied! ₹${this.discountApplied} discount`, 'success');
-      couponInput.disabled = true;
-    } else {
-      this.showNotification('Invalid coupon code', 'error');
+      
+      // Update coupon section to show applied coupon
+      const couponSection = document.getElementById('coupon-section');
+      if (couponSection) {
+        couponSection.innerHTML = `
+          <h3 class="text-lg font-bold text-heritage-red mb-3">Coupon Applied</h3>
+          <div class="flex items-center justify-between bg-green-100 p-3 rounded-lg">
+            <div>
+              <span class="font-bold text-green-700">${data.code}</span>
+              <span class="text-green-600 ml-2">(${data.percent}% discount)</span>
+            </div>
+            <button 
+              onclick="removeCheckoutCoupon()" 
+              class="text-red-500 hover:text-red-700 underline text-sm"
+            >
+              Remove
+            </button>
+          </div>
+          <p class="text-sm text-green-600 mt-2">You saved ₹${this.discountApplied.toLocaleString()}!</p>
+        `;
+      }
+      
+      this.showNotification(`Coupon applied successfully! You saved ₹${this.discountApplied.toLocaleString()} (${data.percent}% discount)`, 'success');
+      
+    } catch (error) {
+      console.error('Error applying checkout coupon:', error);
+      this.showNotification('Error applying coupon. Please try again.', 'error');
     }
+  }
+
+  removeCheckoutCoupon() {
+    this.discountApplied = 0;
+    this.appliedCouponData = null;
+    this.updateOrderTotal();
+    this.validateForm();
+    
+    // Reset coupon section
+    const couponSection = document.getElementById('coupon-section');
+    if (couponSection) {
+      couponSection.innerHTML = `
+        <h3 class="text-lg font-bold text-heritage-red mb-3">Coupon Code</h3>
+        <div class="flex gap-2">
+          <input 
+            type="text" 
+            id="checkout-coupon-code" 
+            placeholder="Enter coupon code" 
+            class="flex-1 px-3 py-2 border border-gray-300 rounded-lg"
+          />
+          <button 
+            onclick="heritageCheckout.applyCheckoutCoupon()" 
+            class="px-4 py-2 bg-heritage-red text-white rounded-lg hover:bg-heritage-red-dark"
+          >
+            Apply
+          </button>
+        </div>
+      `;
+    }
+    
+    this.showNotification('Coupon removed', 'info');
   }
 
   updateCartCount() {
@@ -617,5 +709,6 @@ const heritageCheckout = new HeritageCheckout();
 // Global functions for HTML onclick handlers
 window.placeOrder = () => heritageCheckout.placeOrder();
 window.placeCODOrder = () => heritageCheckout.placeCODOrder();
+window.removeCheckoutCoupon = () => heritageCheckout.removeCheckoutCoupon();
 window.applyCheckoutCoupon = () => heritageCheckout.applyCheckoutCoupon();
 window.closeOrderModal = () => heritageCheckout.closeOrderModal();

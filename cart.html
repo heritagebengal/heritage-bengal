@@ -263,18 +263,7 @@
       }, 3000);
     }
     
-    // Enhanced applyCoupon for cart page
-    function applyCoupon() {
-      const couponCode = document.getElementById('coupon-code').value.trim();
-      if (couponCode) {
-        // Simple coupon validation (you can enhance this)
-        if (couponCode.toUpperCase() === 'HERITAGE10') {
-          showCartPopup('Coupon applied! 10% discount');
-        } else {
-          showCartPopup('Invalid coupon code');
-        }
-      }
-    }
+    // applyCoupon function is now handled by cart.js
     
     window.addEventListener('DOMContentLoaded', function() {
       updateCartCount();

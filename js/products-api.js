@@ -327,24 +327,23 @@ class ProductManager {
           </div>
         </div>
         
-        <div class="p-6">
-          <h3 class="text-lg font-bold text-heritage-red mb-2 line-clamp-2">${product.name}</h3>
-          <p class="text-sm text-gray-600 mb-3 line-clamp-2">${product.description || 'Beautiful handcrafted jewelry piece.'}</p>
+        <div class="p-4">
+          <h3 class="text-xs sm:text-sm font-bold text-heritage-red mb-2 line-clamp-2">${product.name}</h3>
           
-          <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center justify-between mb-3">
             ${this.renderProductPrice(product)}
-            <span class="text-sm text-heritage-red stock-text-mobile ${product.stock > 0 ? '' : 'text-red-500'}">
+            <span class="text-xs text-heritage-red stock-text-mobile ${product.stock > 0 ? '' : 'text-red-500'}">
               ${product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}
             </span>
           </div>
           
           <div class="flex flex-col gap-2 sm:flex-row">
             <a href="product-details.html?id=${product._id}" 
-               class="w-full sm:flex-1 bg-heritage-gold text-heritage-red py-2.5 px-4 rounded-lg hover:bg-heritage-light-gold transition-colors text-center text-sm font-medium">
+               class="w-full sm:flex-1 bg-heritage-gold text-heritage-red py-2 px-3 rounded-lg hover:bg-heritage-light-gold transition-colors text-center text-xs font-medium">
               View Details
             </a>
             <button onclick="addToCart('${product._id}', '${product.name}', ${product.price}, '${validImageSrc}')" 
-                    class="w-full sm:flex-1 bg-heritage-red text-white py-2.5 px-4 rounded-lg hover:bg-red-900 transition-colors text-sm font-medium ${product.stock <= 0 ? 'opacity-50 cursor-not-allowed' : ''}"
+                    class="w-full sm:flex-1 bg-heritage-red text-white py-2 px-3 rounded-lg hover:bg-red-900 transition-colors text-xs font-medium ${product.stock <= 0 ? 'opacity-50 cursor-not-allowed' : ''}"
                     ${product.stock <= 0 ? 'disabled' : ''}>
               Add to Cart
             </button>
@@ -372,25 +371,8 @@ class ProductManager {
   }
 
   renderProductPrice(product) {
-    // Check if discount pricing is available
-    const hasDiscount = product.original_price && product.discount_percentage && 
-                       product.original_price > product.price && product.discount_percentage > 0;
-    
-    if (hasDiscount) {
-      // Discount pricing display
-      return `
-        <div class="flex flex-col gap-1">
-          <div class="flex items-center gap-2 flex-wrap">
-            <span class="text-sm text-gray-500 line-through font-number">₹${product.original_price.toLocaleString()}</span>
-            <span class="bg-green-100 text-green-800 text-xs font-bold px-2 py-1 rounded">${product.discount_percentage}% off</span>
-          </div>
-          <div class="text-lg sm:text-2xl font-bold text-heritage-gold font-number">₹${product.price.toLocaleString()}</div>
-        </div>
-      `;
-    } else {
-      // Regular pricing display
-      return `<span class="text-lg sm:text-2xl font-bold text-heritage-gold font-number">₹${product.price.toLocaleString()}</span>`;
-    }
+    // For products page, only show the current price
+    return `<span class="text-base sm:text-lg font-bold text-heritage-gold font-number">₹${product.price.toLocaleString()}</span>`;
   }
 }
 

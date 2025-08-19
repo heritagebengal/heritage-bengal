@@ -24,10 +24,10 @@ app.use(express.static(path.join(__dirname)));
 
 // MongoDB connection
 const mongoUri = process.env.MONGODB_URI || 'mongodb+srv://sadhu1616:NYhYajU4Qm7eFioB@cluster.xqikjxq.mongodb.net/?retryWrites=true&w=majority&appName=Cluster';
-const dbName = process.env.DB_NAME || 'heritage-bengal';
+const dbName = process.env.DB_NAME || 'Heritage_Bengal_Jewellery';
 
 mongoose.connect(mongoUri, { dbName })
-    .then(() => console.log('MongoDB connected successfully'))
+    .then(() => console.log('MongoDB connected successfully to database:', dbName))
     .catch(err => console.error('MongoDB connection error:', err));
 
 // Email configuration
@@ -232,6 +232,47 @@ const discountCouponSchema = new mongoose.Schema({
 
 const DiscountCoupon = mongoose.model('Discount_Coupon', discountCouponSchema);
 
+// Order schema for storing order details
+const orderSchema = new mongoose.Schema({
+    orderId: { type: String, required: true, unique: true },
+    customerName: { type: String, required: true },
+    customerPhone: { type: String, required: true },
+    customerEmail: { type: String, required: true },
+    customerAddress: { type: String, required: true },
+    pincode: { type: String, required: true },
+    city: { type: String, required: true },
+    state: { type: String, required: true },
+    orderItems: [{
+        productId: String,
+        name: String,
+        price: Number,
+        quantity: Number,
+        image: String
+    }],
+    orderTotal: { type: Number, required: true },
+    originalTotal: { type: Number }, // Before discount
+    discountApplied: { type: Number, default: 0 },
+    discountCoupon: {
+        code: String,
+        percent: Number,
+        discountAmount: Number
+    },
+    paymentMethod: { type: String, enum: ['COD', 'Prepaid'], required: true },
+    shiprocketOrderId: String,
+    shipmentId: String,
+    razorpayOrderId: String,
+    razorpayPaymentId: String,
+    orderStatus: { type: String, default: 'Confirmed' },
+    trackingUrl: String,
+    emailSent: { type: Boolean, default: false },
+    orderDate: { type: Date, default: Date.now },
+    notes: String
+}, { 
+    timestamps: true 
+});
+
+const Order = mongoose.model('Order', orderSchema, 'Orders');
+
 // Routes
 app.get('/products', async (req, res) => {
     try {
@@ -295,13 +336,25 @@ app.post('/products', async (req, res) => {
 app.post('/api/coupons', async (req, res) => {
     try {
         console.log('Creating coupon:', req.body);
-        const coupon = new DiscountCoupon(req.body);
+        
+        // Convert code to uppercase for consistency
+        const couponData = {
+            ...req.body,
+            code: req.body.code.toUpperCase()
+        };
+        
+        const coupon = new DiscountCoupon(couponData);
         const savedCoupon = await coupon.save();
         console.log('Coupon created successfully:', savedCoupon);
         res.status(201).json(savedCoupon);
     } catch (err) {
         console.error('Error creating coupon:', err);
-        res.status(400).json({ error: err.message });
+        if (err.code === 11000) {
+            // Duplicate key error
+            res.status(400).json({ error: 'Coupon code already exists' });
+        } else {
+            res.status(400).json({ error: err.message });
+        }
     }
 });
 
@@ -335,29 +388,39 @@ app.post('/api/coupons/apply', async (req, res) => {
     const { code, total } = req.body;
     try {
         console.log('Applying coupon:', { code, total });
-        const coupon = await DiscountCoupon.findOne({ code });
+        
+        // Make case-insensitive search by using regex
+        const coupon = await DiscountCoupon.findOne({ 
+            code: { $regex: new RegExp('^' + code + '$', 'i') } 
+        });
         
         if (!coupon) {
             console.log('Coupon not found:', code);
-            return res.json({ valid: false });
+            return res.json({ valid: false, message: 'Coupon not found' });
         }
         
         if (coupon.expires && new Date() > coupon.expires) {
             console.log('Coupon expired:', code);
-            return res.json({ valid: false, expired: true });
+            return res.json({ valid: false, expired: true, message: 'Coupon has expired' });
         }
         
         const percent = coupon.percent;
         const discountedTotal = Math.round(total * (1 - percent / 100));
         
         console.log('Coupon applied successfully:', {
-            code,
+            code: coupon.code, // Return the actual stored code
             percent,
             originalTotal: total,
             discountedTotal
         });
         
-        res.json({ valid: true, discountedTotal, percent });
+        res.json({ 
+            valid: true, 
+            discountedTotal, 
+            percent,
+            code: coupon.code, // Return the correctly cased code
+            message: `${percent}% discount applied successfully!`
+        });
     } catch (err) {
         console.error('Error applying coupon:', err);
         res.status(400).json({ error: err.message });
@@ -382,6 +445,104 @@ async function refreshShiprocketToken() {
         }
     } catch (error) {
         console.error('Failed to refresh Shiprocket token:', error.response?.data || error.message);
+        throw error;
+    }
+}
+
+// Function to save order to database
+async function saveOrderToDatabase(orderData) {
+    try {
+        console.log('=== SAVING ORDER TO DATABASE ===');
+        console.log('Database connection state:', mongoose.connection.readyState);
+        console.log('Database name:', mongoose.connection.db?.databaseName);
+        console.log('Order data received:', {
+            orderId: orderData.orderId,
+            customerName: orderData.customerName,
+            customerEmail: orderData.customerEmail,
+            totalAmount: orderData.totalAmount,
+            paymentMethod: orderData.paymentMethod
+        });
+        
+        const {
+            orderId,
+            customerName,
+            customerPhone,
+            customerEmail,
+            address,
+            pincode,
+            city,
+            state,
+            cartItems,
+            totalAmount,
+            originalTotal,
+            discountApplied,
+            discountCoupon,
+            paymentMethod,
+            shiprocketOrderId,
+            shipmentId,
+            razorpayOrderId,
+            razorpayPaymentId,
+            trackingUrl,
+            emailSent
+        } = orderData;
+
+        const orderDocument = {
+            orderId,
+            customerName,
+            customerPhone,
+            customerEmail,
+            customerAddress: address,
+            pincode,
+            city: city || 'Kolkata',
+            state: state || 'West Bengal',
+            orderItems: cartItems.map(item => ({
+                productId: item.id,
+                name: item.name,
+                price: item.price,
+                quantity: item.quantity || 1,
+                image: item.image
+            })),
+            orderTotal: totalAmount,
+            originalTotal: originalTotal || totalAmount,
+            discountApplied: discountApplied || 0,
+            discountCoupon: discountCoupon ? {
+                code: discountCoupon.code,
+                percent: discountCoupon.percent,
+                discountAmount: discountCoupon.discountAmount
+            } : undefined,
+            paymentMethod,
+            shiprocketOrderId,
+            shipmentId,
+            razorpayOrderId,
+            razorpayPaymentId,
+            trackingUrl,
+            emailSent: emailSent || false
+        };
+
+        console.log('Order document to save:', JSON.stringify(orderDocument, null, 2));
+
+        const order = new Order(orderDocument);
+        const savedOrder = await order.save();
+        
+        console.log('Order saved successfully:', {
+            _id: savedOrder._id,
+            orderId: savedOrder.orderId,
+            createdAt: savedOrder.createdAt
+        });
+        
+        // Verify the order was saved by querying it back
+        const verifyOrder = await Order.findOne({ orderId: savedOrder.orderId });
+        console.log('Verification: Order exists in DB:', !!verifyOrder);
+        
+        console.log('=== ORDER SAVE COMPLETE ===');
+        return savedOrder;
+        
+    } catch (error) {
+        console.error('=== ORDER SAVE ERROR ===');
+        console.error('Error details:', error);
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+        console.error('=== END ERROR ===');
         throw error;
     }
 }
@@ -551,6 +712,39 @@ async function createShiprocketOrder(orderDetails) {
             console.error('Email sending error:', emailError);
             orderResponse.emailSent = false;
             orderResponse.emailError = emailError.message;
+        }
+
+        // Save order to database
+        try {
+            const orderDataForDB = {
+                orderId,
+                customerName,
+                customerPhone,
+                customerEmail,
+                address,
+                pincode,
+                city,
+                state,
+                cartItems,
+                totalAmount,
+                originalTotal: orderDetails.originalTotal,
+                discountApplied: orderDetails.discountApplied,
+                discountCoupon: orderDetails.discountCoupon,
+                paymentMethod: 'COD',
+                shiprocketOrderId: shiprocketResponse?.data?.order_id,
+                shipmentId: shiprocketResponse?.data?.shipment_id,
+                trackingUrl: shiprocketResponse?.data?.shipment_id ? `https://shiprocket.in/tracking/${shiprocketResponse.data.shipment_id}` : null,
+                emailSent: orderResponse.emailSent
+            };
+            
+            const savedOrder = await saveOrderToDatabase(orderDataForDB);
+            orderResponse.databaseOrderId = savedOrder._id;
+            console.log('Order saved to database successfully');
+            
+        } catch (dbError) {
+            console.error('Error saving order to database:', dbError);
+            // Don't fail the order creation if database save fails
+            orderResponse.databaseError = dbError.message;
         }
 
         return orderResponse;
@@ -852,6 +1046,41 @@ async function createShiprocketOrderPrepaid(orderDetails) {
             orderResponse.emailError = emailError.message;
         }
 
+        // Save order to database
+        try {
+            const orderDataForDB = {
+                orderId,
+                customerName,
+                customerPhone,
+                customerEmail,
+                address,
+                pincode,
+                city,
+                state,
+                cartItems,
+                totalAmount,
+                originalTotal: orderDetails.originalTotal,
+                discountApplied: orderDetails.discountApplied,
+                discountCoupon: orderDetails.discountCoupon,
+                paymentMethod: 'Prepaid',
+                shiprocketOrderId: shiprocketResponse?.data?.order_id,
+                shipmentId: shiprocketResponse?.data?.shipment_id,
+                razorpayOrderId: razorpayOrderId,
+                razorpayPaymentId: razorpayPaymentId,
+                trackingUrl: shiprocketResponse?.data?.shipment_id ? `https://shiprocket.in/tracking/${shiprocketResponse.data.shipment_id}` : null,
+                emailSent: orderResponse.emailSent
+            };
+            
+            const savedOrder = await saveOrderToDatabase(orderDataForDB);
+            orderResponse.databaseOrderId = savedOrder._id;
+            console.log('Order saved to database successfully');
+            
+        } catch (dbError) {
+            console.error('Error saving order to database:', dbError);
+            // Don't fail the order creation if database save fails
+            orderResponse.databaseError = dbError.message;
+        }
+
         return orderResponse;
 
     } catch (error) {
@@ -859,6 +1088,189 @@ async function createShiprocketOrderPrepaid(orderDetails) {
         throw error;
     }
 }
+
+// Internal Orders API (for admin use only - not exposed to frontend)
+// Test endpoint to check database connection and order existence
+app.get('/api/test-order/:orderId', async (req, res) => {
+    try {
+        console.log('Testing order lookup for:', req.params.orderId);
+        
+        // Check database connection
+        const connectionState = mongoose.connection.readyState;
+        console.log('Database connection state:', connectionState); // 0=disconnected, 1=connected, 2=connecting, 3=disconnecting
+        
+        // Try to find the order
+        const order = await Order.findOne({ orderId: req.params.orderId });
+        console.log('Order found:', order ? 'Yes' : 'No');
+        
+        // Get all orders count for debugging
+        const totalOrders = await Order.countDocuments();
+        console.log('Total orders in database:', totalOrders);
+        
+        // Get all order IDs for debugging
+        const allOrderIds = await Order.find({}, { orderId: 1, _id: 0 }).limit(10);
+        console.log('Recent order IDs:', allOrderIds.map(o => o.orderId));
+        
+        res.json({
+            requestedOrderId: req.params.orderId,
+            orderFound: !!order,
+            order: order,
+            databaseConnected: connectionState === 1,
+            totalOrdersInDB: totalOrders,
+            recentOrderIds: allOrderIds.map(o => o.orderId),
+            databaseName: mongoose.connection.db.databaseName,
+            collectionName: 'Orders'
+        });
+        
+    } catch (err) {
+        console.error('Error in test endpoint:', err);
+        res.status(500).json({ 
+            error: 'Test failed', 
+            details: err.message,
+            databaseConnected: mongoose.connection.readyState === 1
+        });
+    }
+});
+
+// Get all orders with pagination and filters
+app.get('/admin/orders', async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 20;
+        const skip = (page - 1) * limit;
+        
+        // Build filter object
+        const filter = {};
+        if (req.query.paymentMethod) {
+            filter.paymentMethod = req.query.paymentMethod;
+        }
+        if (req.query.orderStatus) {
+            filter.orderStatus = req.query.orderStatus;
+        }
+        if (req.query.startDate && req.query.endDate) {
+            filter.orderDate = {
+                $gte: new Date(req.query.startDate),
+                $lte: new Date(req.query.endDate)
+            };
+        }
+        
+        const orders = await Order.find(filter)
+            .sort({ orderDate: -1 })
+            .skip(skip)
+            .limit(limit);
+            
+        const totalOrders = await Order.countDocuments(filter);
+        const totalPages = Math.ceil(totalOrders / limit);
+        
+        res.json({
+            orders,
+            pagination: {
+                currentPage: page,
+                totalPages,
+                totalOrders,
+                hasNext: page < totalPages,
+                hasPrev: page > 1
+            }
+        });
+        
+    } catch (err) {
+        console.error('Error fetching orders:', err);
+        res.status(500).json({ error: 'Failed to fetch orders' });
+    }
+});
+
+// Get single order by ID
+app.get('/admin/orders/:orderId', async (req, res) => {
+    try {
+        const order = await Order.findOne({ orderId: req.params.orderId });
+        if (!order) {
+            return res.status(404).json({ error: 'Order not found' });
+        }
+        res.json(order);
+    } catch (err) {
+        console.error('Error fetching order:', err);
+        res.status(500).json({ error: 'Failed to fetch order' });
+    }
+});
+
+// Get order statistics
+app.get('/admin/orders/stats/summary', async (req, res) => {
+    try {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        const thisMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        
+        const stats = await Promise.all([
+            // Total orders
+            Order.countDocuments(),
+            
+            // Today's orders
+            Order.countDocuments({ orderDate: { $gte: today } }),
+            
+            // This month's orders
+            Order.countDocuments({ orderDate: { $gte: thisMonth } }),
+            
+            // Total revenue
+            Order.aggregate([
+                { $group: { _id: null, total: { $sum: '$orderTotal' } } }
+            ]),
+            
+            // COD vs Prepaid breakdown
+            Order.aggregate([
+                { $group: { _id: '$paymentMethod', count: { $sum: 1 }, revenue: { $sum: '$orderTotal' } } }
+            ]),
+            
+            // Orders with coupons
+            Order.countDocuments({ 'discountCoupon.code': { $exists: true } }),
+            
+            // Average order value
+            Order.aggregate([
+                { $group: { _id: null, avg: { $avg: '$orderTotal' } } }
+            ])
+        ]);
+        
+        res.json({
+            totalOrders: stats[0],
+            todayOrders: stats[1],
+            thisMonthOrders: stats[2],
+            totalRevenue: stats[3][0]?.total || 0,
+            paymentMethodBreakdown: stats[4],
+            ordersWithCoupons: stats[5],
+            averageOrderValue: Math.round(stats[6][0]?.avg || 0)
+        });
+        
+    } catch (err) {
+        console.error('Error fetching order stats:', err);
+        res.status(500).json({ error: 'Failed to fetch order statistics' });
+    }
+});
+
+// Update order status
+app.patch('/admin/orders/:orderId/status', async (req, res) => {
+    try {
+        const { orderStatus, notes } = req.body;
+        
+        const updatedOrder = await Order.findOneAndUpdate(
+            { orderId: req.params.orderId },
+            { 
+                orderStatus,
+                ...(notes && { notes })
+            },
+            { new: true }
+        );
+        
+        if (!updatedOrder) {
+            return res.status(404).json({ error: 'Order not found' });
+        }
+        
+        res.json(updatedOrder);
+        
+    } catch (err) {
+        console.error('Error updating order status:', err);
+        res.status(500).json({ error: 'Failed to update order status' });
+    }
+});
 
 // Serve static HTML files
 app.get('/', (req, res) => {
