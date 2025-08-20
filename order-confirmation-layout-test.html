@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation Layout Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'heritage-red': '#4B0000',
+                        'heritage-gold': '#BFA14A',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-100 p-4">
+    <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-8">
+        <h2 class="text-2xl font-bold text-heritage-red mb-6">Order Details - Layout Test</h2>
+        
+        <!-- Simulated Order Details Grid -->
+        <div class="grid md:grid-cols-2 gap-6">
+            <!-- Left Column -->
+            <div class="space-y-3">
+                <div class="flex justify-between py-2 border-b border-gray-200">
+                    <span class="font-semibold text-gray-700">Order ID:</span>
+                    <span class="text-heritage-red font-mono">HB1755682540652731</span>
+                </div>
+                <div class="flex justify-between py-2 border-b border-gray-200">
+                    <span class="font-semibold text-gray-700">Shiprocket Order ID:</span>
+                    <span class="text-heritage-red font-mono">936651483</span>
+                </div>
+                <div class="flex justify-between py-2 border-b border-gray-200">
+                    <span class="font-semibold text-gray-700">Shipment ID:</span>
+                    <span class="text-heritage-red font-mono">933099374</span>
+                </div>
+                <div class="flex justify-between py-2 border-b border-gray-200">
+                    <span class="font-semibold text-gray-700">Payment Method:</span>
+                    <span class="text-heritage-red font-semibold">Cash on Delivery</span>
+                </div>
+                <div class="flex justify-between py-2 border-b border-gray-200">
+                    <span class="font-semibold text-gray-700">Customer:</span>
+                    <span class="text-gray-800">Test User</span>
+                </div>
+            </div>
+            
+            <!-- Right Column -->
+            <div class="space-y-3">
+                <div class="flex justify-between py-2 border-b border-gray-200">
+                    <span class="font-semibold text-gray-700">Original Amount:</span>
+                    <span class="text-gray-600 font-number">₹3,998</span>
+                </div>
+                <div class="flex justify-between py-2 border-b border-gray-200">
+                    <span class="font-semibold text-gray-700">Discount Applied:</span>
+                    <span class="text-green-600 font-bold font-number">-₹400 (LAUNCH10 - 10%)</span>
+                </div>
+                <div class="flex justify-between py-2 border-b border-gray-200 bg-heritage-gold bg-opacity-10">
+                    <span class="font-bold text-heritage-red">Final Amount (COD):</span>
+                    <span class="text-heritage-red font-bold font-number text-lg">₹3,598</span>
+                </div>
+                <div class="flex justify-between py-2 border-b border-gray-200">
+                    <span class="font-semibold text-gray-700">Estimated Delivery:</span>
+                    <span class="text-heritage-red">Aug 25, 2025</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-6 p-4 bg-green-50 rounded-lg border border-green-200">
+            <h3 class="text-lg font-bold text-green-800 mb-2">✅ Layout Fixed!</h3>
+            <ul class="text-green-700 space-y-1">
+                <li>• Customer name is now in the LEFT column under Payment Method</li>
+                <li>• Final Amount (COD) remains in the RIGHT column</li>
+                <li>• Discount information properly displayed on the right</li>
+                <li>• Clean two-column layout maintained</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

@@ -226,24 +226,13 @@
               
               <div>
                 <label for="customer-state" class="block text-heritage-red font-semibold mb-2">State</label>
-                <select 
+                <input 
+                  type="text" 
                   id="customer-state" 
                   name="state"
                   class="w-full px-4 py-3 border-2 border-heritage-gold rounded-xl focus:outline-none focus:border-heritage-red transition-colors shadow-inner"
+                  placeholder="Enter your state"
                 >
-                  <option value="">Select State</option>
-                  <option value="West Bengal">West Bengal</option>
-                  <option value="Maharashtra">Maharashtra</option>
-                  <option value="Delhi">Delhi</option>
-                  <option value="Karnataka">Karnataka</option>
-                  <option value="Tamil Nadu">Tamil Nadu</option>
-                  <option value="Gujarat">Gujarat</option>
-                  <option value="Rajasthan">Rajasthan</option>
-                  <option value="Uttar Pradesh">Uttar Pradesh</option>
-                  <option value="Madhya Pradesh">Madhya Pradesh</option>
-                  <option value="Bihar">Bihar</option>
-                  <option value="Other">Other</option>
-                </select>
               </div>
             </form>
           </div>
@@ -277,20 +266,49 @@
 
             <!-- Coupon Section -->
             <div class="bg-heritage-cream rounded-xl p-4 mb-6" id="coupon-section">
-              <h3 class="text-lg font-bold text-heritage-red mb-3">Have a Coupon?</h3>
-              <div class="flex flex-col sm:flex-row gap-3">
-                <input 
-                  type="text" 
-                  id="checkout-coupon-code" 
-                  placeholder="Enter coupon code" 
-                  class="flex-1 px-3 py-2 border-2 border-heritage-gold rounded-full text-gray-800 focus:outline-none focus:border-heritage-red transition-colors"
-                >
-                <button 
-                  onclick="heritageCheckout.applyCheckoutCoupon()" 
-                  class="bg-heritage-gold text-heritage-red px-6 py-2 rounded-full font-bold hover:bg-heritage-light-gold transition-all"
-                >
-                  Apply
-                </button>
+              <!-- Coupon Input (shown when no coupon is applied) -->
+              <div id="coupon-input-section">
+                <h3 class="text-lg font-bold text-heritage-red mb-3">Have a Coupon?</h3>
+                <div class="flex flex-col sm:flex-row gap-3">
+                  <input 
+                    type="text" 
+                    id="checkout-coupon-code" 
+                    placeholder="Enter coupon code" 
+                    class="flex-1 px-3 py-2 border-2 border-heritage-gold rounded-full text-gray-800 focus:outline-none focus:border-heritage-red transition-colors"
+                  >
+                  <button 
+                    onclick="heritageCheckout.applyCheckoutCoupon()" 
+                    class="bg-heritage-gold text-heritage-red px-6 py-2 rounded-full font-bold hover:bg-heritage-light-gold transition-all"
+                  >
+                    Apply
+                  </button>
+                </div>
+              </div>
+
+              <!-- Applied Coupon Display (shown when coupon is applied) -->
+              <div id="coupon-applied-section" class="hidden">
+                <h3 class="text-lg font-bold text-heritage-red mb-3 flex items-center">
+                  <svg class="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                  </svg>
+                  Coupon Applied
+                </h3>
+                <div class="flex items-center justify-between bg-green-50 border-2 border-green-200 rounded-full px-4 py-3">
+                  <div class="flex items-center">
+                    <span class="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-bold mr-3" id="applied-coupon-code">
+                      <!-- Coupon code will be displayed here -->
+                    </span>
+                    <span class="text-green-700 font-semibold" id="applied-coupon-discount">
+                      <!-- Discount percentage will be displayed here -->
+                    </span>
+                  </div>
+                  <button 
+                    onclick="heritageCheckout.removeCoupon()" 
+                    class="bg-red-500 text-white px-4 py-2 rounded-full font-bold hover:bg-red-600 transition-all text-sm"
+                  >
+                    Remove
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -339,6 +357,35 @@
         </div>
       </div>
     </section>
+
+    <!-- Coupon Removal Confirmation Modal -->
+    <div id="coupon-remove-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl p-8 max-w-md w-full">
+        <div class="text-center">
+          <div class="w-16 h-16 bg-red-500 rounded-full mx-auto mb-4 flex items-center justify-center">
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </div>
+          <h3 class="text-2xl font-bold text-heritage-red mb-4">Remove Coupon?</h3>
+          <p class="text-gray-600 mb-6">Are you sure you want to remove the applied coupon? This will update your order total.</p>
+          <div class="flex gap-3 justify-center">
+            <button 
+              onclick="heritageCheckout.confirmRemoveCoupon()" 
+              class="bg-red-500 text-white py-2 px-6 rounded-full font-bold hover:bg-red-600 transition-all"
+            >
+              Yes, Remove
+            </button>
+            <button 
+              onclick="heritageCheckout.cancelRemoveCoupon()" 
+              class="bg-heritage-gold text-heritage-red py-2 px-6 rounded-full font-bold hover:bg-heritage-light-gold transition-all"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- Order Confirmation Modal -->
     <div id="order-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">

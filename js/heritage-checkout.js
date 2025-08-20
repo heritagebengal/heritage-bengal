@@ -251,7 +251,10 @@ class HeritageCheckout {
         city: formData.get('city') || 'Kolkata',
         state: formData.get('state') || 'West Bengal',
         cartItems: this.cartItems,
-        totalAmount: this.totalAmount - this.discountApplied
+        totalAmount: this.totalAmount - this.discountApplied,
+        originalTotal: this.totalAmount,
+        discountApplied: this.discountApplied,
+        discountCoupon: this.appliedCouponData
       };
       
       console.log('Creating payment order for amount:', orderDetails.totalAmount);
@@ -390,7 +393,17 @@ class HeritageCheckout {
         localStorage.setItem('lastOrder', JSON.stringify(confirmationData));
         
         // Redirect to order confirmation page
-        window.location.href = `order-confirmation.html?orderId=${confirmationData.orderId}&amount=${confirmationData.amount}&customerName=${encodeURIComponent(confirmationData.customerName)}`;
+        // Build URL with discount information
+        let redirectUrl = `order-confirmation.html?orderId=${confirmationData.orderId}&amount=${confirmationData.amount}&customerName=${encodeURIComponent(confirmationData.customerName)}`;
+        
+        if (this.discountApplied > 0) {
+          redirectUrl += `&originalAmount=${this.totalAmount}&discountApplied=${this.discountApplied}`;
+          if (this.appliedCouponData) {
+            redirectUrl += `&couponCode=${encodeURIComponent(this.appliedCouponData.code)}&couponPercent=${this.appliedCouponData.percent}`;
+          }
+        }
+        
+        window.location.href = redirectUrl;
         
       } else {
         throw new Error(verificationResult.error || 'Payment verification failed');
@@ -447,7 +460,10 @@ class HeritageCheckout {
         city: formData.get('city') || 'Kolkata',
         state: formData.get('state') || 'West Bengal',
         cartItems: this.cartItems,
-        totalAmount: this.totalAmount - this.discountApplied
+        totalAmount: this.totalAmount - this.discountApplied,
+        originalTotal: this.totalAmount,
+        discountApplied: this.discountApplied,
+        discountCoupon: this.appliedCouponData
       };
       
       console.log('Creating COD order for amount:', orderDetails.totalAmount);
@@ -492,7 +508,17 @@ class HeritageCheckout {
       localStorage.setItem('lastOrder', JSON.stringify(confirmationData));
       
       // Redirect to order confirmation page
-      window.location.href = `order-confirmation.html?orderId=${confirmationData.orderId}&amount=${confirmationData.amount}&customerName=${encodeURIComponent(confirmationData.customerName)}&paymentMethod=COD`;
+      // Build URL with discount information
+      let redirectUrl = `order-confirmation.html?orderId=${confirmationData.orderId}&amount=${confirmationData.amount}&customerName=${encodeURIComponent(confirmationData.customerName)}&paymentMethod=COD`;
+      
+      if (this.discountApplied > 0) {
+        redirectUrl += `&originalAmount=${this.totalAmount}&discountApplied=${this.discountApplied}`;
+        if (this.appliedCouponData) {
+          redirectUrl += `&couponCode=${encodeURIComponent(this.appliedCouponData.code)}&couponPercent=${this.appliedCouponData.percent}`;
+        }
+      }
+      
+      window.location.href = redirectUrl;
       
     } catch (error) {
       console.error('COD order creation error:', error);
@@ -609,26 +635,16 @@ class HeritageCheckout {
       this.updateOrderTotal();
       this.validateForm();
       
-      // Update coupon section to show applied coupon
-      const couponSection = document.getElementById('coupon-section');
-      if (couponSection) {
-        couponSection.innerHTML = `
-          <h3 class="text-lg font-bold text-heritage-red mb-3">Coupon Applied</h3>
-          <div class="flex items-center justify-between bg-green-100 p-3 rounded-lg">
-            <div>
-              <span class="font-bold text-green-700">${data.code}</span>
-              <span class="text-green-600 ml-2">(${data.percent}% discount)</span>
-            </div>
-            <button 
-              onclick="removeCheckoutCoupon()" 
-              class="text-red-500 hover:text-red-700 underline text-sm"
-            >
-              Remove
-            </button>
-          </div>
-          <p class="text-sm text-green-600 mt-2">You saved ₹${this.discountApplied.toLocaleString()}!</p>
-        `;
-      }
+      // Hide coupon input section and show applied coupon section
+      const couponInputSection = document.getElementById('coupon-input-section');
+      const couponAppliedSection = document.getElementById('coupon-applied-section');
+      const appliedCouponCode = document.getElementById('applied-coupon-code');
+      const appliedCouponDiscount = document.getElementById('applied-coupon-discount');
+      
+      if (couponInputSection) couponInputSection.classList.add('hidden');
+      if (couponAppliedSection) couponAppliedSection.classList.remove('hidden');
+      if (appliedCouponCode) appliedCouponCode.textContent = data.code;
+      if (appliedCouponDiscount) appliedCouponDiscount.textContent = `${data.percent}% OFF - You saved ₹${this.discountApplied.toLocaleString()}!`;
       
       this.showNotification(`Coupon applied successfully! You saved ₹${this.discountApplied.toLocaleString()} (${data.percent}% discount)`, 'success');
       
@@ -638,35 +654,50 @@ class HeritageCheckout {
     }
   }
 
-  removeCheckoutCoupon() {
+  removeCoupon() {
+    // Show the confirmation modal
+    const modal = document.getElementById('coupon-remove-modal');
+    if (modal) {
+      modal.classList.remove('hidden');
+    }
+  }
+
+  confirmRemoveCoupon() {
+    // Actually remove the coupon
     this.discountApplied = 0;
     this.appliedCouponData = null;
     this.updateOrderTotal();
     this.validateForm();
     
-    // Reset coupon section
-    const couponSection = document.getElementById('coupon-section');
-    if (couponSection) {
-      couponSection.innerHTML = `
-        <h3 class="text-lg font-bold text-heritage-red mb-3">Coupon Code</h3>
-        <div class="flex gap-2">
-          <input 
-            type="text" 
-            id="checkout-coupon-code" 
-            placeholder="Enter coupon code" 
-            class="flex-1 px-3 py-2 border border-gray-300 rounded-lg"
-          />
-          <button 
-            onclick="heritageCheckout.applyCheckoutCoupon()" 
-            class="px-4 py-2 bg-heritage-red text-white rounded-lg hover:bg-heritage-red-dark"
-          >
-            Apply
-          </button>
-        </div>
-      `;
+    // Hide applied coupon section and show input section
+    const couponInputSection = document.getElementById('coupon-input-section');
+    const couponAppliedSection = document.getElementById('coupon-applied-section');
+    const couponInput = document.getElementById('checkout-coupon-code');
+    
+    if (couponAppliedSection) couponAppliedSection.classList.add('hidden');
+    if (couponInputSection) couponInputSection.classList.remove('hidden');
+    if (couponInput) couponInput.value = '';
+    
+    // Hide the confirmation modal
+    const modal = document.getElementById('coupon-remove-modal');
+    if (modal) {
+      modal.classList.add('hidden');
     }
     
-    this.showNotification('Coupon removed', 'info');
+    this.showNotification('Coupon removed successfully', 'info');
+  }
+
+  cancelRemoveCoupon() {
+    // Hide the confirmation modal without removing coupon
+    const modal = document.getElementById('coupon-remove-modal');
+    if (modal) {
+      modal.classList.add('hidden');
+    }
+  }
+
+  removeCheckoutCoupon() {
+    // This is the old function - redirect to new function
+    this.removeCoupon();
   }
 
   updateCartCount() {
@@ -712,3 +743,4 @@ window.placeCODOrder = () => heritageCheckout.placeCODOrder();
 window.removeCheckoutCoupon = () => heritageCheckout.removeCheckoutCoupon();
 window.applyCheckoutCoupon = () => heritageCheckout.applyCheckoutCoupon();
 window.closeOrderModal = () => heritageCheckout.closeOrderModal();
+window.heritageCheckout = heritageCheckout; // Export the instance for direct access

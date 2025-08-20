@@ -1,93 +1,3 @@
-async function applyCoupon() {
-  const code = document.getElementById('coupon-code').value.trim();
-  if (!code) {
-    alert('Please enter a coupon code.');
-    return;
-  }
-  
-  const cart = getCart();
-  let total = cart.reduce((sum, item) => {
-    const quantity = item.quantity || 1;
-    return sum + (item.price * quantity);
-  }, 0);
-  
-  try {
-    console.log('Applying coupon:', { code, total }); // Debug log
-    
-    const res = await fetch('/api/coupons/apply', {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify({ code, total })
-    });
-    
-    if (!res.ok) {
-      throw new Error(`HTTP error! status: ${res.status}`);
-    }
-    
-    const data = await res.json();
-    console.log('Coupon response:', data); // Debug log
-    
-    if (!data.valid) {
-      const errorMessage = data.message || (data.expired ? 'Coupon has expired' : 'Invalid or expired coupon');
-      alert(errorMessage);
-      return;
-    }
-    
-    // Update cart total display with discount breakdown
-    const discountAmount = total - data.discountedTotal;
-    document.getElementById('cart-total').innerHTML = `
-      <div class="text-center">
-        <h2 class="text-2xl md:text-3xl font-bold mb-2">Cart Summary</h2>
-        <div class="space-y-2">
-          <div class="text-xl font-bold text-heritage-cream font-number">
-            Subtotal: ₹${total.toLocaleString()}
-          </div>
-          <div class="text-lg font-bold text-green-400 font-number">
-            Discount (${data.percent}%): -₹${discountAmount.toLocaleString()}
-          </div>
-          <hr class="border-heritage-gold my-2">
-          <div class="text-2xl sm:text-3xl md:text-4xl font-bold text-heritage-cream font-number">
-            Grand Total: ₹${data.discountedTotal.toLocaleString()}
-          </div>
-        </div>
-        <p class="text-heritage-cream mt-2 opacity-90">Coupon "${data.code}" applied successfully!</p>
-      </div>
-    `;
-    
-    // Store the applied discount for checkout
-    localStorage.setItem('appliedCoupon', JSON.stringify({
-      code: data.code,
-      percent: data.percent,
-      discountAmount: discountAmount,
-      originalTotal: total,
-      discountedTotal: data.discountedTotal
-    }));
-    
-    alert(`Coupon applied successfully! You saved ₹${discountAmount} (${data.percent}% discount)`);
-    
-  } catch (err) {
-    console.error('Error applying coupon:', err);
-    alert('Error applying coupon. Please try again.');
-  }
-}
-
-// Function to remove applied coupon
-function removeCoupon() {
-  localStorage.removeItem('appliedCoupon');
-  renderCart(); // Re-render cart to show original totals
-  document.getElementById('coupon-code').value = ''; // Clear coupon input
-  alert('Coupon removed successfully');
-}
-
-// Function to get applied coupon data
-function getAppliedCoupon() {
-  const couponData = localStorage.getItem('appliedCoupon');
-  return couponData ? JSON.parse(couponData) : null;
-}
-
 // Cart logic using localStorage
 function getCart() {
   let cart = JSON.parse(localStorage.getItem('cart') || '[]');
@@ -202,50 +112,16 @@ function renderCart() {
   }).join('');
   
   // Update cart total with summary
-  const appliedCoupon = getAppliedCoupon();
-  
-  if (appliedCoupon && appliedCoupon.originalTotal === total) {
-    // Show discounted total if coupon is applied and still valid
-    cartTotal.innerHTML = `
-      <div class="text-center">
-        <h2 class="text-2xl md:text-3xl font-bold mb-2">Cart Summary</h2>
-        <div class="space-y-2">
-          <div class="text-xl font-bold text-heritage-cream font-number">
-            Subtotal: ₹${total.toLocaleString()}
-          </div>
-          <div class="text-lg font-bold text-green-400 font-number">
-            Discount (${appliedCoupon.percent}%): -₹${appliedCoupon.discountAmount.toLocaleString()}
-          </div>
-          <hr class="border-heritage-gold my-2">
-          <div class="text-2xl sm:text-3xl md:text-4xl font-bold text-heritage-cream font-number">
-            Grand Total: ₹${appliedCoupon.discountedTotal.toLocaleString()}
-          </div>
-        </div>
-        <p class="text-heritage-cream mt-2 opacity-90">
-          ${totalItems} ${totalItems === 1 ? 'item' : 'items'} in your cart
-        </p>
-        <p class="text-green-400 mt-1 text-sm">
-          Coupon "${appliedCoupon.code}" applied 
-          <button onclick="removeCoupon()" class="text-red-400 underline ml-2">Remove</button>
-        </p>
+  cartTotal.innerHTML = `
+    <div class="text-center">
+      <h2 class="text-2xl md:text-3xl font-bold mb-2">Cart Summary</h2>
+      <div class="text-2xl sm:text-3xl md:text-4xl font-bold text-heritage-cream font-number">
+        Total: ₹${total.toLocaleString()}
       </div>
-    `;
-  } else {
-    // Clear invalid coupon and show normal total
-    if (appliedCoupon) {
-      localStorage.removeItem('appliedCoupon');
-    }
-    
-    cartTotal.innerHTML = `
-      <div class="text-center">
-        <h2 class="text-2xl md:text-3xl font-bold mb-2">Cart Summary</h2>
-        <div class="text-2xl sm:text-3xl md:text-4xl font-bold text-heritage-cream font-number">
-          Total: ₹${total.toLocaleString()}
-        </div>
-        <p class="text-heritage-cream mt-2 opacity-90">${totalItems} ${totalItems === 1 ? 'item' : 'items'} in your cart</p>
-      </div>
-    `;
-  }
+      <p class="text-heritage-cream mt-2 opacity-90">${totalItems} ${totalItems === 1 ? 'item' : 'items'} in your cart</p>
+      <p class="text-heritage-cream mt-1 text-sm opacity-75">Apply coupons at checkout</p>
+    </div>
+  `;
 }
 
 function increaseQuantity(idx) {

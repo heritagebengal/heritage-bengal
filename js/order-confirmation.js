@@ -10,6 +10,10 @@ function loadOrderDetails() {
     orderId: urlParams.get('orderId'),
     shiprocketOrderId: urlParams.get('shiprocketOrderId'),
     amount: urlParams.get('amount'),
+    originalAmount: urlParams.get('originalAmount'),
+    discountApplied: urlParams.get('discountApplied'),
+    couponCode: urlParams.get('couponCode'),
+    couponPercent: urlParams.get('couponPercent'),
     estimatedDelivery: urlParams.get('estimatedDelivery'),
     trackingUrl: urlParams.get('trackingUrl'),
     shipmentId: urlParams.get('shipmentId'),
@@ -97,24 +101,39 @@ function displayOrderDetails(orderData) {
           <span class="font-semibold text-gray-700">Payment Method:</span>
           <span class="text-heritage-red font-semibold">${isCOD ? 'Cash on Delivery' : 'Online Payment'}</span>
         </div>
+        ${orderData.customerName ? `
+        <div class="flex justify-between py-2 border-b border-gray-200">
+          <span class="font-semibold text-gray-700">Customer:</span>
+          <span class="text-gray-800">${orderData.customerName}</span>
+        </div>
+        ` : ''}
       </div>
       <div class="space-y-3">
         ${orderData.amount ? `
-          <div class="flex justify-between py-2 border-b border-gray-200">
-            <span class="font-semibold text-gray-700">${isCOD ? 'Amount (COD):' : 'Amount Paid:'}:</span>
-            <span class="${paymentStatusColor} font-bold font-number">₹${parseInt(orderData.amount).toLocaleString()}</span>
-          </div>
+          ${orderData.originalAmount && orderData.discountApplied ? `
+            <div class="flex justify-between py-2 border-b border-gray-200">
+              <span class="font-semibold text-gray-700">Original Amount:</span>
+              <span class="text-gray-600 font-number">₹${parseInt(orderData.originalAmount).toLocaleString()}</span>
+            </div>
+            <div class="flex justify-between py-2 border-b border-gray-200">
+              <span class="font-semibold text-gray-700">Discount Applied:</span>
+              <span class="text-green-600 font-bold font-number">-₹${parseInt(orderData.discountApplied).toLocaleString()} ${orderData.couponCode ? `(${orderData.couponCode} - ${orderData.couponPercent}%)` : ''}</span>
+            </div>
+            <div class="flex justify-between py-2 border-b border-gray-200 bg-heritage-gold bg-opacity-10">
+              <span class="font-bold text-heritage-red">${isCOD ? 'Final Amount (COD):' : 'Final Amount Paid:'}:</span>
+              <span class="${paymentStatusColor} font-bold font-number text-lg">₹${parseInt(orderData.amount).toLocaleString()}</span>
+            </div>
+          ` : `
+            <div class="flex justify-between py-2 border-b border-gray-200">
+              <span class="font-semibold text-gray-700">${isCOD ? 'Amount (COD):' : 'Amount Paid:'}:</span>
+              <span class="${paymentStatusColor} font-bold font-number">₹${parseInt(orderData.amount).toLocaleString()}</span>
+            </div>
+          `}
         ` : ''}
         ${orderData.estimatedDelivery ? `
           <div class="flex justify-between py-2 border-b border-gray-200">
             <span class="font-semibold text-gray-700">Estimated Delivery:</span>
             <span class="text-heritage-red">${orderData.estimatedDelivery}</span>
-          </div>
-        ` : ''}
-        ${orderData.customerName ? `
-          <div class="flex justify-between py-2 border-b border-gray-200">
-            <span class="font-semibold text-gray-700">Customer:</span>
-            <span class="text-gray-800">${orderData.customerName}</span>
           </div>
         ` : ''}
       </div>

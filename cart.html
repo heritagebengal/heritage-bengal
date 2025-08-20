@@ -169,30 +169,6 @@
 
         <!-- Cart Summary and Actions -->
         <div class="bg-white rounded-2xl shadow-xl p-8">
-          <!-- Coupon Section -->
-          <div class="mb-8 p-6 bg-gradient-to-r from-heritage-light-gold to-heritage-dark-gold rounded-xl">
-            <h3 class="text-xl font-bold text-heritage-red mb-4 flex items-center">
-              <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.99 1.99 0 013 12V7a4 4 0 014-4z"></path>
-              </svg>
-              Have a Coupon Code?
-            </h3>
-            <div class="flex flex-col sm:flex-row gap-3">
-              <input 
-                type="text" 
-                id="coupon-code" 
-                placeholder="Enter coupon code" 
-                class="flex-1 px-4 py-3 border-2 border-heritage-red rounded-full text-heritage-red placeholder-heritage-red focus:outline-none focus:ring-2 focus:ring-heritage-red focus:border-transparent"
-              >
-              <button 
-                onclick="applyCoupon()" 
-                class="bg-heritage-red text-white px-8 py-3 rounded-full font-bold hover:bg-opacity-90 transition-all transform hover:scale-105 shadow-lg"
-              >
-                Apply Coupon
-              </button>
-            </div>
-          </div>
-
           <!-- Cart Total -->
           <div id="cart-total" class="mb-8 p-6 bg-gradient-to-r from-heritage-red to-red-900 text-white rounded-xl text-center">
             <!-- Total will be populated by JavaScript -->
@@ -262,8 +238,6 @@
         setTimeout(() => popup.classList.add('hidden'), 400);
       }, 3000);
     }
-    
-    // applyCoupon function is now handled by cart.js
     
     window.addEventListener('DOMContentLoaded', function() {
       updateCartCount();

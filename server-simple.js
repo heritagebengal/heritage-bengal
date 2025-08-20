@@ -57,7 +57,9 @@ function generateOrderConfirmationEmail(orderData) {
     <style>
         body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
         .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { background: #8B1538; color: white; padding: 20px; text-align: center; }
+        .header { background: #4B0000; color: #BFA14A; padding: 20px; text-align: center; }
+        .header h1 { color: #BFA14A; margin: 0; font-size: 28px; font-weight: bold; }
+        .header h2 { color: #BFA14A; margin: 10px 0 0 0; font-size: 18px; font-weight: normal; }
         .content { padding: 20px; background: #f9f9f9; }
         .order-details { background: white; padding: 20px; margin: 20px 0; border-radius: 8px; }
         .payment-success { 
@@ -81,12 +83,13 @@ function generateOrderConfirmationEmail(orderData) {
         }
         .tracking-button { 
             display: inline-block; 
-            background: #8B1538; 
-            color: white; 
+            background: #4B0000; 
+            color: #BFA14A; 
             padding: 12px 24px; 
             text-decoration: none; 
             border-radius: 5px; 
             margin: 10px 0;
+            font-weight: bold;
         }
         .footer { text-align: center; padding: 20px; color: #666; }
     </style>
@@ -106,7 +109,11 @@ function generateOrderConfirmationEmail(orderData) {
             <div class="order-details">
                 <h3>📋 Order Details</h3>
                 <p><strong>Order ID:</strong> ${orderData.orderId}</p>
-                <p><strong>Amount:</strong> ₹${orderData.amount}</p>
+                ${orderData.originalAmount && orderData.discountApplied ? `
+                <p><strong>${isCOD ? 'Amount to be paid:' : 'Amount paid:'}</strong> ₹${orderData.amount}</p>
+                ` : `
+                <p><strong>${isCOD ? 'Amount to be paid:' : 'Amount paid:'}</strong> ₹${orderData.amount}</p>
+                `}
                 <p><strong>Payment Method:</strong> ${paymentText}</p>
                 ${orderData.shiprocketOrderId ? `<p><strong>Shiprocket Order ID:</strong> ${orderData.shiprocketOrderId}</p>` : ''}
                 ${orderData.shipmentId ? `<p><strong>Shipment ID:</strong> ${orderData.shipmentId}</p>` : ''}
@@ -128,6 +135,15 @@ function generateOrderConfirmationEmail(orderData) {
                         </div>
                     </div>`;
                 }).join('')}
+                
+                ${orderData.originalAmount && orderData.discountApplied ? `
+                <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px; border-left: 4px solid #BFA14A;">
+                    <h4 style="margin: 0 0 10px 0; color: #4B0000;">💰 Discount Applied</h4>
+                    <p style="margin: 5px 0; color: #666;"><strong>Original Total:</strong> ₹${orderData.originalAmount}</p>
+                    <p style="margin: 5px 0; color: #28a745;"><strong>Discount:</strong> -₹${orderData.discountApplied} ${orderData.discountCoupon ? `(${orderData.discountCoupon.code} - ${orderData.discountCoupon.percent}% off)` : ''}</p>
+                    <p style="margin: 5px 0 0 0; color: #4B0000; font-size: 16px;"><strong>Final Total: ₹${orderData.amount}</strong></p>
+                </div>
+                ` : ''}
             </div>
             ` : ''}
             
@@ -584,7 +600,10 @@ async function createShiprocketOrder(orderDetails) {
             city,
             state,
             cartItems,
-            totalAmount
+            totalAmount,
+            originalTotal,
+            discountApplied,
+            discountCoupon
         } = orderDetails;
         
         // Generate unique order ID
@@ -626,8 +645,8 @@ async function createShiprocketOrder(orderDetails) {
             shipping_charges: 0,
             giftwrap_charges: 0,
             transaction_charges: 0,
-            total_discount: 0,
-            sub_total: totalAmount,
+            total_discount: discountApplied || 0,
+            sub_total: originalTotal || totalAmount,
             length: packageLength,
             breadth: packageBreadth,
             height: packageHeight,
@@ -692,6 +711,9 @@ async function createShiprocketOrder(orderDetails) {
                 customerName: customerName,
                 customerEmail: customerEmail,
                 amount: totalAmount,
+                originalAmount: originalTotal,
+                discountApplied: discountApplied,
+                discountCoupon: discountCoupon,
                 paymentMethod: 'COD',
                 trackingUrl: shiprocketResponse?.data?.shipment_id ? `https://shiprocket.in/tracking/${shiprocketResponse.data.shipment_id}` : null,
                 cartItems: cartItems
@@ -909,6 +931,9 @@ async function createShiprocketOrderPrepaid(orderDetails) {
             state,
             cartItems,
             totalAmount,
+            originalTotal,
+            discountApplied,
+            discountCoupon,
             razorpayOrderId,
             razorpayPaymentId
         } = orderDetails;
@@ -952,8 +977,8 @@ async function createShiprocketOrderPrepaid(orderDetails) {
             shipping_charges: 0,
             giftwrap_charges: 0,
             transaction_charges: 0,
-            total_discount: 0,
-            sub_total: totalAmount,
+            total_discount: discountApplied || 0,
+            sub_total: originalTotal || totalAmount,
             length: packageLength,
             breadth: packageBreadth,
             height: packageHeight,
@@ -1022,6 +1047,9 @@ async function createShiprocketOrderPrepaid(orderDetails) {
                 customerName: customerName,
                 customerEmail: customerEmail,
                 amount: totalAmount,
+                originalAmount: originalTotal,
+                discountApplied: discountApplied,
+                discountCoupon: discountCoupon,
                 paymentMethod: 'Prepaid',
                 razorpayOrderId: razorpayOrderId,
                 razorpayPaymentId: razorpayPaymentId,
