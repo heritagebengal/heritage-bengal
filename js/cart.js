@@ -55,7 +55,21 @@ function renderCart() {
     totalItems += quantity;
     
     return `
-    <div class='cart-item bg-gradient-to-r from-heritage-cream to-white p-6 rounded-xl shadow-lg border-l-4 border-heritage-gold hover:shadow-xl transition-all'>
+    <div class='cart-item bg-gradient-to-r from-heritage-cream to-white p-6 rounded-xl shadow-lg border-l-4 border-heritage-gold hover:shadow-xl transition-all relative'>
+      <!-- Mobile X Button (Top Right) -->
+      <div class="absolute top-4 right-4 lg:hidden">
+        <button 
+          onclick='removeFromCart(${idx})' 
+          class='w-6 h-6 flex items-center justify-center hover:bg-opacity-80 transition-all'
+          style='background-color: #4B0000; color: white; border-radius: 50%;'
+          title="Remove item"
+        >
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+      
       <div class="flex flex-col lg:flex-row items-center gap-6">
         <div class="flex-shrink-0">
           <img src='${item.image}' alt='${item.name}' class='w-20 h-20 object-cover rounded-lg shadow-md'>
@@ -95,16 +109,17 @@ function renderCart() {
           </div>
         </div>
         
-        <!-- Remove Button -->
-        <div class="flex-shrink-0">
+        <!-- Desktop X Button (Right Middle) -->
+        <div class="hidden lg:flex flex-shrink-0 self-center ml-4">
           <button 
             onclick='removeFromCart(${idx})' 
-            class='bg-red-500 text-white px-6 py-2 rounded-full font-bold hover:bg-red-600 transition-all transform hover:scale-105 shadow-lg flex items-center gap-2'
+            class='w-6 h-6 flex items-center justify-center hover:bg-opacity-80 transition-all'
+            style='background-color: #4B0000; color: white; border-radius: 50%;'
+            title="Remove item"
           >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
             </svg>
-            Remove
           </button>
         </div>
       </div>

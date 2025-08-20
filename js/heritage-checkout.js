@@ -640,11 +640,13 @@ class HeritageCheckout {
       const couponAppliedSection = document.getElementById('coupon-applied-section');
       const appliedCouponCode = document.getElementById('applied-coupon-code');
       const appliedCouponDiscount = document.getElementById('applied-coupon-discount');
+      const appliedCouponSavings = document.getElementById('applied-coupon-savings');
       
       if (couponInputSection) couponInputSection.classList.add('hidden');
       if (couponAppliedSection) couponAppliedSection.classList.remove('hidden');
       if (appliedCouponCode) appliedCouponCode.textContent = data.code;
-      if (appliedCouponDiscount) appliedCouponDiscount.textContent = `${data.percent}% OFF - You saved ₹${this.discountApplied.toLocaleString()}!`;
+      if (appliedCouponDiscount) appliedCouponDiscount.textContent = `${data.percent}% OFF`;
+      if (appliedCouponSavings) appliedCouponSavings.textContent = `You saved ₹${this.discountApplied.toLocaleString()}!`;
       
       this.showNotification(`Coupon applied successfully! You saved ₹${this.discountApplied.toLocaleString()} (${data.percent}% discount)`, 'success');
       

@@ -287,24 +287,39 @@
 
               <!-- Applied Coupon Display (shown when coupon is applied) -->
               <div id="coupon-applied-section" class="hidden">
-                <h3 class="text-lg font-bold text-heritage-red mb-3 flex items-center">
-                  <svg class="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <h3 class="text-lg font-bold text-heritage-red mb-4 flex items-center justify-center">
+                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #4B0000;">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                   </svg>
                   Coupon Applied
                 </h3>
-                <div class="flex items-center justify-between bg-green-50 border-2 border-green-200 rounded-full px-4 py-3">
-                  <div class="flex items-center">
-                    <span class="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-bold mr-3" id="applied-coupon-code">
+                
+                <!-- Box Container for Coupon Details -->
+                <div class="bg-gradient-to-r from-heritage-gold to-heritage-light-gold border-2 rounded-lg px-6 py-4 mb-4 text-center" style="border-color: #4B0000;">
+                  <div class="flex flex-col items-center space-y-2">
+                    <!-- Coupon Code Badge -->
+                    <span class="px-4 py-2 rounded-lg font-bold text-white text-sm" id="applied-coupon-code" style="background-color: #4B0000;">
                       <!-- Coupon code will be displayed here -->
                     </span>
-                    <span class="text-green-700 font-semibold" id="applied-coupon-discount">
+                    
+                    <!-- Discount Text -->
+                    <div class="font-bold" style="color: #4B0000;" id="applied-coupon-discount">
                       <!-- Discount percentage will be displayed here -->
-                    </span>
+                    </div>
+                    
+                    <!-- Savings Text -->
+                    <div class="text-sm font-semibold" style="color: #4B0000;" id="applied-coupon-savings">
+                      <!-- Savings amount will be displayed here -->
+                    </div>
                   </div>
+                </div>
+                
+                <!-- Remove Button -->
+                <div class="text-center">
                   <button 
                     onclick="heritageCheckout.removeCoupon()" 
-                    class="bg-red-500 text-white px-4 py-2 rounded-full font-bold hover:bg-red-600 transition-all text-sm"
+                    class="text-white px-6 py-2 rounded-lg font-bold transition-all text-sm hover:opacity-90"
+                    style="background-color: #4B0000;"
                   >
                     Remove
                   </button>

@@ -314,7 +314,8 @@ class ProductManager {
       console.log('Final imageSrc for', product.name, ':', validImageSrc);
       
       return `
-      <div class="product-card bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+      <div class="product-card bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer"
+           onclick="navigateToProduct('${product._id}', event)">
         <div class="relative">
           <img src="${validImageSrc}" alt="${product.name}" 
                class="w-full h-48 object-cover"
@@ -328,7 +329,7 @@ class ProductManager {
         </div>
         
         <div class="p-4">
-          <h3 class="text-xs sm:text-sm font-bold text-heritage-red mb-2 line-clamp-2">${product.name}</h3>
+          <h3 class="text-xs sm:text-sm font-bold text-heritage-red mb-2 min-h-[2.5rem] flex items-start leading-tight" title="${product.name}">${product.name}</h3>
           
           <div class="flex items-center justify-between mb-3">
             ${this.renderProductPrice(product)}
@@ -337,13 +338,9 @@ class ProductManager {
             </span>
           </div>
           
-          <div class="flex flex-col gap-2 sm:flex-row">
-            <a href="product-details.html?id=${product._id}" 
-               class="w-full sm:flex-1 bg-heritage-gold text-heritage-red py-2 px-3 rounded-lg hover:bg-heritage-light-gold transition-colors text-center text-xs font-medium">
-              View Details
-            </a>
-            <button onclick="addToCart('${product._id}', '${product.name}', ${product.price}, '${validImageSrc}')" 
-                    class="w-full sm:flex-1 bg-heritage-red text-white py-2 px-3 rounded-lg hover:bg-red-900 transition-colors text-xs font-medium ${product.stock <= 0 ? 'opacity-50 cursor-not-allowed' : ''}"
+          <div class="flex justify-center">
+            <button onclick="addToCartFromProduct('${product._id}', '${product.name}', ${product.price}, '${validImageSrc}', event)" 
+                    class="w-full bg-heritage-red text-white py-2 px-3 rounded-lg hover:bg-red-900 transition-colors text-xs font-medium ${product.stock <= 0 ? 'opacity-50 cursor-not-allowed' : ''}"
                     ${product.stock <= 0 ? 'disabled' : ''}>
               Add to Cart
             </button>
@@ -373,6 +370,59 @@ class ProductManager {
   renderProductPrice(product) {
     // For products page, only show the current price
     return `<span class="text-base sm:text-lg font-bold text-heritage-gold font-number">₹${product.price.toLocaleString()}</span>`;
+  }
+}
+
+// Global functions for product navigation and cart management
+function navigateToProduct(productId, event) {
+  // Don't navigate if the click was on the add to cart button
+  if (event.target.closest('button')) {
+    return;
+  }
+  
+  window.location.href = `product-details.html?id=${productId}`;
+}
+
+function addToCartFromProduct(productId, productName, price, imageSrc, event) {
+  // Stop event propagation to prevent navigation
+  event.stopPropagation();
+  
+  // Call the existing addToCart function
+  if (typeof addToCart === 'function') {
+    addToCart(productId, productName, price, imageSrc);
+  } else {
+    // Fallback implementation
+    let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    
+    // Check if item already exists
+    const existingItemIndex = cart.findIndex(item => item.id === productId);
+    
+    if (existingItemIndex >= 0) {
+      // Update quantity of existing item
+      cart[existingItemIndex].quantity = (cart[existingItemIndex].quantity || 1) + 1;
+    } else {
+      // Add new item to cart
+      cart.push({
+        id: productId,
+        name: productName,
+        price: price,
+        image: imageSrc,
+        quantity: 1
+      });
+    }
+    
+    // Save cart
+    localStorage.setItem('cart', JSON.stringify(cart));
+    
+    // Show notification if function exists
+    if (typeof showCartPopup === 'function') {
+      showCartPopup(`${productName} added to cart!`);
+    }
+    
+    // Update cart count if function exists
+    if (typeof updateCartCount === 'function') {
+      updateCartCount();
+    }
   }
 }
 
