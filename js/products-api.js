@@ -81,10 +81,10 @@ class ProductManager {
   }
 
   setupEventListeners() {
-    // Category buttons
-    document.querySelectorAll('.category-btn').forEach(btn => {
+    // Category buttons (both desktop and mobile)
+    document.querySelectorAll('.category-btn, .mobile-category-btn').forEach(btn => {
       btn.addEventListener('click', async (e) => {
-        const category = e.target.dataset.category;
+        const category = e.target.closest('button').dataset.category;
         this.setActiveCategory(category);
         await this.filterByCategory(category);
       });
@@ -96,7 +96,7 @@ class ProductManager {
       await this.applySorting();
     });
 
-    // Price filter
+    // Price filter (desktop)
     document.getElementById('apply-filter').addEventListener('click', async () => {
       await this.applyPriceFilter();
     });
@@ -105,7 +105,16 @@ class ProductManager {
       await this.clearPriceFilter();
     });
 
-    // Enter key on price inputs
+    // Mobile price filter
+    document.getElementById('mobile-apply-filter')?.addEventListener('click', async () => {
+      await this.applyMobilePriceFilter();
+    });
+
+    document.getElementById('mobile-clear-filter')?.addEventListener('click', async () => {
+      await this.clearMobileFilters();
+    });
+
+    // Enter key on price inputs (desktop)
     ['min-price', 'max-price'].forEach(id => {
       document.getElementById(id).addEventListener('keypress', async (e) => {
         if (e.key === 'Enter') {
@@ -113,19 +122,47 @@ class ProductManager {
         }
       });
     });
+
+    // Enter key on mobile price inputs
+    ['mobile-min-price', 'mobile-max-price'].forEach(id => {
+      const element = document.getElementById(id);
+      if (element) {
+        element.addEventListener('keypress', async (e) => {
+          if (e.key === 'Enter') {
+            await this.applyMobilePriceFilter();
+          }
+        });
+      }
+    });
+
+    // Expose ProductManager instance globally for mobile sidebar access
+    window.productManager = this;
   }
 
   setActiveCategory(category) {
+    // Update desktop category buttons
     document.querySelectorAll('.category-btn').forEach(btn => {
       btn.classList.remove('active', 'bg-heritage-red', 'text-white');
       btn.classList.add('text-heritage-red');
     });
     
-    const activeBtn = document.querySelector(`[data-category="${category}"]`);
-    if (activeBtn) {
-      activeBtn.classList.add('active', 'bg-heritage-red', 'text-white');
-      activeBtn.classList.remove('text-heritage-red');
-    }
+    // Update mobile category buttons
+    document.querySelectorAll('.mobile-category-btn').forEach(btn => {
+      btn.classList.remove('active');
+    });
+    
+    // Set active state for both desktop and mobile
+    const activeBtns = document.querySelectorAll(`[data-category="${category}"]`);
+    activeBtns.forEach(activeBtn => {
+      if (activeBtn.classList.contains('category-btn')) {
+        // Desktop button styling
+        activeBtn.classList.add('active', 'bg-heritage-red', 'text-white');
+        activeBtn.classList.remove('text-heritage-red');
+      } else if (activeBtn.classList.contains('mobile-category-btn')) {
+        // Mobile button styling
+        activeBtn.classList.add('active');
+      }
+    });
     
     this.currentCategory = category;
   }
@@ -157,6 +194,48 @@ class ProductManager {
     this.priceFilter = { min: null, max: null };
     await this.applyCurrentFilters();
     this.updateActiveFilters();
+  }
+
+  async applyMobilePriceFilter() {
+    const minPrice = parseFloat(document.getElementById('mobile-min-price').value) || null;
+    const maxPrice = parseFloat(document.getElementById('mobile-max-price').value) || null;
+    
+    // Sync with desktop inputs
+    if (minPrice !== null) document.getElementById('min-price').value = minPrice;
+    if (maxPrice !== null) document.getElementById('max-price').value = maxPrice;
+    
+    this.priceFilter = { min: minPrice, max: maxPrice };
+    await this.applyCurrentFilters();
+    this.updateActiveFilters();
+  }
+
+  async clearMobileFilters() {
+    console.log('clearMobileFilters called');
+    
+    // Clear mobile inputs
+    const mobileMinPrice = document.getElementById('mobile-min-price');
+    const mobileMaxPrice = document.getElementById('mobile-max-price');
+    if (mobileMinPrice) mobileMinPrice.value = '';
+    if (mobileMaxPrice) mobileMaxPrice.value = '';
+    
+    // Clear desktop inputs
+    const desktopMinPrice = document.getElementById('min-price');
+    const desktopMaxPrice = document.getElementById('max-price');
+    if (desktopMinPrice) desktopMinPrice.value = '';
+    if (desktopMaxPrice) desktopMaxPrice.value = '';
+    
+    // Reset price filter
+    this.priceFilter = { min: null, max: null };
+    
+    // Reset to all products category
+    this.setActiveCategory('all');
+    await this.filterByCategory('all');
+    
+    // Apply current filters (which should now be empty)
+    await this.applyCurrentFilters();
+    this.updateActiveFilters();
+    
+    console.log('clearMobileFilters completed');
   }
 
   async applyCurrentFilters() {
@@ -229,9 +308,19 @@ class ProductManager {
         ).length;
       }
       
-      const btn = document.querySelector(`[data-category="${category}"]`);
-      if (btn) {
-        const countSpan = btn.querySelector('.category-count');
+      // Update desktop category counts
+      const desktopBtn = document.querySelector(`.category-btn[data-category="${category}"]`);
+      if (desktopBtn) {
+        const countSpan = desktopBtn.querySelector('.category-count');
+        if (countSpan) {
+          countSpan.textContent = `(${count})`;
+        }
+      }
+      
+      // Update mobile category counts
+      const mobileBtn = document.querySelector(`.mobile-category-btn[data-category="${category}"]`);
+      if (mobileBtn) {
+        const countSpan = mobileBtn.querySelector('.category-count');
         if (countSpan) {
           countSpan.textContent = `(${count})`;
         }

@@ -51,7 +51,43 @@ class HeritageCheckout {
   }
 
   loadCartItems() {
-    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    // Check if this is a buy now checkout
+    const urlParams = new URLSearchParams(window.location.search);
+    const isBuyNow = urlParams.get('buynow') === 'true';
+    
+    let cart = [];
+    
+    if (isBuyNow) {
+      // Load buy now item from localStorage
+      const buyNowItem = JSON.parse(localStorage.getItem('buyNowItem') || 'null');
+      if (buyNowItem) {
+        cart = [buyNowItem];
+        // Update page title to indicate buy now
+        document.title = 'Buy Now - Heritage Bengal';
+        
+        // Add a notice that this is a buy now checkout
+        const pageTitle = document.querySelector('h1');
+        if (pageTitle) {
+          pageTitle.className = 'text-4xl md:text-5xl font-bold mb-4 flex items-center justify-center gap-3';
+          pageTitle.innerHTML = `
+            <svg class="w-8 h-8 md:w-10 md:h-10 text-heritage-gold flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+            </svg>
+            Quick Checkout
+          `;
+          
+          // Add the subtitle after the h1
+          const subtitle = document.createElement('p');
+          subtitle.className = 'text-lg md:text-xl text-heritage-cream font-normal mt-4';
+          subtitle.textContent = 'Express purchase for immediate processing';
+          pageTitle.parentNode.insertBefore(subtitle, pageTitle.nextSibling);
+        }
+      }
+    } else {
+      // Load regular cart items
+      cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    }
+    
     this.cartItems = cart;
     
     const checkoutItemsContainer = document.getElementById('checkout-items');
@@ -60,7 +96,16 @@ class HeritageCheckout {
     
     if (cart.length === 0) {
       if (checkoutItemsContainer) checkoutItemsContainer.innerHTML = '';
-      if (emptyCartContainer) emptyCartContainer.classList.remove('hidden');
+      if (emptyCartContainer) {
+        emptyCartContainer.classList.remove('hidden');
+        // Update empty cart message for buy now
+        if (isBuyNow) {
+          const emptyMessage = emptyCartContainer.querySelector('p');
+          if (emptyMessage) {
+            emptyMessage.textContent = 'No item selected for quick checkout. Please return to the product page and try again.';
+          }
+        }
+      }
       if (placeOrderBtn) placeOrderBtn.disabled = true;
       const couponSection = document.getElementById('coupon-section');
       if (couponSection) couponSection.style.display = 'none';
@@ -543,6 +588,9 @@ class HeritageCheckout {
     const trackBtn = document.getElementById('track-order-btn');
     
     if (!modal || !orderDetails) return;
+    
+    // Clear buyNowItem if this was a buy now checkout
+    localStorage.removeItem('buyNowItem');
     
     // Handle both Shiprocket integrated and manual shipping scenarios
     const isShippingIntegrated = orderData.shipping_integrated === true;

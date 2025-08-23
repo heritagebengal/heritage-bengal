@@ -7,6 +7,70 @@
     .font-number {
       font-family: 'EB Garamond', 'Georgia', serif !important;
     }
+
+    /* Quantity controls styling - Updated to match cart page */
+    .quantity-container {
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    .quantity-input {
+      -webkit-appearance: none;
+      -moz-appearance: textfield;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      line-height: 1;
+      vertical-align: middle;
+      min-width: 2rem;
+    }
+
+    .quantity-input::-webkit-outer-spin-button,
+    .quantity-input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    /* Button animations enhanced */
+    .action-button {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .action-button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    .action-button:hover::before {
+      left: 100%;
+    }
+
+    /* Mobile responsiveness for quantity controls */
+    @media (max-width: 640px) {
+      .quantity-container {
+        justify-content: center;
+      }
+      
+      .quantity-input {
+        width: 60px;
+        font-size: 16px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 32px;
+      }
+    }
   </style>=1.0">
   <title>Product Details - Heritage Bengal</title>
   
@@ -300,9 +364,30 @@
                 </div>
 
                 <!-- Action Buttons -->
-                <div class="border-t border-heritage-cream pt-6 space-y-4">
-                  <div class="grid grid-cols-1 gap-4">
-                    <button id="add-to-cart-btn" class="w-full bg-heritage-red text-white py-4 px-6 rounded-lg hover:bg-red-900 transition-colors font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed">
+                <div class="border-t border-heritage-cream pt-6 space-y-6">
+                  
+                  <!-- Quantity Selector -->
+                  <div class="flex flex-col space-y-3">
+                    <label class="text-heritage-red font-bold text-lg">Quantity:</label>
+                    <div class="quantity-container flex items-center justify-center sm:justify-start">
+                      <div class="flex items-center gap-3 bg-white rounded-lg p-2 border-2 border-heritage-gold">
+                        <button id="quantity-decrease" class="w-7 h-7 sm:w-8 sm:h-8 bg-heritage-red text-white rounded-full flex items-center justify-center hover:bg-opacity-80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                          <span class="text-base sm:text-lg leading-none">−</span>
+                        </button>
+                        <span id="quantity-display" class="font-bold text-lg min-w-[2rem] text-center text-heritage-red">1</span>
+                        <input id="quantity-input" type="hidden" value="1" min="1" max="99">
+                        <button id="quantity-increase" class="w-7 h-7 sm:w-8 sm:h-8 bg-heritage-red text-white rounded-full flex items-center justify-center hover:bg-opacity-80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                          <span class="text-base sm:text-lg leading-none">+</span>
+                        </button>
+                      </div>
+                      <span id="stock-indicator" class="ml-4 text-sm text-heritage-red font-medium"></span>
+                    </div>
+                  </div>
+
+                  <!-- Action Buttons -->
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- Add to Cart Button -->
+                    <button id="add-to-cart-btn" class="w-full bg-heritage-red text-white py-4 px-6 rounded-lg hover:bg-red-900 transition-all duration-300 font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 action-button">
                       <span class="flex items-center justify-center">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13h10M17 13v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6"></path>
@@ -310,10 +395,22 @@
                         Add to Cart
                       </span>
                     </button>
+
+                    <!-- Buy Now Button -->
+                    <button id="buy-now-btn" class="w-full bg-heritage-gold text-heritage-red py-4 px-6 rounded-lg hover:bg-heritage-dark-gold transition-all duration-300 font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 action-button border-2 border-heritage-red">
+                      <span class="flex items-center justify-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                        Buy Now
+                      </span>
+                    </button>
                   </div>
-                  <a href="products.html" class="w-full bg-heritage-cream text-heritage-red py-4 px-6 rounded-lg hover:bg-gray-100 transition-colors font-bold text-lg border-2 border-heritage-gold block text-center">
+
+                  <!-- Continue Shopping Link -->
+                  <a href="products.html" class="w-full bg-heritage-cream text-heritage-red py-3 px-6 rounded-lg hover:bg-gray-100 transition-colors font-medium text-base border border-heritage-gold block text-center">
                     <span class="flex items-center justify-center">
-                      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                       </svg>
                       Back to Products

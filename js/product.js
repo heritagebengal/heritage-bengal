@@ -214,13 +214,18 @@ class ProductDetailsManager {
     // Update care instructions dynamically
     this.renderCareInstructions(product.care_instructions);
     
-    // Update add to cart button state
+    // Update add to cart button state (will be overridden by quantity controls)
     const addToCartBtn = document.getElementById('add-to-cart-btn');
     if (product.stock <= 0) {
       addToCartBtn.disabled = true;
       addToCartBtn.textContent = 'Out of Stock';
       addToCartBtn.className = addToCartBtn.className.replace('hover:bg-red-900', '') + ' opacity-50 cursor-not-allowed';
     }
+
+    // Initialize quantity controls after product data is loaded
+    setTimeout(() => {
+      this.setupQuantityControls();
+    }, 100);
   }
 
   renderFeatures(features) {
@@ -667,10 +672,225 @@ class ProductDetailsManager {
     document.getElementById('add-to-cart-btn').addEventListener('click', () => {
       this.addToCart();
     });
+
+    // Buy now button
+    document.getElementById('buy-now-btn').addEventListener('click', () => {
+      this.buyNow();
+    });
+
+    // Quantity controls
+    this.setupQuantityControls();
+  }
+
+  setupQuantityControls() {
+    const quantityInput = document.getElementById('quantity-input');
+    const quantityDisplay = document.getElementById('quantity-display');
+    const decreaseBtn = document.getElementById('quantity-decrease');
+    const increaseBtn = document.getElementById('quantity-increase');
+    const stockIndicator = document.getElementById('stock-indicator');
+
+    if (!quantityInput || !quantityDisplay || !decreaseBtn || !increaseBtn) {
+      console.warn('Quantity controls not found');
+      return;
+    }
+
+    // Update stock indicator and button states
+    const updateQuantityControls = () => {
+      const currentQuantity = parseInt(quantityInput.value) || 1;
+      const maxStock = this.currentProduct ? this.currentProduct.stock : 0;
+
+      // Update display
+      quantityDisplay.textContent = currentQuantity;
+
+      // Update decrease button state
+      decreaseBtn.disabled = currentQuantity <= 1;
+
+      // Update increase button state  
+      increaseBtn.disabled = currentQuantity >= maxStock || maxStock <= 0;
+
+      // Update stock indicator
+      if (stockIndicator) {
+        if (maxStock <= 0) {
+          stockIndicator.textContent = 'Out of stock';
+          stockIndicator.className = 'ml-4 text-sm text-red-500 font-medium';
+        } else if (currentQuantity === maxStock) {
+          stockIndicator.textContent = 'Maximum quantity reached';
+          stockIndicator.className = 'ml-4 text-sm text-orange-500 font-medium';
+        } else {
+          stockIndicator.textContent = `${maxStock} available`;
+          stockIndicator.className = 'ml-4 text-sm text-heritage-gold font-medium';
+        }
+      }
+
+      // Update add to cart and buy now buttons
+      const addToCartBtn = document.getElementById('add-to-cart-btn');
+      const buyNowBtn = document.getElementById('buy-now-btn');
+      
+      if (maxStock <= 0) {
+        if (addToCartBtn) {
+          addToCartBtn.disabled = true;
+          addToCartBtn.innerHTML = `
+            <span class="flex items-center justify-center">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+              </svg>
+              Out of Stock
+            </span>
+          `;
+        }
+        if (buyNowBtn) {
+          buyNowBtn.disabled = true;
+          buyNowBtn.innerHTML = `
+            <span class="flex items-center justify-center">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+              </svg>
+              Out of Stock
+            </span>
+          `;
+        }
+      } else {
+        if (addToCartBtn) {
+          addToCartBtn.disabled = false;
+          addToCartBtn.innerHTML = `
+            <span class="flex items-center justify-center">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13h10M17 13v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6"></path>
+              </svg>
+              Add to Cart
+            </span>
+          `;
+        }
+        if (buyNowBtn) {
+          buyNowBtn.disabled = false;
+          buyNowBtn.innerHTML = `
+            <span class="flex items-center justify-center">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+              </svg>
+              Buy Now
+            </span>
+          `;
+        }
+      }
+    };
+
+    // Decrease quantity
+    decreaseBtn.addEventListener('click', () => {
+      const currentValue = parseInt(quantityInput.value) || 1;
+      if (currentValue > 1) {
+        quantityInput.value = currentValue - 1;
+        updateQuantityControls();
+      }
+    });
+
+    // Increase quantity
+    increaseBtn.addEventListener('click', () => {
+      const currentValue = parseInt(quantityInput.value) || 1;
+      const maxStock = this.currentProduct ? this.currentProduct.stock : 0;
+      if (currentValue < maxStock) {
+        quantityInput.value = currentValue + 1;
+        updateQuantityControls();
+      }
+    });
+
+    // Initial update
+    updateQuantityControls();
+  }
+
+  buyNow() {
+    if (!this.currentProduct || this.currentProduct.stock <= 0) {
+      this.showNotification('This product is currently out of stock.', 'error');
+      return;
+    }
+
+    const quantityInput = document.getElementById('quantity-input');
+    const quantity = parseInt(quantityInput?.value) || 1;
+
+    if (quantity > this.currentProduct.stock) {
+      this.showNotification('Requested quantity exceeds available stock.', 'error');
+      return;
+    }
+
+    // Get appropriate image for checkout
+    const isMobile = window.innerWidth < 1024;
+    let productImage = 'assets/placeholder.svg';
+    
+    if (typeof this.currentProduct.image === 'string') {
+      productImage = this.currentProduct.image;
+    } else if (typeof this.currentProduct.image === 'object' && this.currentProduct.image !== null) {
+      if (isMobile) {
+        productImage = this.currentProduct.image.products_mobile || 
+                      this.currentProduct.image.products_desktop || 
+                      this.currentProduct.image.details_mobile || 
+                      this.currentProduct.image.details_desktop || 
+                      this.currentProduct.image.mobile || 
+                      this.currentProduct.image.desktop || 
+                      'assets/placeholder.svg';
+      } else {
+        productImage = this.currentProduct.image.products_desktop || 
+                      this.currentProduct.image.products_mobile || 
+                      this.currentProduct.image.details_desktop || 
+                      this.currentProduct.image.details_mobile || 
+                      this.currentProduct.image.desktop || 
+                      this.currentProduct.image.mobile || 
+                      'assets/placeholder.svg';
+      }
+    }
+
+    // Create a temporary cart with just this item
+    const buyNowItem = {
+      id: this.currentProduct._id,
+      name: this.currentProduct.name,
+      price: this.currentProduct.price,
+      image: productImage,
+      quantity: quantity
+    };
+
+    // Store the buy now item in localStorage for checkout
+    localStorage.setItem('buyNowItem', JSON.stringify(buyNowItem));
+
+    // Show confirmation and animate button
+    this.animateBuyNow();
+
+    // Navigate to checkout after short delay
+    setTimeout(() => {
+      window.location.href = 'checkout.html?buynow=true';
+    }, 1000);
+  }
+
+  animateBuyNow() {
+    const button = document.getElementById('buy-now-btn');
+    const originalHTML = button.innerHTML;
+    
+    button.innerHTML = `
+      <span class="flex items-center justify-center">
+        <svg class="w-5 h-5 mr-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+        </svg>
+        Processing...
+      </span>
+    `;
+    
+    this.showNotification('Redirecting to checkout...', 'success');
+    
+    setTimeout(() => {
+      button.innerHTML = originalHTML;
+    }, 1000);
   }
 
   addToCart() {
     if (!this.currentProduct || this.currentProduct.stock <= 0) {
+      this.showNotification('This product is currently out of stock.', 'error');
+      return;
+    }
+
+    // Get quantity from quantity selector
+    const quantityInput = document.getElementById('quantity-input');
+    const quantity = parseInt(quantityInput?.value) || 1;
+
+    if (quantity > this.currentProduct.stock) {
+      this.showNotification('Requested quantity exceeds available stock.', 'error');
       return;
     }
 
@@ -708,8 +928,8 @@ class ProductDetailsManager {
     
     if (existingItemIndex >= 0) {
       // Update quantity of existing item
-      cart[existingItemIndex].quantity = (cart[existingItemIndex].quantity || 1) + 1;
-      this.showNotification(`Updated ${this.currentProduct.name} quantity in cart!`, 'success');
+      cart[existingItemIndex].quantity = (cart[existingItemIndex].quantity || 1) + quantity;
+      this.showNotification(`Updated ${this.currentProduct.name} quantity in cart! (${quantity} added)`, 'success');
     } else {
       // Add new item to cart
       cart.push({
@@ -717,9 +937,9 @@ class ProductDetailsManager {
         name: this.currentProduct.name,
         price: this.currentProduct.price,
         image: cartImage,
-        quantity: 1
+        quantity: quantity
       });
-      this.showNotification(`${this.currentProduct.name} added to cart!`, 'success');
+      this.showNotification(`${this.currentProduct.name} added to cart! (Quantity: ${quantity})`, 'success');
     }
     
     // Save cart

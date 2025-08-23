@@ -129,12 +129,406 @@
         padding-left: 30px !important;
       }
     }
+
+    /* Mobile Category Sidebar Styles */
+    .mobile-filter-toggle {
+      position: fixed;
+      top: 50%;
+      left: 0;
+      transform: translateY(-50%);
+      z-index: 60;
+      background: linear-gradient(135deg, #4B0000 0%, #6B1B1B 100%);
+      color: white;
+      border: none;
+      border-radius: 0 12px 12px 0;
+      padding: 16px 8px;
+      box-shadow: 2px 0 20px rgba(75, 0, 0, 0.3);
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(191, 161, 74, 0.3);
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      font-weight: 600;
+      font-size: 14px;
+      letter-spacing: 1px;
+    }
+
+    .mobile-filter-toggle:hover {
+      background: linear-gradient(135deg, #BFA14A 0%, #D4AF37 100%);
+      transform: translateY(-50%) translateX(5px);
+      box-shadow: 4px 0 25px rgba(191, 161, 74, 0.4);
+    }
+
+    .mobile-filter-toggle .toggle-icon {
+      display: block;
+      margin-bottom: 8px;
+      transition: transform 0.3s ease;
+    }
+
+    .mobile-filter-toggle.active .toggle-icon {
+      transform: rotate(180deg);
+    }
+
+    .mobile-sidebar-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(8px);
+      z-index: 70;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .mobile-sidebar-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .mobile-sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 85%;
+      max-width: 350px;
+      background: linear-gradient(180deg, #ffffff 0%, #fff8f0 100%);
+      transform: translateX(-100%);
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 80;
+      overflow-y: auto;
+      box-shadow: 4px 0 30px rgba(0, 0, 0, 0.15);
+      border-right: 3px solid #BFA14A;
+    }
+
+    .mobile-sidebar.active {
+      transform: translateX(0);
+    }
+
+    .mobile-sidebar-header {
+      background: linear-gradient(135deg, #4B0000 0%, #6B1B1B 100%);
+      color: white;
+      padding: 20px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: 3px solid #BFA14A;
+    }
+
+    .mobile-sidebar-header h3 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .mobile-sidebar-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(191, 161, 74, 0.2);
+      border: 2px solid #BFA14A;
+      color: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .mobile-sidebar-close:hover {
+      background: #BFA14A;
+      transform: rotate(90deg);
+      box-shadow: 0 4px 15px rgba(191, 161, 74, 0.4);
+    }
+
+    .mobile-sidebar-content {
+      padding: 24px 20px;
+    }
+
+    .mobile-category-section {
+      margin-bottom: 32px;
+    }
+
+    .mobile-category-section h4 {
+      color: #4B0000;
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #BFA14A;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .mobile-category-btn {
+      width: 100%;
+      text-align: left;
+      padding: 14px 16px;
+      margin-bottom: 8px;
+      border: 2px solid transparent;
+      border-radius: 12px;
+      background: white;
+      color: #4B0000;
+      font-weight: 500;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .mobile-category-btn:hover {
+      background: linear-gradient(135deg, #fff8f0 0%, #f5f1e8 100%);
+      border-color: #BFA14A;
+      transform: translateX(8px);
+      box-shadow: 0 4px 15px rgba(191, 161, 74, 0.2);
+    }
+
+    .mobile-category-btn.active {
+      background: linear-gradient(135deg, #4B0000 0%, #6B1B1B 100%);
+      color: white;
+      border-color: #BFA14A;
+      transform: translateX(8px);
+      box-shadow: 0 6px 20px rgba(75, 0, 0, 0.3);
+    }
+
+    .mobile-category-btn.active:hover {
+      background: linear-gradient(135deg, #4B0000 0%, #6B1B1B 100%);
+      transform: translateX(8px);
+    }
+
+    .mobile-price-filter {
+      background: linear-gradient(135deg, #ffffff 0%, #fff8f0 100%);
+      border: 2px solid #BFA14A;
+      border-radius: 16px;
+      padding: 20px;
+      margin-top: 20px;
+    }
+
+    .mobile-price-filter h4 {
+      color: #4B0000;
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .mobile-price-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #BFA14A;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #4B0000;
+      background: white;
+      transition: all 0.3s ease;
+      margin-bottom: 12px;
+    }
+
+    .mobile-price-input:focus {
+      outline: none;
+      border-color: #4B0000;
+      box-shadow: 0 0 0 3px rgba(75, 0, 0, 0.1);
+    }
+
+    .mobile-filter-btn {
+      width: 100%;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-bottom: 8px;
+    }
+
+    .mobile-filter-btn.primary {
+      background: linear-gradient(135deg, #4B0000 0%, #6B1B1B 100%);
+      color: white;
+    }
+
+    .mobile-filter-btn.primary:hover {
+      background: linear-gradient(135deg, #6B1B1B 0%, #4B0000 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(75, 0, 0, 0.3);
+    }
+
+    .mobile-filter-btn.secondary {
+      background: linear-gradient(135deg, #BFA14A 0%, #D4AF37 100%);
+      color: #4B0000;
+    }
+
+    .mobile-filter-btn.secondary:hover {
+      background: linear-gradient(135deg, #D4AF37 0%, #BFA14A 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(191, 161, 74, 0.3);
+    }
+
+    /* Hide desktop sidebar on mobile */
+    @media (max-width: 1023px) {
+      .desktop-sidebar {
+        display: none !important;
+      }
+      
+      .mobile-filter-toggle {
+        display: block;
+      }
+      
+      .main-content-mobile {
+        width: 100% !important;
+      }
+    }
+
+    /* Hide mobile toggle on desktop */
+    @media (min-width: 1024px) {
+      .mobile-filter-toggle {
+        display: none !important;
+      }
+      
+      .mobile-sidebar-overlay {
+        display: none !important;
+      }
+    }
+
+    /* Slide in animation for categories */
+    @keyframes slideInCategory {
+      from {
+        opacity: 0;
+        transform: translateX(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .mobile-category-btn {
+      animation: slideInCategory 0.3s ease forwards;
+    }
+
+    .mobile-category-btn:nth-child(1) { animation-delay: 0.1s; }
+    .mobile-category-btn:nth-child(2) { animation-delay: 0.15s; }
+    .mobile-category-btn:nth-child(3) { animation-delay: 0.2s; }
+    .mobile-category-btn:nth-child(4) { animation-delay: 0.25s; }
+    .mobile-category-btn:nth-child(5) { animation-delay: 0.3s; }
+    .mobile-category-btn:nth-child(6) { animation-delay: 0.35s; }
+    .mobile-category-btn:nth-child(7) { animation-delay: 0.4s; }
+    .mobile-category-btn:nth-child(8) { animation-delay: 0.45s; }
+    .mobile-category-btn:nth-child(9) { animation-delay: 0.5s; }
   </style>
 </head>
 <body class="font-serif heritage-bg text-gray-800 leading-relaxed">
   
   <!-- Cart Popup -->
   <div id="cart-popup" class="hidden fixed top-8 left-1/2 transform -translate-x-1/2 bg-heritage-gold text-white px-10 py-4 rounded-3xl text-xl shadow-lg z-50 transition-opacity text-center"></div>
+  
+  <!-- Mobile Filter Toggle Button -->
+  <button class="mobile-filter-toggle" id="mobile-filter-toggle">
+    <span class="toggle-icon">
+      <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+      </svg>
+    </span>
+    FILTER
+  </button>
+
+  <!-- Mobile Sidebar Overlay -->
+  <div class="mobile-sidebar-overlay" id="mobile-sidebar-overlay"></div>
+
+  <!-- Mobile Sidebar -->
+  <div class="mobile-sidebar" id="mobile-sidebar">
+    <div class="mobile-sidebar-header">
+      <h3>
+        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"/>
+        </svg>
+        Filters & Categories
+      </h3>
+      <button class="mobile-sidebar-close" id="mobile-sidebar-close">×</button>
+    </div>
+    
+    <div class="mobile-sidebar-content">
+      <!-- Categories Section -->
+      <div class="mobile-category-section">
+        <h4>
+          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+          </svg>
+          Product Categories
+        </h4>
+        <div id="mobile-category-list">
+          <button class="mobile-category-btn active" data-category="all">
+            <span>All Products</span>
+            <span class="category-count text-heritage-gold text-sm font-bold">(0)</span>
+          </button>
+          <button class="mobile-category-btn" data-category="bestseller">
+            <span>Best Seller</span>
+            <span class="category-count text-heritage-gold text-sm font-bold">(0)</span>
+          </button>
+          <button class="mobile-category-btn" data-category="necklace">
+            <span>Necklace</span>
+            <span class="category-count text-heritage-gold text-sm font-bold">(0)</span>
+          </button>
+          <button class="mobile-category-btn" data-category="bangle">
+            <span>Bangle</span>
+            <span class="category-count text-heritage-gold text-sm font-bold">(0)</span>
+          </button>
+          <button class="mobile-category-btn" data-category="earrings">
+            <span>Earrings</span>
+            <span class="category-count text-heritage-gold text-sm font-bold">(0)</span>
+          </button>
+          <button class="mobile-category-btn" data-category="komor bondhoni">
+            <span>Komor Bondhoni</span>
+            <span class="category-count text-heritage-gold text-sm font-bold">(0)</span>
+          </button>
+          <button class="mobile-category-btn" data-category="tikli">
+            <span>Tikli</span>
+            <span class="category-count text-heritage-gold text-sm font-bold">(0)</span>
+          </button>
+          <button class="mobile-category-btn" data-category="khopar saaj">
+            <span>Khopar Saaj</span>
+            <span class="category-count text-heritage-gold text-sm font-bold">(0)</span>
+          </button>
+          <button class="mobile-category-btn" data-category="event">
+            <span>Event</span>
+            <span class="category-count text-heritage-gold text-sm font-bold">(0)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Price Filter Section -->
+      <div class="mobile-price-filter">
+        <h4>
+          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+          </svg>
+          Filter by Price
+        </h4>
+        <input type="number" id="mobile-min-price" placeholder="Minimum Price (₹)" class="mobile-price-input">
+        <input type="number" id="mobile-max-price" placeholder="Maximum Price (₹)" class="mobile-price-input">
+        <button id="mobile-apply-filter" class="mobile-filter-btn primary">Apply Price Filter</button>
+        <button id="mobile-clear-filter" class="mobile-filter-btn secondary">Clear All Filters</button>
+      </div>
+    </div>
+  </div>
   
   <header class="bg-heritage-red sticky top-0 z-40">
   <nav class="flex justify-between items-center flex-wrap relative bg-heritage-red px-4 py-3">
@@ -217,8 +611,8 @@
       <div class="max-w-7xl mx-auto">
         <div class="flex flex-col lg:flex-row gap-8">
           
-          <!-- Sidebar Categories -->
-          <div class="lg:w-1/4 w-full">
+          <!-- Desktop Sidebar Categories -->
+          <div class="desktop-sidebar lg:w-1/4 w-full">
             <div class="bg-white rounded-lg shadow-lg p-6 sticky top-24">
               <h3 class="text-xl font-bold text-heritage-red mb-4 border-b border-heritage-gold pb-2">Product Categories</h3>
               <ul class="space-y-3" id="category-list">
@@ -293,7 +687,7 @@
           </div>
 
           <!-- Main Content Area -->
-          <div class="lg:w-3/4 w-full">
+          <div class="main-content-mobile lg:w-3/4 w-full">
             
             <!-- Filter and Sort Controls -->
             <div class="bg-white rounded-lg shadow-lg p-4 mb-6">
@@ -459,6 +853,262 @@ window.addEventListener('DOMContentLoaded', handleScroll);
         spans[2].style.transform = '';
       }
     };
+  </script>
+  <script>
+    // Mobile sidebar functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      const mobileFilterToggle = document.getElementById('mobile-filter-toggle');
+      const mobileSidebar = document.getElementById('mobile-sidebar');
+      const mobileSidebarOverlay = document.getElementById('mobile-sidebar-overlay');
+      const mobileSidebarClose = document.getElementById('mobile-sidebar-close');
+      
+      // Mobile sidebar toggle functionality
+      function openMobileSidebar() {
+        mobileSidebar.classList.add('active');
+        mobileSidebarOverlay.classList.add('active');
+        mobileFilterToggle.classList.add('active');
+        document.body.style.overflow = 'hidden'; // Prevent background scrolling
+      }
+      
+      function closeMobileSidebar() {
+        console.log('closeMobileSidebar function called');
+        console.log('Sidebar before close:', mobileSidebar.classList.contains('active'));
+        console.log('Overlay before close:', mobileSidebarOverlay.classList.contains('active'));
+        
+        mobileSidebar.classList.remove('active');
+        mobileSidebarOverlay.classList.remove('active');
+        mobileFilterToggle.classList.remove('active');
+        document.body.style.overflow = ''; // Restore scrolling
+        
+        console.log('Sidebar after close:', mobileSidebar.classList.contains('active'));
+        console.log('Overlay after close:', mobileSidebarOverlay.classList.contains('active'));
+      }
+      
+      // Event listeners for mobile sidebar
+      if (mobileFilterToggle) {
+        mobileFilterToggle.addEventListener('click', openMobileSidebar);
+      }
+      
+      if (mobileSidebarClose) {
+        mobileSidebarClose.addEventListener('click', closeMobileSidebar);
+      }
+      
+      if (mobileSidebarOverlay) {
+        mobileSidebarOverlay.addEventListener('click', closeMobileSidebar);
+      }
+      
+      // Close sidebar on escape key
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && mobileSidebar && mobileSidebar.classList.contains('active')) {
+          closeMobileSidebar();
+        }
+      });
+      
+      // Handle mobile category button clicks
+      document.addEventListener('click', function(e) {
+        if (e.target.closest('.mobile-category-btn')) {
+          const categoryBtn = e.target.closest('.mobile-category-btn');
+          const category = categoryBtn.getAttribute('data-category');
+          
+          // Update active state for mobile buttons
+          document.querySelectorAll('.mobile-category-btn').forEach(btn => {
+            btn.classList.remove('active');
+          });
+          categoryBtn.classList.add('active');
+          
+          // Also update desktop category if exists
+          document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.getAttribute('data-category') === category) {
+              btn.classList.add('active');
+            }
+          });
+          
+          // Close sidebar after selection with smooth animation
+          setTimeout(() => {
+            closeMobileSidebar();
+          }, 300);
+          
+          // Trigger category filter
+          if (window.productManager && typeof window.productManager.filterByCategory === 'function') {
+            window.productManager.setActiveCategory(category);
+            window.productManager.filterByCategory(category);
+          }
+        }
+      });
+    });
+  </script>
+      if (e.target.closest('.mobile-category-btn')) {
+        const categoryBtn = e.target.closest('.mobile-category-btn');
+        const category = categoryBtn.getAttribute('data-category');
+        
+        // Update active state for mobile buttons
+        document.querySelectorAll('.mobile-category-btn').forEach(btn => {
+          btn.classList.remove('active');
+        });
+        categoryBtn.classList.add('active');
+        
+        // Also update desktop category if exists
+        document.querySelectorAll('.category-btn').forEach(btn => {
+          btn.classList.remove('active');
+          if (btn.getAttribute('data-category') === category) {
+            btn.classList.add('active');
+          }
+        });
+        
+        // Close sidebar after selection with smooth animation
+        setTimeout(() => {
+          closeMobileSidebar();
+        }, 300);
+        
+        // Trigger category filter
+        if (window.productManager && typeof window.productManager.filterByCategory === 'function') {
+          window.productManager.setActiveCategory(category);
+          window.productManager.filterByCategory(category);
+        }
+      }
+      
+      // Handle mobile price filter
+      document.getElementById('mobile-apply-filter')?.addEventListener('click', async function() {
+        console.log('Mobile apply filter clicked');
+        const minPrice = parseFloat(document.getElementById('mobile-min-price').value) || null;
+        const maxPrice = parseFloat(document.getElementById('mobile-max-price').value) || null;
+        console.log('Price values:', { minPrice, maxPrice });
+        
+        // Sync with desktop price inputs
+        if (minPrice !== null && document.getElementById('min-price')) {
+          document.getElementById('min-price').value = minPrice;
+        }
+        if (maxPrice !== null && document.getElementById('max-price')) {
+          document.getElementById('max-price').value = maxPrice;
+        }
+        
+        // Apply filter using existing functionality
+        if (window.productManager && typeof window.productManager.applyMobilePriceFilter === 'function') {
+          try {
+            console.log('Calling applyMobilePriceFilter...');
+            await window.productManager.applyMobilePriceFilter();
+            console.log('applyMobilePriceFilter completed, closing sidebar...');
+          } catch (error) {
+            console.error('Error applying mobile price filter:', error);
+          }
+        } else {
+          console.log('applyMobilePriceFilter method not found');
+        }
+        
+        // Always close sidebar after applying filter (moved outside try-catch)
+        console.log('Closing mobile sidebar...');
+        closeMobileSidebar();
+      });
+      
+      // Handle mobile clear filter
+      document.getElementById('mobile-clear-filter')?.addEventListener('click', async function() {
+        console.log('Mobile clear filter clicked');
+        
+        // Clear mobile inputs
+        document.getElementById('mobile-min-price').value = '';
+        document.getElementById('mobile-max-price').value = '';
+        
+        // Clear desktop inputs
+        if (document.getElementById('min-price')) document.getElementById('min-price').value = '';
+        if (document.getElementById('max-price')) document.getElementById('max-price').value = '';
+        
+        // Reset category to "All Products"
+        document.querySelectorAll('.mobile-category-btn, .category-btn').forEach(btn => {
+          btn.classList.remove('active');
+          if (btn.getAttribute('data-category') === 'all') {
+            btn.classList.add('active');
+          }
+        });
+        
+        // Apply clear filter using existing functionality
+        if (window.productManager && typeof window.productManager.clearMobileFilters === 'function') {
+          try {
+            console.log('Calling clearMobileFilters...');
+            await window.productManager.clearMobileFilters();
+            console.log('clearMobileFilters completed');
+          } catch (error) {
+            console.error('Error clearing mobile filters:', error);
+          }
+        } else {
+          console.log('clearMobileFilters method not found');
+        }
+        
+        // Always close sidebar after clearing
+        console.log('Closing mobile sidebar after clear...');
+        closeMobileSidebar();
+      });
+
+      // Desktop filter event handlers
+      document.getElementById('apply-filter')?.addEventListener('click', async function() {
+        console.log('Desktop apply filter clicked');
+        const minPrice = parseFloat(document.getElementById('min-price').value) || null;
+        const maxPrice = parseFloat(document.getElementById('max-price').value) || null;
+        console.log('Desktop price values:', { minPrice, maxPrice });
+        
+        // Sync with mobile inputs
+        if (minPrice !== null && document.getElementById('mobile-min-price')) {
+          document.getElementById('mobile-min-price').value = minPrice;
+        }
+        if (maxPrice !== null && document.getElementById('mobile-max-price')) {
+          document.getElementById('mobile-max-price').value = maxPrice;
+        }
+        
+        // Apply filter using ProductManager
+        if (window.productManager) {
+          try {
+            console.log('Applying desktop price filter...');
+            window.productManager.priceFilter = { min: minPrice, max: maxPrice };
+            await window.productManager.applyCurrentFilters();
+            window.productManager.updateActiveFilters();
+            console.log('Desktop price filter applied successfully');
+          } catch (error) {
+            console.error('Error applying desktop price filter:', error);
+          }
+        } else {
+          console.log('ProductManager not found');
+        }
+      });
+
+      document.getElementById('clear-filter')?.addEventListener('click', async function() {
+        console.log('Desktop clear filter clicked');
+        
+        // Clear desktop inputs
+        document.getElementById('min-price').value = '';
+        document.getElementById('max-price').value = '';
+        
+        // Clear mobile inputs
+        if (document.getElementById('mobile-min-price')) document.getElementById('mobile-min-price').value = '';
+        if (document.getElementById('mobile-max-price')) document.getElementById('mobile-max-price').value = '';
+        
+        // Reset category to "All Products" for both desktop and mobile
+        document.querySelectorAll('.mobile-category-btn, .category-btn').forEach(btn => {
+          btn.classList.remove('active');
+          if (btn.getAttribute('data-category') === 'all') {
+            btn.classList.add('active');
+          }
+        });
+        
+        // Apply clear filter using ProductManager
+        if (window.productManager) {
+          try {
+            console.log('Calling clearMobileFilters from desktop...');
+            // Reset price filter
+            window.productManager.priceFilter = { min: null, max: null };
+            // Reset to all category
+            window.productManager.setActiveCategory('all');
+            await window.productManager.filterByCategory('all');
+            await window.productManager.applyCurrentFilters();
+            window.productManager.updateActiveFilters();
+            console.log('Desktop clear filters completed');
+          } catch (error) {
+            console.error('Error clearing filters from desktop:', error);
+          }
+        } else {
+          console.log('ProductManager not found');
+        }
+      });
+    });
   </script>
 </body>
 </html>
