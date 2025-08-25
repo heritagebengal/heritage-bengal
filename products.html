@@ -938,36 +938,9 @@ window.addEventListener('DOMContentLoaded', handleScroll);
       });
     });
   </script>
-      if (e.target.closest('.mobile-category-btn')) {
-        const categoryBtn = e.target.closest('.mobile-category-btn');
-        const category = categoryBtn.getAttribute('data-category');
-        
-        // Update active state for mobile buttons
-        document.querySelectorAll('.mobile-category-btn').forEach(btn => {
-          btn.classList.remove('active');
-        });
-        categoryBtn.classList.add('active');
-        
-        // Also update desktop category if exists
-        document.querySelectorAll('.category-btn').forEach(btn => {
-          btn.classList.remove('active');
-          if (btn.getAttribute('data-category') === category) {
-            btn.classList.add('active');
-          }
-        });
-        
-        // Close sidebar after selection with smooth animation
-        setTimeout(() => {
-          closeMobileSidebar();
-        }, 300);
-        
-        // Trigger category filter
-        if (window.productManager && typeof window.productManager.filterByCategory === 'function') {
-          window.productManager.setActiveCategory(category);
-          window.productManager.filterByCategory(category);
-        }
-      }
-      
+  <script>
+    // Mobile sidebar functionality
+    document.addEventListener('DOMContentLoaded', function() {
       // Handle mobile price filter
       document.getElementById('mobile-apply-filter')?.addEventListener('click', async function() {
         console.log('Mobile apply filter clicked');

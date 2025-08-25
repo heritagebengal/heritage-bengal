@@ -71,6 +71,38 @@
         height: 32px;
       }
     }
+
+    /* Image Gallery Styles */
+    .thumbnail-image {
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+    }
+
+    .thumbnail-image:hover {
+      border-color: #BFA14A;
+      opacity: 0.8;
+    }
+
+    .thumbnail-image.active {
+      border-color: #4B0000;
+      opacity: 1;
+      box-shadow: 0 0 0 2px rgba(75, 0, 0, 0.3);
+    }
+
+    /* Image navigation improvements */
+    #image-nav-controls button:disabled {
+      pointer-events: none;
+    }
+
+    /* Smooth image transitions */
+    #product-image {
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .image-fade-out {
+      opacity: 0.5;
+    }
   </style>=1.0">
   <title>Product Details - Heritage Bengal</title>
   
@@ -319,15 +351,33 @@
               
               <!-- Product Image Section -->
               <div class="space-y-4">
-                <div class="aspect-square bg-heritage-cream rounded-xl overflow-hidden shadow-lg">
+                <!-- Main Image Container -->
+                <div class="aspect-square bg-heritage-cream rounded-xl overflow-hidden shadow-lg relative">
                   <img id="product-image" src="" alt="" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+                  
+                  <!-- Image Navigation Controls (will be shown if multiple images exist) -->
+                  <div id="image-nav-controls" class="absolute inset-0 flex items-center justify-between p-4 opacity-0 hover:opacity-100 transition-opacity duration-300" style="display: none;">
+                    <button id="prev-image" class="bg-heritage-red bg-opacity-80 text-white p-2 rounded-full hover:bg-opacity-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                      </svg>
+                    </button>
+                    <button id="next-image" class="bg-heritage-red bg-opacity-80 text-white p-2 rounded-full hover:bg-opacity-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                      </svg>
+                    </button>
+                  </div>
+                  
+                  <!-- Image Counter (will be shown if multiple images exist) -->
+                  <div id="image-counter" class="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-heritage-red bg-opacity-80 text-white px-3 py-1 rounded-full text-sm font-medium" style="display: none;">
+                    <span id="current-image-index">1</span> / <span id="total-images">1</span>
+                  </div>
                 </div>
                 
-                <!-- Image Gallery (for future enhancement) -->
-                <div class="hidden grid grid-cols-4 gap-2">
-                  <div class="aspect-square bg-heritage-cream rounded-lg overflow-hidden border-2 border-heritage-gold">
-                    <img src="" alt="" class="w-full h-full object-cover cursor-pointer hover:opacity-80 transition-opacity">
-                  </div>
+                <!-- Image Thumbnails Gallery (for multiple images) -->
+                <div id="image-thumbnails" class="grid grid-cols-4 gap-2" style="display: none;">
+                  <!-- Thumbnails will be populated by JavaScript -->
                 </div>
               </div>
 

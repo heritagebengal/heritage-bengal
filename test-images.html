@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Multiple Images - Heritage Bengal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'heritage-red': '#4B0000',
+                        'heritage-gold': '#BFA14A',
+                        'heritage-cream': '#fff8f0'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-heritage-cream p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-heritage-red mb-8">Multiple Images Feature Test</h1>
+        
+        <div class="bg-white rounded-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold text-heritage-red mb-4">How to Add Multiple Images to Products</h2>
+            
+            <div class="space-y-4">
+                <div class="bg-heritage-cream p-4 rounded">
+                    <h3 class="text-lg font-bold text-heritage-red mb-2">1. Structure for Multiple Images</h3>
+                    <p class="text-gray-700 mb-2">Each product can now have an <code class="bg-gray-100 px-2 py-1 rounded">images</code> array with the following structure:</p>
+                    <pre class="bg-gray-100 p-4 rounded text-sm overflow-x-auto"><code>{
+  "images": [
+    {
+      "id": "img1",
+      "details_desktop": "url-for-large-desktop-view.jpg",
+      "details_mobile": "url-for-mobile-view.jpg", 
+      "products_desktop": "url-for-products-page-desktop.jpg",
+      "products_mobile": "url-for-products-page-mobile.jpg",
+      "alt_text": "Description of the image",
+      "order": 1
+    },
+    {
+      "id": "img2",
+      "details_desktop": "url-for-second-image.jpg",
+      "alt_text": "Description of second image", 
+      "order": 2
+    }
+  ]
+}</code></pre>
+                </div>
+                
+                <div class="bg-heritage-cream p-4 rounded">
+                    <h3 class="text-lg font-bold text-heritage-red mb-2">2. Image Size Recommendations</h3>
+                    <ul class="text-gray-700 space-y-1">
+                        <li><strong>details_desktop:</strong> 800x800px or larger (for product details page)</li>
+                        <li><strong>details_mobile:</strong> 600x600px (optimized for mobile details page)</li>
+                        <li><strong>products_desktop:</strong> 400x400px (for products listing page)</li>
+                        <li><strong>products_mobile:</strong> 300x300px (for mobile products listing)</li>
+                    </ul>
+                </div>
+                
+                <div class="bg-heritage-cream p-4 rounded">
+                    <h3 class="text-lg font-bold text-heritage-red mb-2">3. Features</h3>
+                    <ul class="text-gray-700 space-y-1">
+                        <li>✅ <strong>Products Page:</strong> Shows only the first image (ordered by 'order' field)</li>
+                        <li>✅ <strong>Product Details Page:</strong> Shows all images with navigation</li>
+                        <li>✅ <strong>Manual Navigation:</strong> Users can click thumbnails or use arrow buttons</li>
+                        <li>✅ <strong>Keyboard Navigation:</strong> Left/Right arrow keys</li>
+                        <li>✅ <strong>Responsive:</strong> Different images for desktop and mobile</li>
+                        <li>✅ <strong>Fallback:</strong> Works with existing single-image products</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold text-heritage-red mb-4">Test With Sample Product</h2>
+            <p class="text-gray-700 mb-4">You can test the multiple images feature by updating an existing product with the sample structure.</p>
+            
+            <div class="flex gap-4">
+                <button onclick="addSampleImages()" class="bg-heritage-red text-white px-6 py-3 rounded-lg hover:bg-red-900 transition-colors">
+                    Add Sample Images to First Product
+                </button>
+                <button onclick="viewProducts()" class="bg-heritage-gold text-heritage-red px-6 py-3 rounded-lg hover:bg-yellow-500 transition-colors">
+                    View Products Page
+                </button>
+            </div>
+            
+            <div id="result" class="mt-4 p-4 rounded hidden"></div>
+        </div>
+        
+        <div class="bg-white rounded-lg p-6">
+            <h2 class="text-2xl font-bold text-heritage-red mb-4">Current Products</h2>
+            <div id="products-list" class="space-y-2">
+                <p class="text-gray-500">Loading products...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample images for testing
+        const sampleImages = [
+            {
+                id: "img1",
+                details_desktop: "https://via.placeholder.com/800x800/4B0000/BFA14A?text=Main+View+Desktop",
+                details_mobile: "https://via.placeholder.com/600x600/4B0000/BFA14A?text=Main+View+Mobile",
+                products_desktop: "https://via.placeholder.com/400x400/4B0000/BFA14A?text=Thumb+Desktop",
+                products_mobile: "https://via.placeholder.com/300x300/4B0000/BFA14A?text=Thumb+Mobile",
+                alt_text: "Main view of the jewelry piece",
+                order: 1
+            },
+            {
+                id: "img2",
+                details_desktop: "https://via.placeholder.com/800x800/8B0000/BFA14A?text=Side+View+Desktop",
+                details_mobile: "https://via.placeholder.com/600x600/8B0000/BFA14A?text=Side+View+Mobile",
+                products_desktop: "https://via.placeholder.com/400x400/8B0000/BFA14A?text=Side+Desktop",
+                products_mobile: "https://via.placeholder.com/300x300/8B0000/BFA14A?text=Side+Mobile",
+                alt_text: "Side view showing intricate details",
+                order: 2
+            },
+            {
+                id: "img3",
+                details_desktop: "https://via.placeholder.com/800x800/6B0000/BFA14A?text=Back+View+Desktop",
+                details_mobile: "https://via.placeholder.com/600x600/6B0000/BFA14A?text=Back+View+Mobile",
+                products_desktop: "https://via.placeholder.com/400x400/6B0000/BFA14A?text=Back+Desktop",
+                products_mobile: "https://via.placeholder.com/300x300/6B0000/BFA14A?text=Back+Mobile",
+                alt_text: "Back view of the jewelry",
+                order: 3
+            },
+            {
+                id: "img4",
+                details_desktop: "https://via.placeholder.com/800x800/2B0000/BFA14A?text=Detail+Close+Up",
+                details_mobile: "https://via.placeholder.com/600x600/2B0000/BFA14A?text=Detail+Mobile",
+                products_desktop: "https://via.placeholder.com/400x400/2B0000/BFA14A?text=Detail+Desktop",
+                products_mobile: "https://via.placeholder.com/300x300/2B0000/BFA14A?text=Detail+Mobile",
+                alt_text: "Close-up detail view showing craftsmanship",
+                order: 4
+            }
+        ];
+
+        async function loadProducts() {
+            try {
+                const response = await fetch('/products');
+                const products = await response.json();
+                
+                const productsList = document.getElementById('products-list');
+                
+                if (products.length === 0) {
+                    productsList.innerHTML = '<p class="text-gray-500">No products found.</p>';
+                    return;
+                }
+                
+                productsList.innerHTML = products.map(product => `
+                    <div class="flex justify-between items-center p-3 border rounded">
+                        <div>
+                            <strong class="text-heritage-red">${product.name}</strong>
+                            <span class="text-gray-600">- ₹${product.price}</span>
+                            <span class="text-sm text-gray-500">
+                                (${product.images && product.images.length > 0 
+                                    ? `${product.images.length} images` 
+                                    : 'Single image'})
+                            </span>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="addImagesToProduct('${product._id}')" 
+                                    class="bg-heritage-gold text-heritage-red px-3 py-1 rounded text-sm hover:bg-yellow-500">
+                                Add Sample Images
+                            </button>
+                            <button onclick="viewProduct('${product._id}')" 
+                                    class="bg-heritage-red text-white px-3 py-1 rounded text-sm hover:bg-red-900">
+                                View Details
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Error loading products:', error);
+                document.getElementById('products-list').innerHTML = 
+                    '<p class="text-red-500">Error loading products.</p>';
+            }
+        }
+
+        async function addImagesToProduct(productId) {
+            try {
+                const response = await fetch(`/products/${productId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        images: sampleImages
+                    })
+                });
+
+                if (response.ok) {
+                    showResult('Success! Sample images added to product. View the product details to see the gallery.', 'success');
+                    loadProducts(); // Reload the products list
+                } else {
+                    throw new Error('Failed to update product');
+                }
+
+            } catch (error) {
+                console.error('Error adding images:', error);
+                showResult('Error adding images: ' + error.message, 'error');
+            }
+        }
+
+        async function addSampleImages() {
+            try {
+                const response = await fetch('/products');
+                const products = await response.json();
+                
+                if (products.length === 0) {
+                    showResult('No products found. Please add some products first.', 'error');
+                    return;
+                }
+                
+                await addImagesToProduct(products[0]._id);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showResult('Error: ' + error.message, 'error');
+            }
+        }
+
+        function viewProducts() {
+            window.open('/products.html', '_blank');
+        }
+
+        function viewProduct(productId) {
+            window.open(`/product-details.html?id=${productId}`, '_blank');
+        }
+
+        function showResult(message, type) {
+            const result = document.getElementById('result');
+            result.className = `mt-4 p-4 rounded ${type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`;
+            result.textContent = message;
+            result.classList.remove('hidden');
+            
+            setTimeout(() => {
+                result.classList.add('hidden');
+            }, 5000);
+        }
+
+        // Load products on page load
+        document.addEventListener('DOMContentLoaded', loadProducts);
+    </script>
+</body>
+</html>

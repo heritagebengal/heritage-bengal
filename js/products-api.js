@@ -361,35 +361,19 @@ class ProductManager {
     
     // Process products and check images
     const productCards = await Promise.all(this.filteredProducts.map(async (product) => {
-      // Get appropriate image based on screen size for PRODUCTS page
-      const isMobile = window.innerWidth < 1024; // lg breakpoint
+      // Get image source - simplified for same image on all platforms
       let imageSrc = 'assets/placeholder.svg';
       
       // Debug logging
       console.log('Product:', product.name, 'Image type:', typeof product.image, 'Image value:', product.image);
       
-      if (typeof product.image === 'string' && product.image && product.image.trim() !== '' && product.image !== 'assets/placeholder.svg') {
+      // Check for multiple images first (new simplified format)
+      if (Array.isArray(product.image) && product.image.length > 0) {
+        // Use the first image from the array
+        imageSrc = product.image[0] || 'assets/placeholder.svg';
+      } else if (typeof product.image === 'string' && product.image && product.image.trim() !== '' && product.image !== 'assets/placeholder.svg') {
         // Legacy format - single image (only if not empty and not already placeholder)
         imageSrc = product.image;
-      } else if (typeof product.image === 'object' && product.image !== null) {
-        // New format - 4 different images
-        if (isMobile) {
-          imageSrc = product.image.products_mobile || 
-                     product.image.products_desktop || 
-                     product.image.details_mobile || 
-                     product.image.details_desktop || 
-                     product.image.mobile || 
-                     product.image.desktop || 
-                     'assets/placeholder.svg';
-        } else {
-          imageSrc = product.image.products_desktop || 
-                     product.image.products_mobile || 
-                     product.image.details_desktop || 
-                     product.image.details_mobile || 
-                     product.image.desktop || 
-                     product.image.mobile || 
-                     'assets/placeholder.svg';
-        }
       }
       
       // Ensure we always have a valid image source

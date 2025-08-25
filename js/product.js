@@ -4,6 +4,8 @@ class ProductDetailsManager {
     this.currentProduct = null;
     this.magnificationElements = null;
     this.resizeListener = null;
+    this.currentImageIndex = 0;
+    this.productImages = [];
     this.init();
   }
 
@@ -94,89 +96,8 @@ class ProductDetailsManager {
     // Update breadcrumb
     document.getElementById('breadcrumb-product-name').textContent = product.name;
     
-    // Update product image with responsive handling for DETAILS page
-    const productImage = document.getElementById('product-image');
-    
-    // Handle responsive images for product details page
-    if (typeof product.image === 'object' && product.image !== null) {
-      // New format - 4 different images (details_mobile, details_desktop, products_mobile, products_desktop)
-      const isMobile = window.innerWidth < 1024; // lg breakpoint
-      let imageSrc;
-      
-      if (isMobile) {
-        imageSrc = product.image.details_mobile || 
-                   product.image.details_desktop || 
-                   product.image.products_mobile || 
-                   product.image.products_desktop || 
-                   product.image.mobile || 
-                   product.image.desktop || 
-                   'assets/placeholder.svg';
-      } else {
-        imageSrc = product.image.details_desktop || 
-                   product.image.details_mobile || 
-                   product.image.products_desktop || 
-                   product.image.products_mobile || 
-                   product.image.desktop || 
-                   product.image.mobile || 
-                   'assets/placeholder.svg';
-      }
-      
-      productImage.src = imageSrc;
-      
-      // Add responsive image switching on resize
-      const handleResize = () => {
-        const newIsMobile = window.innerWidth < 1024;
-        let newImageSrc;
-        
-        if (newIsMobile) {
-          newImageSrc = product.image.details_mobile || 
-                        product.image.details_desktop || 
-                        product.image.products_mobile || 
-                        product.image.products_desktop || 
-                        product.image.mobile || 
-                        product.image.desktop || 
-                        'assets/placeholder.svg';
-        } else {
-          newImageSrc = product.image.details_desktop || 
-                        product.image.details_mobile || 
-                        product.image.products_desktop || 
-                        product.image.products_mobile || 
-                        product.image.desktop || 
-                        product.image.mobile || 
-                        'assets/placeholder.svg';
-        }
-        
-        if (productImage.src !== newImageSrc) {
-          productImage.src = newImageSrc;
-        }
-      };
-      
-      // Clean up previous listener if exists
-      if (this.resizeListener) {
-        window.removeEventListener('resize', this.resizeListener);
-      }
-      this.resizeListener = handleResize;
-      window.addEventListener('resize', this.resizeListener);
-      
-    } else {
-      // Legacy format - single image
-      productImage.src = product.image || 'assets/placeholder.svg';
-    }
-    
-    productImage.alt = product.name;
-    productImage.onerror = () => {
-      productImage.src = 'assets/placeholder.svg';
-    };
-    
-    // Initialize image magnification after image is set
-    // Wait for image to load before initializing magnification
-    if (productImage.complete) {
-      this.initImageMagnification();
-    } else {
-      productImage.onload = () => {
-        this.initImageMagnification();
-      };
-    }
+    // Update product image with responsive handling and multi-image support
+    this.setupProductImages();
     
     // Update product information
     document.getElementById('product-name').textContent = product.name;
@@ -226,6 +147,188 @@ class ProductDetailsManager {
     setTimeout(() => {
       this.setupQuantityControls();
     }, 100);
+  }
+
+  setupProductImages() {
+    const product = this.currentProduct;
+    const productImage = document.getElementById('product-image');
+    
+    // Initialize images array
+    this.productImages = [];
+    this.currentImageIndex = 0;
+    
+    // Check if we have multiple images (array format)
+    if (Array.isArray(product.image) && product.image.length > 0) {
+      // New format - array of image URLs
+      this.productImages = product.image.filter(img => img && img.trim() !== '');
+      
+      // Setup gallery navigation if multiple images
+      if (this.productImages.length > 1) {
+        this.setupImageGallery();
+      }
+      
+    } else if (typeof product.image === 'string' && product.image && product.image.trim() !== '') {
+      // Legacy format - single image string
+      this.productImages = [product.image];
+      
+    } else {
+      // Fallback to placeholder
+      this.productImages = ['assets/placeholder.svg'];
+    }
+    
+    // Set initial image
+    this.setCurrentImage(0);
+    
+    // Initialize magnification once after image is set
+    setTimeout(() => {
+      this.initImageMagnification();
+    }, 300);
+  }
+
+  getResponsiveImageSrc(imageSrc, isDetailsPage = true) {
+    // Simplified - just return the image URL as-is
+    if (!imageSrc || imageSrc.trim() === '') {
+      return 'assets/placeholder.svg';
+    }
+    return imageSrc;
+  }
+
+  setupImageGallery() {
+    const navControls = document.getElementById('image-nav-controls');
+    const imageCounter = document.getElementById('image-counter');
+    const thumbnailsContainer = document.getElementById('image-thumbnails');
+    const prevBtn = document.getElementById('prev-image');
+    const nextBtn = document.getElementById('next-image');
+    
+    if (this.productImages.length <= 1) {
+      // Hide gallery controls for single image
+      navControls.style.display = 'none';
+      imageCounter.style.display = 'none';
+      thumbnailsContainer.style.display = 'none';
+      return;
+    }
+    
+    // Show gallery controls for multiple images
+    navControls.style.display = 'flex';
+    imageCounter.style.display = 'block';
+    thumbnailsContainer.style.display = 'grid';
+    
+    // Update counters
+    document.getElementById('total-images').textContent = this.productImages.length;
+    
+    // Setup navigation event listeners
+    prevBtn.addEventListener('click', () => this.previousImage());
+    nextBtn.addEventListener('click', () => this.nextImage());
+    
+    // Setup keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        this.previousImage();
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        this.nextImage();
+      }
+    });
+    
+    // Setup thumbnails
+    this.createThumbnails();
+  }
+
+  createThumbnails() {
+    const thumbnailsContainer = document.getElementById('image-thumbnails');
+    
+    thumbnailsContainer.innerHTML = this.productImages.map((imageSrc, index) => `
+      <div class="aspect-square bg-heritage-cream rounded-lg overflow-hidden cursor-pointer thumbnail-image ${index === 0 ? 'active' : ''}" 
+           data-index="${index}">
+        <img src="${imageSrc}" alt="${this.currentProduct.name} - Image ${index + 1}" 
+             class="w-full h-full object-cover" 
+             onerror="this.src='assets/placeholder.svg'">
+      </div>
+    `).join('');
+    
+    // Add click event listeners to thumbnails
+    thumbnailsContainer.querySelectorAll('.thumbnail-image').forEach((thumb, index) => {
+      thumb.addEventListener('click', () => this.setCurrentImage(index));
+    });
+  }
+
+  updateThumbnails() {
+    const thumbnails = document.querySelectorAll('.thumbnail-image');
+    thumbnails.forEach((thumb, index) => {
+      const img = thumb.querySelector('img');
+      img.src = this.productImages[index];
+      
+      // Update active state
+      if (index === this.currentImageIndex) {
+        thumb.classList.add('active');
+      } else {
+        thumb.classList.remove('active');
+      }
+    });
+  }
+
+  setCurrentImage(index) {
+    if (index < 0 || index >= this.productImages.length) return;
+    
+    this.currentImageIndex = index;
+    const productImage = document.getElementById('product-image');
+    const currentIndexSpan = document.getElementById('current-image-index');
+    const prevBtn = document.getElementById('prev-image');
+    const nextBtn = document.getElementById('next-image');
+    
+    // Reset zoom when changing images (but don't remove magnification entirely)
+    if (this.magnificationElements && this.magnificationElements.resetZoom) {
+      this.magnificationElements.resetZoom();
+    }
+    
+    // Add fade effect
+    productImage.classList.add('image-fade-out');
+    
+    setTimeout(() => {
+      // Update image source
+      productImage.src = this.productImages[index];
+      productImage.alt = `${this.currentProduct.name} - Image ${index + 1}`;
+      
+      // Error handling
+      productImage.onerror = () => {
+        productImage.src = 'assets/placeholder.svg';
+      };
+      
+      // Remove fade effect
+      productImage.classList.remove('image-fade-out');
+      
+      // Update counter
+      if (currentIndexSpan) {
+        currentIndexSpan.textContent = index + 1;
+      }
+      
+      // Update navigation buttons
+      if (prevBtn) prevBtn.disabled = index === 0;
+      if (nextBtn) nextBtn.disabled = index === this.productImages.length - 1;
+      
+      // Update thumbnail active state
+      document.querySelectorAll('.thumbnail-image').forEach((thumb, thumbIndex) => {
+        if (thumbIndex === index) {
+          thumb.classList.add('active');
+        } else {
+          thumb.classList.remove('active');
+        }
+      });
+      
+    }, 150);
+  }
+
+  previousImage() {
+    if (this.currentImageIndex > 0) {
+      this.setCurrentImage(this.currentImageIndex - 1);
+    }
+  }
+
+  nextImage() {
+    if (this.currentImageIndex < this.productImages.length - 1) {
+      this.setCurrentImage(this.currentImageIndex + 1);
+    }
   }
 
   renderFeatures(features) {
@@ -346,7 +449,7 @@ class ProductDetailsManager {
     // Remove any existing magnification elements
     this.removeMagnificationElements();
     
-    // Add zoom controls
+    // Add zoom controls only once - they will work for all images
     this.addZoomControls(imageContainer, productImage);
     
     // Keep the hover magnification as backup
@@ -354,23 +457,117 @@ class ProductDetailsManager {
   }
   
   addZoomControls(container, image) {
-    // Create zoom controls container
+    // Detect if we're on mobile
+    const isMobile = window.innerWidth <= 768;
+    
+    // Create main controls container
+    const controlsContainer = document.createElement('div');
+    controlsContainer.className = 'image-controls-container';
+    controlsContainer.style.cssText = `
+      position: absolute;
+      ${isMobile ? 'bottom: 10px; right: 10px;' : 'bottom: 20px; right: 20px;'}
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: ${isMobile ? '10px' : '15px'};
+      z-index: 20;
+    `;
+    
+    // Create zoom controls section
     const zoomControls = document.createElement('div');
     zoomControls.className = 'zoom-controls';
     zoomControls.style.cssText = `
-      position: absolute;
-      bottom: 20px;
-      right: 20px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      z-index: 20;
+      align-items: center;
+      gap: ${isMobile ? '6px' : '8px'};
+    `;
+    
+    // Create pan controls section (will be shown only when zoomed)
+    const panControls = document.createElement('div');
+    panControls.className = 'pan-controls';
+    panControls.style.cssText = `
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: ${isMobile ? '6px' : '8px'};
+      padding: ${isMobile ? '8px' : '12px'};
+      background: rgba(0, 0, 0, 0.85);
+      border-radius: ${isMobile ? '8px' : '12px'};
+      border: ${isMobile ? '1px' : '2px'} solid #BFA14A;
+      backdrop-filter: blur(10px);
+    `;
+    
+    // Create pan controls grid - responsive design
+    const panGrid = document.createElement('div');
+    panGrid.style.cssText = `
+      display: grid;
+      grid-template-columns: ${isMobile ? '25px 25px 25px' : '30px 30px 30px'};
+      grid-template-rows: ${isMobile ? '25px 25px 25px' : '30px 30px 30px'};
+      gap: ${isMobile ? '2px' : '3px'};
+    `;
+    
+    // Pan Up button
+    const panUpBtn = document.createElement('button');
+    panUpBtn.innerHTML = `
+      <svg width="${isMobile ? '12' : '14'}" height="${isMobile ? '12' : '14'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 15l7-7 7 7"></path>
+      </svg>
+    `;
+    panUpBtn.className = 'pan-btn pan-up';
+    panUpBtn.title = 'Pan Up';
+    panUpBtn.style.cssText = `grid-column: 2; grid-row: 1;`;
+    
+    // Pan Left button
+    const panLeftBtn = document.createElement('button');
+    panLeftBtn.innerHTML = `
+      <svg width="${isMobile ? '12' : '14'}" height="${isMobile ? '12' : '14'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path>
+      </svg>
+    `;
+    panLeftBtn.className = 'pan-btn pan-left';
+    panLeftBtn.title = 'Pan Left';
+    panLeftBtn.style.cssText = `grid-column: 1; grid-row: 2;`;
+    
+    // Pan Right button
+    const panRightBtn = document.createElement('button');
+    panRightBtn.innerHTML = `
+      <svg width="${isMobile ? '12' : '14'}" height="${isMobile ? '12' : '14'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path>
+      </svg>
+    `;
+    panRightBtn.className = 'pan-btn pan-right';
+    panRightBtn.title = 'Pan Right';
+    panRightBtn.style.cssText = `grid-column: 3; grid-row: 2;`;
+    
+    // Pan Down button
+    const panDownBtn = document.createElement('button');
+    panDownBtn.innerHTML = `
+      <svg width="${isMobile ? '12' : '14'}" height="${isMobile ? '12' : '14'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path>
+      </svg>
+    `;
+    panDownBtn.className = 'pan-btn pan-down';
+    panDownBtn.title = 'Pan Down';
+    panDownBtn.style.cssText = `grid-column: 2; grid-row: 3;`;
+    
+    // Center indicator - responsive design
+    const centerDot = document.createElement('div');
+    centerDot.style.cssText = `
+      grid-column: 2; 
+      grid-row: 2;
+      width: ${isMobile ? '4px' : '6px'};
+      height: ${isMobile ? '4px' : '6px'};
+      background: #BFA14A;
+      border-radius: 50%;
+      margin: auto;
+      opacity: 0.7;
     `;
     
     // Zoom in button
     const zoomInBtn = document.createElement('button');
     zoomInBtn.innerHTML = `
-      <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg width="${isMobile ? '18' : '20'}" height="${isMobile ? '18' : '20'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <circle cx="11" cy="11" r="8"/>
         <path d="M21 21l-4.35-4.35"/>
         <line x1="8" y1="11" x2="14" y2="11"/>
@@ -383,7 +580,7 @@ class ProductDetailsManager {
     // Zoom out button
     const zoomOutBtn = document.createElement('button');
     zoomOutBtn.innerHTML = `
-      <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg width="${isMobile ? '18' : '20'}" height="${isMobile ? '18' : '20'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <circle cx="11" cy="11" r="8"/>
         <path d="M21 21l-4.35-4.35"/>
         <line x1="8" y1="11" x2="14" y2="11"/>
@@ -395,7 +592,7 @@ class ProductDetailsManager {
     // Reset zoom button
     const resetBtn = document.createElement('button');
     resetBtn.innerHTML = `
-      <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg width="${isMobile ? '18' : '20'}" height="${isMobile ? '18' : '20'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path d="M1 4v6h6"/>
         <path d="M23 20v-6h-6"/>
         <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/>
@@ -404,14 +601,15 @@ class ProductDetailsManager {
     resetBtn.className = 'zoom-btn reset-zoom';
     resetBtn.title = 'Reset Zoom';
     
-    // Style buttons
+    
+    // Style zoom buttons with responsive sizing
     [zoomInBtn, zoomOutBtn, resetBtn].forEach(btn => {
       btn.style.cssText = `
-        width: 50px;
-        height: 50px;
+        width: ${isMobile ? '40px' : '45px'};
+        height: ${isMobile ? '40px' : '45px'};
         background: rgba(139, 21, 56, 0.9);
         color: white;
-        border: 2px solid #BFA14A;
+        border: ${isMobile ? '1.5px' : '2px'} solid #BFA14A;
         border-radius: 50%;
         cursor: pointer;
         display: flex;
@@ -419,35 +617,133 @@ class ProductDetailsManager {
         justify-content: center;
         transition: all 0.3s ease;
         backdrop-filter: blur(10px);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 ${isMobile ? '3px 12px' : '4px 15px'} rgba(0, 0, 0, 0.2);
+        touch-action: manipulation;
       `;
       
       btn.addEventListener('mouseenter', () => {
         btn.style.background = 'rgba(191, 161, 74, 0.9)';
-        btn.style.transform = 'scale(1.1)';
+        btn.style.transform = `scale(${isMobile ? '1.05' : '1.1'})`;
       });
       
       btn.addEventListener('mouseleave', () => {
         btn.style.background = 'rgba(139, 21, 56, 0.9)';
         btn.style.transform = 'scale(1)';
       });
+      
+      // Add touch feedback for mobile
+      if (isMobile) {
+        btn.addEventListener('touchstart', () => {
+          btn.style.background = 'rgba(191, 161, 74, 0.9)';
+          btn.style.transform = 'scale(0.95)';
+        });
+        
+        btn.addEventListener('touchend', () => {
+          setTimeout(() => {
+            btn.style.background = 'rgba(139, 21, 56, 0.9)';
+            btn.style.transform = 'scale(1)';
+          }, 150);
+        });
+      }
     });
     
-    // Zoom functionality
+    // Style pan buttons with responsive sizing
+    [panUpBtn, panLeftBtn, panRightBtn, panDownBtn].forEach(btn => {
+      btn.style.cssText = btn.style.cssText + `
+        width: ${isMobile ? '25px' : '30px'};
+        height: ${isMobile ? '25px' : '30px'};
+        background: rgba(139, 21, 56, 0.8);
+        color: white;
+        border: ${isMobile ? '1px' : '1px'} solid #BFA14A;
+        border-radius: ${isMobile ? '4px' : '6px'};
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        touch-action: manipulation;
+      `;
+      
+      btn.addEventListener('mouseenter', () => {
+        btn.style.background = 'rgba(191, 161, 74, 0.9)';
+        btn.style.transform = `scale(${isMobile ? '1.05' : '1.1'})`;
+        btn.style.boxShadow = '0 3px 12px rgba(191, 161, 74, 0.4)';
+      });
+      
+      btn.addEventListener('mouseleave', () => {
+        btn.style.background = 'rgba(139, 21, 56, 0.8)';
+        btn.style.transform = 'scale(1)';
+        btn.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.2)';
+      });
+      
+      // Add touch feedback for mobile
+      if (isMobile) {
+        btn.addEventListener('touchstart', () => {
+          btn.style.background = 'rgba(191, 161, 74, 0.9)';
+          btn.style.transform = 'scale(0.95)';
+        });
+        
+        btn.addEventListener('touchend', () => {
+          setTimeout(() => {
+            btn.style.background = 'rgba(139, 21, 56, 0.8)';
+            btn.style.transform = 'scale(1)';
+          }, 150);
+        });
+      }
+    });
+    
+    // Add pan controls to grid
+    panGrid.appendChild(panUpBtn);
+    panGrid.appendChild(panLeftBtn);
+    panGrid.appendChild(centerDot);
+    panGrid.appendChild(panRightBtn);
+    panGrid.appendChild(panDownBtn);
+    
+    // Assemble pan controls (without title)
+    panControls.appendChild(panGrid);
+    
+    // Add zoom buttons to zoom controls
+    zoomControls.appendChild(zoomInBtn);
+    zoomControls.appendChild(zoomOutBtn);
+    zoomControls.appendChild(resetBtn);
+    
+    // Assemble main controls
+    controlsContainer.appendChild(zoomControls);
+    controlsContainer.appendChild(panControls);
+    
+    
+    // Zoom functionality with mobile-optimized pan step
     let currentZoom = 1;
     const minZoom = 1;
     const maxZoom = 4;
     const zoomStep = 0.5;
     
     let panX = 0, panY = 0;
-    let isDragging = false;
-    let startX, startY;
+    const panStep = isMobile ? 40 : 60; // Smaller steps for mobile precision
     
     const applyZoom = () => {
+      const currentImage = document.getElementById('product-image'); // Get current image dynamically
       // Use CSS transform with proper ordering: translate first, then scale
-      image.style.transform = `translate(${panX}px, ${panY}px) scale(${currentZoom})`;
-      image.style.transformOrigin = 'center center';
-      image.style.cursor = currentZoom > 1 ? 'grab' : 'default';
+      currentImage.style.transform = `translate(${panX}px, ${panY}px) scale(${currentZoom})`;
+      currentImage.style.transformOrigin = 'center center';
+      currentImage.style.cursor = currentZoom > 1 ? 'move' : 'default';
+      
+      // Show/hide pan controls based on zoom level with smooth animation
+      if (currentZoom > 1) {
+        panControls.style.display = 'flex';
+        // Small delay to ensure display is set before animation
+        setTimeout(() => {
+          panControls.style.opacity = '1';
+          panControls.style.transform = 'translateY(0)';
+        }, 10);
+      } else {
+        panControls.style.opacity = '0';
+        panControls.style.transform = 'translateY(10px)';
+        setTimeout(() => {
+          panControls.style.display = 'none';
+        }, 200);
+      }
       
       // Update button states
       zoomInBtn.disabled = currentZoom >= maxZoom;
@@ -463,6 +759,47 @@ class ProductDetailsManager {
           btn.style.cursor = 'pointer';
         }
       });
+    };
+    
+    // Pan functionality with improved limits
+    const panImage = (direction) => {
+      if (currentZoom <= 1) return; // Only pan when zoomed in
+      
+      switch (direction) {
+        case 'up':
+          panY += panStep;
+          break;
+        case 'down':
+          panY -= panStep;
+          break;
+        case 'left':
+          panX += panStep;
+          break;
+        case 'right':
+          panX -= panStep;
+          break;
+      }
+      
+      // Calculate dynamic pan limits based on zoom level and image dimensions
+      const currentImage = document.getElementById('product-image');
+      const imageRect = currentImage.getBoundingClientRect();
+      const containerRect = container.getBoundingClientRect();
+      
+      // Calculate how much the image extends beyond the container when zoomed
+      const scaledWidth = imageRect.width;
+      const scaledHeight = imageRect.height;
+      const containerWidth = containerRect.width;
+      const containerHeight = containerRect.height;
+      
+      // Calculate maximum pan distance (how far image can move before edge shows)
+      const maxPanX = Math.max(0, (scaledWidth - containerWidth) / 2) + 50; // Extra margin
+      const maxPanY = Math.max(0, (scaledHeight - containerHeight) / 2) + 50; // Extra margin
+      
+      // Apply limits with generous margins for better coverage
+      panX = Math.max(-maxPanX, Math.min(maxPanX, panX));
+      panY = Math.max(-maxPanY, Math.min(maxPanY, panY));
+      
+      applyZoom();
     };
     
     // Button event listeners
@@ -489,86 +826,16 @@ class ProductDetailsManager {
       applyZoom();
     });
     
-    // Pan functionality when zoomed
-    image.addEventListener('mousedown', (e) => {
-      if (currentZoom > 1) {
-        isDragging = true;
-        startX = e.clientX - panX;
-        startY = e.clientY - panY;
-        image.style.cursor = 'grabbing';
-        e.preventDefault();
-      }
-    });
+    // Pan button event listeners
+    panUpBtn.addEventListener('click', () => panImage('up'));
+    panDownBtn.addEventListener('click', () => panImage('down'));
+    panLeftBtn.addEventListener('click', () => panImage('left'));
+    panRightBtn.addEventListener('click', () => panImage('right'));
     
-    document.addEventListener('mousemove', (e) => {
-      if (isDragging && currentZoom > 1) {
-        panX = e.clientX - startX;
-        panY = e.clientY - startY;
-        
-        // Calculate dynamic pan limits based on zoom level and image size
-        const imageRect = image.getBoundingClientRect();
-        const containerRect = container.getBoundingClientRect();
-        
-        // Allow more movement when zoomed in more
-        const maxPanX = (imageRect.width * (currentZoom - 1)) / 2;
-        const maxPanY = (imageRect.height * (currentZoom - 1)) / 2;
-        
-        // Limit panning but allow generous movement
-        panX = Math.max(-maxPanX, Math.min(maxPanX, panX));
-        panY = Math.max(-maxPanY, Math.min(maxPanY, panY));
-        
-        applyZoom();
-      }
-    });
     
-    document.addEventListener('mouseup', () => {
-      if (isDragging) {
-        isDragging = false;
-        if (currentZoom > 1) {
-          image.style.cursor = 'grab';
-        }
-      }
-    });
-    
-    // Touch support for mobile
-    let touchStartX, touchStartY;
-    image.addEventListener('touchstart', (e) => {
-      if (currentZoom > 1 && e.touches.length === 1) {
-        isDragging = true;
-        touchStartX = e.touches[0].clientX - panX;
-        touchStartY = e.touches[0].clientY - panY;
-        e.preventDefault();
-      }
-    });
-    
-    image.addEventListener('touchmove', (e) => {
-      if (isDragging && currentZoom > 1 && e.touches.length === 1) {
-        panX = e.touches[0].clientX - touchStartX;
-        panY = e.touches[0].clientY - touchStartY;
-        
-        // Calculate dynamic pan limits based on zoom level and image size
-        const imageRect = image.getBoundingClientRect();
-        const containerRect = container.getBoundingClientRect();
-        
-        // Allow more movement when zoomed in more
-        const maxPanX = (imageRect.width * (currentZoom - 1)) / 2;
-        const maxPanY = (imageRect.height * (currentZoom - 1)) / 2;
-        
-        // Limit panning but allow generous movement
-        panX = Math.max(-maxPanX, Math.min(maxPanX, panX));
-        panY = Math.max(-maxPanY, Math.min(maxPanY, panY));
-        
-        applyZoom();
-        e.preventDefault();
-      }
-    });
-    
-    image.addEventListener('touchend', () => {
-      isDragging = false;
-    });
-    
-    // Mouse wheel zoom support
-    image.addEventListener('wheel', (e) => {
+    // Mouse wheel zoom support (keep this for convenience)
+    const wheelListener = (e) => {
+      const currentImage = document.getElementById('product-image'); // Get current image dynamically
       e.preventDefault();
       
       const zoomDirection = e.deltaY > 0 ? -1 : 1;
@@ -583,7 +850,8 @@ class ProductDetailsManager {
       // If zoom changed, apply it
       if (currentZoom !== oldZoom) {
         // Adjust pan position to zoom towards mouse cursor
-        const rect = image.getBoundingClientRect();
+        const rect = currentImage.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
         const mouseX = e.clientX - rect.left - rect.width / 2;
         const mouseY = e.clientY - rect.top - rect.height / 2;
         
@@ -591,9 +859,14 @@ class ProductDetailsManager {
         panX = (panX - mouseX) * zoomRatio + mouseX;
         panY = (panY - mouseY) * zoomRatio + mouseY;
         
-        // Apply zoom limits to pan
-        const maxPanX = (rect.width * (currentZoom - 1)) / 2;
-        const maxPanY = (rect.height * (currentZoom - 1)) / 2;
+        // Apply dynamic limits based on new zoom level
+        const scaledWidth = rect.width;
+        const scaledHeight = rect.height;
+        const containerWidth = containerRect.width;
+        const containerHeight = containerRect.height;
+        
+        const maxPanX = Math.max(0, (scaledWidth - containerWidth) / 2) + 50;
+        const maxPanY = Math.max(0, (scaledHeight - containerHeight) / 2) + 50;
         
         panX = Math.max(-maxPanX, Math.min(maxPanX, panX));
         panY = Math.max(-maxPanY, Math.min(maxPanY, panY));
@@ -604,25 +877,56 @@ class ProductDetailsManager {
         
         applyZoom();
       }
-    }, { passive: false });
+    };
     
-    // Add buttons to controls
-    zoomControls.appendChild(zoomInBtn);
-    zoomControls.appendChild(zoomOutBtn);
-    zoomControls.appendChild(resetBtn);
+    // Add wheel event listener
+    image.addEventListener('wheel', wheelListener, { passive: false });
     
     // Add controls to container
     container.style.position = 'relative';
-    container.appendChild(zoomControls);
+    container.appendChild(controlsContainer);
+    
+    // Add smooth transitions to pan controls with responsive design
+    panControls.style.cssText += `
+      opacity: 0;
+      transform: translateY(${isMobile ? '8px' : '10px'});
+      transition: all 0.2s ease;
+    `;
+    
+    // Add resize listener to update mobile detection
+    const resizeHandler = () => {
+      const nowMobile = window.innerWidth <= 768;
+      if (nowMobile !== isMobile) {
+        // Re-initialize controls if mobile state changed
+        this.removeMagnificationElements();
+        setTimeout(() => this.initImageMagnification(), 100);
+      }
+    };
+    
+    window.addEventListener('resize', resizeHandler);
     
     // Store references for cleanup
     this.magnificationElements = {
+      controlsContainer,
       zoomControls,
-      applyZoom: () => {
+      panControls,
+      image, // Store image reference for cleanup
+      wheelListener,
+      resizeHandler,
+      resetZoom: () => {
         currentZoom = 1;
         panX = panY = 0;
-        image.style.transform = '';
-        image.style.cursor = 'default';
+        applyZoom();
+      },
+      applyZoom: () => {
+        const currentImage = document.getElementById('product-image');
+        if (currentImage) {
+          currentZoom = 1;
+          panX = panY = 0;
+          currentImage.style.transform = '';
+          currentImage.style.cursor = 'default';
+          panControls.style.display = 'none';
+        }
       }
     };
     
@@ -647,9 +951,27 @@ class ProductDetailsManager {
       if (this.magnificationElements.imageObserver) {
         this.magnificationElements.imageObserver.disconnect();
       }
+      if (this.magnificationElements.controlsContainer) {
+        this.magnificationElements.controlsContainer.remove();
+      }
       if (this.magnificationElements.zoomControls) {
         this.magnificationElements.zoomControls.remove();
       }
+      if (this.magnificationElements.panControls) {
+        this.magnificationElements.panControls.remove();
+      }
+      
+      // Clean up wheel event listener
+      const imageElement = this.magnificationElements.image;
+      if (imageElement && this.magnificationElements.wheelListener) {
+        imageElement.removeEventListener('wheel', this.magnificationElements.wheelListener);
+      }
+      
+      // Clean up resize listener
+      if (this.magnificationElements.resizeHandler) {
+        window.removeEventListener('resize', this.magnificationElements.resizeHandler);
+      }
+      
       if (this.magnificationElements.applyZoom) {
         this.magnificationElements.applyZoom(); // Reset any zoom
       }
@@ -657,7 +979,7 @@ class ProductDetailsManager {
     }
     
     // Remove any existing elements
-    document.querySelectorAll('.magnification-lens, .magnified-view, .zoom-controls').forEach(el => el.remove());
+    document.querySelectorAll('.magnification-lens, .magnified-view, .zoom-controls, .pan-controls, .image-controls-container').forEach(el => el.remove());
     
     // Reset any transforms on product image
     const productImage = document.getElementById('product-image');

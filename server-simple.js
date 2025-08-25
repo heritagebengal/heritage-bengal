@@ -215,7 +215,7 @@ async function sendOrderConfirmationEmail(orderData) {
     }
 }
 
-// Product schema with discount fields
+// Product schema with discount fields and simplified multi-image support
 const productSchema = new mongoose.Schema({
     name: { type: String, required: true },
     price: { type: Number, required: true },
@@ -224,7 +224,7 @@ const productSchema = new mongoose.Schema({
     description: String,
     category: String,
     image: {
-        type: mongoose.Schema.Types.Mixed,
+        type: mongoose.Schema.Types.Mixed, // Can be string (legacy) or array (new multi-image)
         default: 'assets/placeholder.svg'
     },
     stock: { type: Number, default: 0 },
@@ -344,6 +344,32 @@ app.post('/products', async (req, res) => {
     } catch (err) {
         console.error('Error adding product:', err);
         res.status(400).json({ error: 'Failed to add product', details: err.message });
+    }
+});
+
+app.put('/products/:id', async (req, res) => {
+    try {
+        console.log('=== PRODUCT UPDATE DEBUG ===');
+        console.log('Product ID:', req.params.id);
+        console.log('Update data:', JSON.stringify(req.body, null, 2));
+        
+        const product = await Product.findByIdAndUpdate(
+            req.params.id, 
+            req.body, 
+            { new: true, runValidators: true }
+        );
+        
+        if (!product) {
+            return res.status(404).json({ error: 'Product not found' });
+        }
+        
+        console.log('Product updated successfully:', JSON.stringify(product.toObject(), null, 2));
+        console.log('=== END UPDATE DEBUG ===');
+        
+        res.json(product);
+    } catch (err) {
+        console.error('Error updating product:', err);
+        res.status(400).json({ error: 'Failed to update product', details: err.message });
     }
 });
 
