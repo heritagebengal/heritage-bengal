@@ -84,12 +84,266 @@
     .nav-dot:hover {
       transform: scale(1.2);
     }
+
+    /* Launch Popup Styles */
+    .launch-popup {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(5px);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .launch-popup.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .popup-content {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+      max-width: 450px;
+      width: 100%;
+      overflow: hidden;
+      position: relative;
+      animation: popupSlideIn 0.4s ease-out;
+    }
+
+    @keyframes popupSlideIn {
+      from {
+        transform: scale(0.8) translateY(20px);
+        opacity: 0;
+      }
+      to {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .popup-image {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .popup-body {
+      padding: 30px 25px;
+      text-align: center;
+    }
+
+    .popup-message {
+      font-size: 18px;
+      color: #4B0000;
+      margin-bottom: 25px;
+      line-height: 1.6;
+      font-weight: 600;
+    }
+
+    .coupon-section {
+      background: linear-gradient(135deg, #BFA14A 0%, #d4af37 100%);
+      border-radius: 12px;
+      padding: 15px;
+      margin-bottom: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .coupon-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="10" cy="10" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="90" cy="90" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="30" cy="70" r="0.5" fill="rgba(255,255,255,0.1)"/><circle cx="70" cy="30" r="0.5" fill="rgba(255,255,255,0.1)"/></svg>');
+      pointer-events: none;
+    }
+
+    .coupon-label {
+      color: #4B0000;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .coupon-code-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .coupon-code {
+      background: rgba(255, 255, 255, 0.95);
+      color: #4B0000;
+      padding: 8px 15px;
+      border-radius: 8px;
+      font-size: 18px;
+      font-weight: bold;
+      letter-spacing: 1.5px;
+      font-family: 'EB Garamond', serif;
+      border: 2px dashed #4B0000;
+      min-width: 120px;
+    }
+
+    .copy-button {
+      background: rgba(255, 255, 255, 0.2);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      color: #4B0000;
+      padding: 8px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 40px;
+      height: 40px;
+    }
+
+    .copy-button:hover {
+      background: rgba(255, 255, 255, 0.3);
+      border-color: rgba(255, 255, 255, 0.5);
+      transform: scale(1.05);
+    }
+
+    .copy-button.copied {
+      background: #4B0000;
+      color: white;
+      border-color: #4B0000;
+    }
+
+    .popup-close {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: rgba(255, 255, 255, 0.9);
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: #4B0000;
+      transition: all 0.3s ease;
+      z-index: 10;
+    }
+
+    .popup-close:hover {
+      background: #4B0000;
+      color: white;
+      transform: scale(1.1);
+    }
+
+    .popup-footer {
+      color: #666;
+      font-size: 12px;
+      margin-top: 15px;
+      opacity: 0.8;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 480px) {
+      .popup-content {
+        max-width: 95%;
+        margin: 0 10px;
+      }
+
+      .popup-image {
+        height: 150px;
+      }
+
+      .popup-body {
+        padding: 20px 15px;
+      }
+
+      .popup-message {
+        font-size: 16px;
+      }
+
+      .coupon-code {
+        font-size: 16px;
+        padding: 6px 12px;
+        min-width: 100px;
+        flex: 1;
+      }
+
+      .coupon-code-container {
+        flex-direction: row;
+        gap: 10px;
+        align-items: stretch;
+      }
+
+      .copy-button {
+        min-width: 50px;
+        height: auto;
+        padding: 8px 12px;
+        flex-shrink: 0;
+      }
+
+      .copy-button svg {
+        width: 18px;
+        height: 18px;
+      }
+    }
   </style>
 </head>
 <body class="font-serif heritage-bg text-gray-800 leading-relaxed">
   
   <!-- Cart Popup -->
   <div id="cart-popup" class="hidden fixed top-8 left-1/2 transform -translate-x-1/2 bg-heritage-gold text-white px-10 py-4 rounded-3xl text-xl shadow-lg z-50 transition-opacity text-center"></div>
+  
+  <!-- Launch Coupon Popup -->
+  <div id="launch-popup" class="launch-popup">
+    <div class="popup-content">
+      <button class="popup-close" onclick="closeLaunchPopup()">&times;</button>
+      
+      <!-- Popup Image Section -->
+      <img src="assets/pup_pic.jpeg" alt="Heritage Bengal Launch" class="popup-image" onerror="this.style.display='none'">
+      
+      <!-- Popup Body Section -->
+      <div class="popup-body">
+        <div class="popup-message">
+          We are excited to offer you our website launch coupon!
+        </div>
+        
+        <!-- Coupon Section -->
+        <div class="coupon-section">
+          <div class="coupon-label">Launch Coupon Code</div>
+          <div class="coupon-code-container">
+            <div class="coupon-code" id="coupon-code">LAUNCH10</div>
+            <button class="copy-button" onclick="copyCouponCode()" id="copy-btn" title="Copy to clipboard">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+        
+        <div class="popup-footer">
+          * Valid for your first purchase. Limited time offer!
+        </div>
+      </div>
+    </div>
+  </div>
   
   <!-- Announcement Ribbon -->
   <div class="bg-white text-heritage-red py-2 overflow-hidden relative">
@@ -265,6 +519,45 @@
       </div>
     </section>
 
+    <!-- Video Gallery Section -->
+    <section class="py-12 px-4 bg-white">
+      <div class="max-w-6xl mx-auto">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
+          
+          <!-- Video 1 -->
+          <div class="video-banner bg-heritage-cream rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+            <div class="aspect-[3/4] relative">
+              <video class="w-full h-full object-cover" autoplay muted loop playsinline preload="metadata">
+                <source src="./assets/video1.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+              </video>
+            </div>
+          </div>
+
+          <!-- Video 2 -->
+          <div class="video-banner bg-heritage-cream rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+            <div class="aspect-[3/4] relative">
+              <video class="w-full h-full object-cover" autoplay muted loop playsinline preload="metadata">
+                <source src="./assets/video2.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+              </video>
+            </div>
+          </div>
+
+          <!-- Video 3 -->
+          <div class="video-banner bg-heritage-cream rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+            <div class="aspect-[3/4] relative">
+              <video class="w-full h-full object-cover" autoplay muted loop playsinline preload="metadata">
+                <source src="./assets/video3.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+              </video>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
     <!-- Brand Intro -->
     <section class="bg-yellow-50 py-12 px-4 text-center">
       <div class="max-w-4xl mx-auto">
@@ -280,10 +573,10 @@
           </div>
           <div class="text-center">
             <div class="w-16 h-16 bg-heritage-gold rounded-full mx-auto mb-4 flex items-center justify-center">
-              <span class="text-white text-2xl">🎨</span>
+              <span class="text-white text-2xl">🐅</span>
             </div>
-            <h3 class="text-heritage-red font-bold text-lg mb-2">Traditional Craftsmanship</h3>
-            <p class="text-gray-600">Handcrafted designs inspired by Bengali heritage</p>
+            <h3 class="text-heritage-red font-bold text-lg mb-2">Proudly Made In Bengal</h3>
+            <p class="text-gray-600">Authentic Bengali craftsmanship rooted in centuries of tradition</p>
           </div>
           <div class="text-center">
             <div class="w-16 h-16 bg-heritage-gold rounded-full mx-auto mb-4 flex items-center justify-center">
@@ -349,16 +642,112 @@
       animateBucket();
       updateCartCount();
     }
+
+    // Launch Popup Functions
+    function showLaunchPopup() {
+      const popup = document.getElementById('launch-popup');
+      popup.classList.add('show');
+    }
+
+    function closeLaunchPopup() {
+      const popup = document.getElementById('launch-popup');
+      popup.classList.remove('show');
+    }
+
+    function copyCouponCode() {
+      const couponCode = document.getElementById('coupon-code').textContent;
+      const copyBtn = document.getElementById('copy-btn');
+      
+      // Copy to clipboard
+      navigator.clipboard.writeText(couponCode).then(() => {
+        // Visual feedback
+        copyBtn.classList.add('copied');
+        copyBtn.innerHTML = `
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+          </svg>
+        `;
+        
+        // Show success message
+        showCartPopup('Coupon code copied!');
+        
+        // Reset button after 2 seconds
+        setTimeout(() => {
+          copyBtn.classList.remove('copied');
+          copyBtn.innerHTML = `
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+            </svg>
+          `;
+        }, 2000);
+      }).catch(() => {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = couponCode;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        showCartPopup('Coupon code copied!');
+      });
+    }
+
+    // Close popup when clicking outside
+    document.addEventListener('click', (e) => {
+      const popup = document.getElementById('launch-popup');
+      const popupContent = document.querySelector('.popup-content');
+      
+      if (popup.classList.contains('show') && !popupContent.contains(e.target)) {
+        closeLaunchPopup();
+      }
+    });
+
+    // Close popup with Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeLaunchPopup();
+      }
+    });
+    
     
     window.addEventListener('DOMContentLoaded', function() {
       updateCartCount();
 
+      // Show launch popup logic
+      const hasVisitedIndex = localStorage.getItem('hasVisitedIndex');
+      
+      if (!hasVisitedIndex) {
+        // First time visiting index.html - show after 5 seconds
+        setTimeout(() => {
+          showLaunchPopup();
+          localStorage.setItem('hasVisitedIndex', 'true');
+        }, 5000);
+      } else {
+        // Not first time - show immediately
+        showLaunchPopup();
+      }
+
       // Banner Carousel Functionality
       let currentSlide = 0;
       const slides = document.querySelectorAll('.banner-slide');
-      const dots = document.querySelectorAll('.nav-dot');
+      const dotsContainer = document.querySelector('.banner-dots');
       const totalSlides = slides.length;
       let autoSlideInterval;
+
+      // Create dots dynamically
+      function createDots() {
+        dotsContainer.innerHTML = '';
+        for (let i = 0; i < totalSlides; i++) {
+          const dot = document.createElement('span');
+          dot.classList.add('nav-dot');
+          if (i === 0) dot.classList.add('active');
+          dotsContainer.appendChild(dot);
+        }
+      }
+
+      // Initialize dots
+      createDots();
+      const dots = document.querySelectorAll('.nav-dot');
 
       // Function to show specific slide
       function showSlide(index) {
@@ -489,6 +878,27 @@
           nextSlide();
           startAutoSlide();
         }
+      });
+
+      // Video debugging and error handling
+      const videos = document.querySelectorAll('video');
+      videos.forEach((video, index) => {
+        video.addEventListener('loadstart', () => {
+          console.log(`Video ${index + 1} started loading`);
+        });
+        
+        video.addEventListener('canplay', () => {
+          console.log(`Video ${index + 1} can start playing`);
+        });
+        
+        video.addEventListener('error', (e) => {
+          console.error(`Video ${index + 1} error:`, e);
+          console.error(`Video ${index + 1} src:`, video.currentSrc);
+        });
+        
+        video.addEventListener('loadeddata', () => {
+          console.log(`Video ${index + 1} loaded successfully`);
+        });
       });
     });
 
