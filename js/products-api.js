@@ -171,9 +171,33 @@ class ProductManager {
     if (category === 'all') {
       this.filteredProducts = [...this.allProducts];
     } else {
-      this.filteredProducts = this.allProducts.filter(product => 
-        product.category && product.category.toLowerCase() === category.toLowerCase()
-      );
+      // Map frontend data-category to actual database category names
+      const categoryMappings = {
+        'bestseller': 'Best Seller',
+        'necklace': 'Necklace', 
+        'bangle': 'Bangle',
+        'earrings': 'Earrings',
+        'komor bondhoni': 'Komor Bondhoni',
+        'tikli': 'Tikli',
+        'khopar saaj': 'Khopar Saaj',
+        'event': 'Event'
+      };
+      
+      const actualCategory = categoryMappings[category.toLowerCase()] || category;
+      
+      this.filteredProducts = this.allProducts.filter(product => {
+        // Support both single category (legacy) and multiple categories (new)
+        if (product.categories && Array.isArray(product.categories)) {
+          // New multi-category support
+          return product.categories.some(cat => 
+            cat.toLowerCase() === actualCategory.toLowerCase()
+          );
+        } else if (product.category) {
+          // Legacy single category support
+          return product.category.toLowerCase() === actualCategory.toLowerCase();
+        }
+        return false;
+      });
     }
     
     await this.applyCurrentFilters();
@@ -296,20 +320,43 @@ class ProductManager {
   }
 
   updateCategoryCounts() {
-    const categories = ['all', 'bestseller', 'necklace', 'bangle', 'earrings', 'komor bondhoni', 'tikli', 'khopar saaj', 'event'];
+    // Updated categories to match actual database categories
+    const categories = ['all', 'Best Seller', 'Necklace', 'Bangle', 'Earrings', 'Komor Bondhoni', 'Tikli', 'Khopar Saaj', 'Event', 'Gold Jewelry', 'Traditional', 'Wedding Collection'];
     
     categories.forEach(category => {
       let count;
       if (category === 'all') {
         count = this.allProducts.length;
       } else {
-        count = this.allProducts.filter(product => 
-          product.category && product.category.toLowerCase() === category.toLowerCase()
-        ).length;
+        count = this.allProducts.filter(product => {
+          // Support both single category (legacy) and multiple categories (new)
+          if (product.categories && Array.isArray(product.categories)) {
+            return product.categories.some(cat => 
+              cat.toLowerCase() === category.toLowerCase()
+            );
+          } else if (product.category) {
+            return product.category.toLowerCase() === category.toLowerCase();
+          }
+          return false;
+        }).length;
       }
       
+      // Map frontend category names to data-category attributes for legacy support
+      const categoryMappings = {
+        'Best Seller': 'bestseller',
+        'Necklace': 'necklace', 
+        'Bangle': 'bangle',
+        'Earrings': 'earrings',
+        'Komor Bondhoni': 'komor bondhoni',
+        'Tikli': 'tikli',
+        'Khopar Saaj': 'khopar saaj',
+        'Event': 'event'
+      };
+      
+      const dataCategory = categoryMappings[category] || category.toLowerCase();
+      
       // Update desktop category counts
-      const desktopBtn = document.querySelector(`.category-btn[data-category="${category}"]`);
+      const desktopBtn = document.querySelector(`.category-btn[data-category="${dataCategory}"]`);
       if (desktopBtn) {
         const countSpan = desktopBtn.querySelector('.category-count');
         if (countSpan) {
@@ -318,7 +365,7 @@ class ProductManager {
       }
       
       // Update mobile category counts
-      const mobileBtn = document.querySelector(`.mobile-category-btn[data-category="${category}"]`);
+      const mobileBtn = document.querySelector(`.mobile-category-btn[data-category="${dataCategory}"]`);
       if (mobileBtn) {
         const countSpan = mobileBtn.querySelector('.category-count');
         if (countSpan) {
@@ -326,6 +373,18 @@ class ProductManager {
         }
       }
     });
+  }
+
+  // Function to get the display category for a product
+  getDisplayCategory(product) {
+    // Priority: categories array first, then single category, then default
+    if (product.categories && Array.isArray(product.categories) && product.categories.length > 0) {
+      return product.categories[0]; // Show first category from array
+    } else if (product.category) {
+      return product.category;
+    } else {
+      return 'Jewelry'; // Default fallback
+    }
   }
 
   // Function to check if image exists and return appropriate src
@@ -396,7 +455,7 @@ class ProductManager {
                onload="console.log('Image loaded successfully for ${product.name}:', this.src);">
           <div class="absolute top-3 right-3">
             <span class="bg-heritage-red text-white px-2 py-1 rounded-full text-xs font-bold">
-              ${product.category || 'Jewelry'}
+              ${this.getDisplayCategory(product)}
             </span>
           </div>
         </div>

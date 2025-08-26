@@ -34,6 +34,18 @@ class ProductDetailsManager {
     return params.get('id');
   }
 
+  // Function to get the display category for a product
+  getDisplayCategory(product) {
+    // Priority: categories array first, then single category, then default
+    if (product.categories && Array.isArray(product.categories) && product.categories.length > 0) {
+      return product.categories.join(', '); // Show all categories on details page
+    } else if (product.category) {
+      return product.category;
+    } else {
+      return 'Jewelry'; // Default fallback
+    }
+  }
+
   async loadProductDetails() {
     const productId = this.getProductId();
     
@@ -108,7 +120,7 @@ class ProductDetailsManager {
     
     document.getElementById('product-description').textContent = 
       product.description || 'Beautiful handcrafted jewelry piece inspired by Bengal\'s rich heritage.';
-    document.getElementById('product-category').textContent = product.category || 'Jewelry';
+    document.getElementById('product-category').textContent = this.getDisplayCategory(product);
     
     // Update rating
     const rating = product.rating || 4.8;

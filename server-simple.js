@@ -222,7 +222,11 @@ const productSchema = new mongoose.Schema({
     original_price: { type: Number, required: false }, // Explicitly define discount fields
     discount_percentage: { type: Number, required: false },
     description: String,
-    category: String,
+    category: {
+        type: mongoose.Schema.Types.Mixed, // Can be string (legacy) or array (new multi-category)
+        default: 'Uncategorized'
+    },
+    categories: { type: [String], default: [] }, // New field for multiple categories
     image: {
         type: mongoose.Schema.Types.Mixed, // Can be string (legacy) or array (new multi-image)
         default: 'assets/placeholder.svg'
@@ -292,8 +296,40 @@ const Order = mongoose.model('Order', orderSchema, 'Orders');
 // Routes
 app.get('/products', async (req, res) => {
     try {
-        const products = await Product.find({});
-        res.json(products);
+        const { category } = req.query;
+        let query = {};
+        
+        // If category filter is specified
+        if (category && category !== 'all' && category !== '') {
+            // Support both old single category field and new multiple categories
+            query = {
+                $or: [
+                    { category: category }, // Legacy single category support
+                    { categories: { $in: [category] } } // New multiple categories support
+                ]
+            };
+        }
+        
+        const products = await Product.find(query);
+        
+        // Ensure backward compatibility - if product has categories array, sync with category field
+        const processedProducts = products.map(product => {
+            const productObj = product.toObject();
+            
+            // If categories array exists but category field is missing, set category to first category
+            if (productObj.categories && productObj.categories.length > 0 && !productObj.category) {
+                productObj.category = productObj.categories[0];
+            }
+            
+            // If category exists but categories array is empty, add category to categories array
+            if (productObj.category && (!productObj.categories || productObj.categories.length === 0)) {
+                productObj.categories = [productObj.category];
+            }
+            
+            return productObj;
+        });
+        
+        res.json(processedProducts);
     } catch (err) {
         console.error('Error fetching products:', err);
         res.status(500).json({ error: 'Failed to fetch products' });
@@ -317,18 +353,32 @@ app.post('/products', async (req, res) => {
         console.log('Received raw body:', JSON.stringify(req.body, null, 2));
         
         // Extract and log discount fields specifically
-        const { original_price, discount_percentage, name, price } = req.body;
+        const { original_price, discount_percentage, name, price, category, categories } = req.body;
         console.log('Discount fields check:');
         console.log('- original_price:', original_price, typeof original_price);
         console.log('- discount_percentage:', discount_percentage, typeof discount_percentage);
         console.log('- price:', price, typeof price);
+        console.log('- category:', category);
+        console.log('- categories:', categories);
+        
+        // Handle multiple categories
+        let finalCategories = [];
+        
+        if (categories && Array.isArray(categories)) {
+            finalCategories = categories;
+        } else if (category) {
+            finalCategories = [category];
+        }
         
         // Create product with all fields
         const productData = {
             ...req.body,
             // Ensure discount fields are properly set
             original_price: original_price ? Number(original_price) : undefined,
-            discount_percentage: discount_percentage ? Number(discount_percentage) : undefined
+            discount_percentage: discount_percentage ? Number(discount_percentage) : undefined,
+            // Set both category (for backward compatibility) and categories
+            category: finalCategories.length > 0 ? finalCategories[0] : (category || 'Uncategorized'),
+            categories: finalCategories.length > 0 ? finalCategories : (category ? [category] : ['Uncategorized'])
         };
         
         console.log('Product data before save:', JSON.stringify(productData, null, 2));
@@ -353,9 +403,21 @@ app.put('/products/:id', async (req, res) => {
         console.log('Product ID:', req.params.id);
         console.log('Update data:', JSON.stringify(req.body, null, 2));
         
+        // Handle multiple categories during update
+        const { category, categories } = req.body;
+        let updateData = { ...req.body };
+        
+        if (categories && Array.isArray(categories)) {
+            updateData.categories = categories;
+            updateData.category = categories[0] || 'Uncategorized'; // Set first category as primary
+        } else if (category) {
+            updateData.category = category;
+            updateData.categories = [category]; // Create array from single category
+        }
+        
         const product = await Product.findByIdAndUpdate(
             req.params.id, 
-            req.body, 
+            updateData, 
             { new: true, runValidators: true }
         );
         
@@ -370,6 +432,32 @@ app.put('/products/:id', async (req, res) => {
     } catch (err) {
         console.error('Error updating product:', err);
         res.status(400).json({ error: 'Failed to update product', details: err.message });
+    }
+});
+
+// Get all categories
+app.get('/categories', async (req, res) => {
+    try {
+        const products = await Product.find({}, 'category categories');
+        const categoriesSet = new Set();
+        
+        products.forEach(product => {
+            // Add from single category field (legacy support)
+            if (product.category) {
+                categoriesSet.add(product.category);
+            }
+            
+            // Add from categories array (new multi-category support)
+            if (product.categories && Array.isArray(product.categories)) {
+                product.categories.forEach(cat => categoriesSet.add(cat));
+            }
+        });
+        
+        const categories = Array.from(categoriesSet).filter(cat => cat && cat !== 'Uncategorized').sort();
+        res.json(categories);
+    } catch (err) {
+        console.error('Error fetching categories:', err);
+        res.status(500).json({ error: 'Failed to fetch categories' });
     }
 });
 
