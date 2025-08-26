@@ -72,6 +72,47 @@
       }
     }
 
+    /* Mobile image optimization - Enhanced for maximum size */
+    @media (max-width: 768px) {
+      .mobile-image-full {
+        margin: -1rem -1rem 1rem -1rem;
+        border-radius: 0;
+        width: calc(100% + 2rem);
+        min-height: 350px;
+        aspect-ratio: 4/3; /* Make it less square, more rectangular for larger appearance */
+      }
+      
+      .mobile-product-section {
+        padding: 0.25rem;
+      }
+      
+      /* Make main image larger */
+      .product-main-image {
+        width: 100% !important;
+        height: auto !important;
+        max-height: none !important;
+        border-radius: 8px !important;
+      }
+      
+      /* Increase gallery thumbnail size */
+      .thumbnail-image {
+        width: 85px !important;
+        height: 85px !important;
+        object-fit: cover;
+      }
+      
+      /* Remove extra spacing around image container */
+      .image-container-mobile {
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+      
+      /* Make the main container take full width */
+      .aspect-square {
+        aspect-ratio: 4/3 !important;
+      }
+    }
+
     /* Image Gallery Styles */
     .thumbnail-image {
       cursor: pointer;
@@ -325,9 +366,9 @@
     </section>
 
     <!-- Product Details Section -->
-    <section class="py-12 px-4">
+    <section class="py-2 md:py-12 px-1 md:px-4">
       <div class="max-w-6xl mx-auto">
-        <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+        <div class="bg-white rounded-xl md:rounded-2xl shadow-xl overflow-hidden">
           
           <!-- Loading State -->
           <div id="loading-state" class="text-center py-16">
@@ -347,13 +388,13 @@
 
           <!-- Product Content -->
           <div id="product-content" class="hidden">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 p-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-2 md:gap-8 p-1 md:p-8">
               
               <!-- Product Image Section -->
-              <div class="space-y-4">
+              <div class="space-y-2 md:space-y-4 mobile-product-section md:p-0 image-container-mobile">
                 <!-- Main Image Container -->
-                <div class="aspect-square bg-heritage-cream rounded-xl overflow-hidden shadow-lg relative">
-                  <img id="product-image" src="" alt="" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+                <div class="aspect-square bg-heritage-cream rounded-lg md:rounded-xl overflow-hidden shadow-lg relative mobile-image-full">
+                  <img id="product-image" src="" alt="" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300 product-main-image">
                   
                   <!-- Image Navigation Controls (will be shown if multiple images exist) -->
                   <div id="image-nav-controls" class="absolute inset-0 flex items-center justify-between p-4 opacity-0 hover:opacity-100 transition-opacity duration-300" style="display: none;">
@@ -382,7 +423,7 @@
               </div>
 
               <!-- Product Information Section -->
-              <div class="space-y-6">
+              <div class="space-y-4 md:space-y-6 px-3 md:px-0">
                 
                 <!-- Product Header -->
                 <div>
