@@ -260,6 +260,182 @@
       opacity: 0.8;
     }
 
+    /* Price Category Tiles Styles */
+    .price-category-tile {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    /* Ensure 2:3 aspect ratio fallback */
+    .aspect-\[2\/3\] {
+      aspect-ratio: 2/3;
+    }
+    
+    /* Fallback for browsers that don't support aspect-ratio */
+    @supports not (aspect-ratio: 2/3) {
+      .aspect-\[2\/3\] {
+        height: 0;
+        padding-bottom: 150%; /* 3/2 = 1.5, so 150% */
+        position: relative;
+      }
+      
+      .aspect-\[2\/3\] > * {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+      }
+    }
+    
+    .price-category-tile:hover .image-container {
+      transform: translateY(-4px);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    }
+    
+    .price-category-tile .image-container .group:hover img {
+      transform: scale(1.1);
+      filter: blur(2px);
+    }
+    
+    .price-category-tile button {
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(191, 161, 74, 0.3);
+      cursor: pointer;
+    }
+    
+    .price-category-tile button:hover {
+      transform: translateY(-2px) scale(1.05);
+      box-shadow: 0 8px 25px rgba(191, 161, 74, 0.4);
+    }
+    
+    /* Ensure buttons are clickable on mobile */
+    .view-products-btn {
+      pointer-events: auto;
+      z-index: 10;
+      position: relative;
+    }
+    
+    /* Mobile touch interactions - Fixed for mobile functionality */
+    @media (hover: none) and (pointer: coarse) {
+      .price-category-tile {
+        -webkit-tap-highlight-color: transparent;
+      }
+      
+      /* Ensure button is touchable when visible */
+      .view-products-btn {
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: rgba(191, 161, 74, 0.3);
+        -webkit-user-select: none;
+        user-select: none;
+        /* Add glowing effect for mobile */
+        box-shadow: 0 0 0 0 rgba(191, 161, 74, 0.7);
+        transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      }
+      
+      /* Better button visibility and glow on mobile */
+      .view-products-btn:active {
+        background-color: #d4af37 !important;
+        transform: scale(0.95);
+        box-shadow: 
+          0 0 20px rgba(191, 161, 74, 0.8),
+          0 0 40px rgba(191, 161, 74, 0.6),
+          0 4px 15px rgba(0, 0, 0, 0.3);
+      }
+      
+      /* Glowing effect when button is visible */
+      .view-products-btn[style*="opacity: 1"] {
+        box-shadow: 
+          0 0 15px rgba(191, 161, 74, 0.7),
+          0 0 30px rgba(191, 161, 74, 0.5),
+          0 4px 12px rgba(0, 0, 0, 0.2);
+        animation: pulseGlow 2s ease-in-out infinite alternate;
+      }
+    }
+    
+    /* Pulsing glow animation for mobile */
+    @keyframes pulseGlow {
+      from {
+        box-shadow: 
+          0 0 15px rgba(191, 161, 74, 0.7),
+          0 0 30px rgba(191, 161, 74, 0.5),
+          0 4px 12px rgba(0, 0, 0, 0.2);
+      }
+      to {
+        box-shadow: 
+          0 0 20px rgba(191, 161, 74, 0.9),
+          0 0 40px rgba(191, 161, 74, 0.7),
+          0 6px 15px rgba(0, 0, 0, 0.3);
+      }
+    }
+    
+    /* Alternative mobile approach - controlled by JavaScript */
+    @media (max-width: 768px) {
+      .price-category-tile {
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+      }
+      
+      /* Ensure button is clearly visible and touchable */
+      .view-products-btn {
+        min-height: 40px;
+        min-width: 100px;
+        touch-action: manipulation;
+        position: relative;
+        z-index: 15;
+        /* Enhanced mobile button styling */
+        transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      }
+      
+      /* Visual feedback for button interaction */
+      .view-products-btn:hover,
+      .view-products-btn:active {
+        background-color: #f9e6b1 !important;
+        color: #4B0000 !important;
+        transform: translateY(-2px) scale(1.05);
+        box-shadow: 
+          0 0 20px rgba(191, 161, 74, 0.8),
+          0 0 40px rgba(191, 161, 74, 0.6),
+          0 8px 25px rgba(0, 0, 0, 0.3);
+      }
+      
+      /* Mobile-specific glow when button becomes visible */
+      .view-products-btn.mobile-visible {
+        animation: mobileButtonGlow 2s ease-in-out infinite alternate;
+      }
+    }
+    
+    /* Mobile button glow animation */
+    @keyframes mobileButtonGlow {
+      from {
+        box-shadow: 
+          0 0 12px rgba(191, 161, 74, 0.6),
+          0 0 24px rgba(191, 161, 74, 0.4),
+          0 2px 8px rgba(0, 0, 0, 0.2);
+      }
+      to {
+        box-shadow: 
+          0 0 18px rgba(191, 161, 74, 0.8),
+          0 0 36px rgba(191, 161, 74, 0.6),
+          0 4px 12px rgba(0, 0, 0, 0.3);
+      }
+    }
+    
+    /* Tablet layout adjustments */
+    @media (min-width: 481px) and (max-width: 768px) {
+      .mobile-tiles-grid {
+        grid-template-columns: 1fr 1fr;
+        max-width: 600px;
+        gap: 1rem;
+      }
+      
+      .price-category-tile:nth-child(3) {
+        grid-column: 1 / -1;
+        max-width: 50%;
+        margin: 0 auto;
+      }
+    }
+
     /* Mobile Responsive */
     @media (max-width: 480px) {
       .popup-content {
@@ -290,6 +466,96 @@
         flex-direction: row;
         gap: 10px;
         align-items: stretch;
+      }
+
+      /* Price Category Tiles Mobile Optimizations */
+      .price-category-tile {
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+      }
+      
+      /* Mobile grid layout - special handling */
+      .mobile-tiles-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        max-width: 300px;
+        margin: 0 auto;
+      }
+      
+      /* All tiles same size on mobile */
+      .price-category-tile {
+        width: 100%;
+        max-width: none;
+        margin: 0;
+      }
+      
+      /* Remove any special positioning for third tile on mobile */
+      .price-category-tile:nth-child(3) {
+        grid-column: auto;
+        max-width: none;
+        margin: 0;
+      }
+      
+      /* Optimize button size for mobile */
+      .price-category-tile .view-products-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.75rem;
+        min-height: 36px;
+        min-width: 100px;
+        font-weight: bold;
+        border: 2px solid rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(8px);
+        /* Enhanced mobile glow styling */
+        transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      }
+      
+      /* Mobile button active/press effect */
+      .price-category-tile .view-products-btn:active {
+        transform: translateY(-1px) scale(1.02);
+        box-shadow: 
+          0 0 15px rgba(191, 161, 74, 0.8),
+          0 0 30px rgba(191, 161, 74, 0.6),
+          0 4px 12px rgba(0, 0, 0, 0.3);
+        background-color: #f9e6b1 !important;
+        color: #4B0000 !important;
+      }
+      
+      /* Mobile visible state with glow */
+      .price-category-tile .view-products-btn.mobile-visible {
+        box-shadow: 
+          0 0 12px rgba(191, 161, 74, 0.7),
+          0 0 24px rgba(191, 161, 74, 0.5),
+          0 3px 10px rgba(0, 0, 0, 0.2);
+        animation: mobileButtonGlow 2s ease-in-out infinite alternate;
+      }
+      
+      /* Better spacing for mobile */
+      .price-category-tile h3 {
+        font-size: 1rem;
+        line-height: 1.2;
+      }
+      
+      .price-category-tile p {
+        font-size: 0.75rem;
+        line-height: 1.3;
+      }
+      
+      /* Optimize touch targets */
+      .price-category-tile .image-container {
+        border-radius: 0.75rem;
+      }
+      
+      /* Featured Price Categories section padding */
+      section:has(.price-category-tile) {
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+      }
+      
+      /* Grid gap adjustment for mobile */
+      .grid:has(.price-category-tile) {
+        gap: 1.5rem;
       }
 
       .copy-button {
@@ -479,43 +745,65 @@
     <!-- Featured Price Categories -->
     <section class="py-12 px-4 bg-heritage-red text-white text-center">
       <h2 class="text-2xl md:text-3xl mb-8 fade-in-up">Featured Price Categories</h2>
-      <div class="grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto">
+      <div class="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto mobile-tiles-grid">
         
-        <!-- Under 999 Category -->
-        <div class="bg-heritage-light-gold rounded-xl p-8 text-center text-black shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 fade-in-up">
-          <div class="w-20 h-20 bg-heritage-red rounded-full mx-auto mb-6 flex items-center justify-center">
-            <span class="text-heritage-gold text-2xl sm:text-3xl font-bold font-number">₹</span>
+        <!-- Category 1: Under ₹2,599 -->
+        <div class="price-category-tile cursor-pointer" data-category="under-2599">
+          <div class="image-container group relative overflow-hidden rounded-xl shadow-lg">
+            <!-- 2:3 Aspect Ratio Container -->
+            <div class="aspect-[2/3] relative">
+              <img src="assets/tile1.jpeg" alt="Under ₹2,599 Collection" class="w-full h-full object-cover transition-all duration-300 group-hover:blur-sm group-hover:scale-110">
+              <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center">
+                <button class="view-products-btn bg-heritage-gold text-heritage-red px-4 md:px-6 py-2 md:py-3 rounded-full font-bold text-sm md:text-base opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0 shadow-lg hover:bg-yellow-300" onclick="navigateToProducts('under-2599')">
+                  View Products
+                </button>
+              </div>
+            </div>
           </div>
-          <h3 class="text-xl sm:text-2xl font-bold text-heritage-red mb-4 font-number">Under ₹999</h3>
-          <p class="text-lg mb-6 text-gray-700 leading-relaxed">Affordable elegance for every occasion</p>
-          <div class="flex flex-col gap-3 mt-6">
-            <a href="products.html?minPrice=0&maxPrice=999&sort=price-desc" class="bg-heritage-red text-white py-3 px-6 rounded-full no-underline text-sm hover:bg-opacity-90 transition-all transform hover:scale-105 font-bold">View Products</a>
-          </div>
-        </div>
-
-        <!-- Under 1499 Category -->
-        <div class="bg-heritage-light-gold rounded-xl p-8 text-center text-black shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 fade-in-up">
-          <div class="w-20 h-20 bg-heritage-red rounded-full mx-auto mb-6 flex items-center justify-center">
-            <span class="text-heritage-gold text-2xl sm:text-3xl font-bold font-number">₹₹</span>
-          </div>
-          <h3 class="text-xl sm:text-2xl font-bold text-heritage-red mb-4 font-number">Under ₹1,499</h3>
-          <p class="text-lg mb-6 text-gray-700 leading-relaxed">Premium designs at great value for money</p>
-          <div class="flex flex-col gap-3 mt-6">
-            <a href="products.html?minPrice=0&maxPrice=1499&sort=price-desc" class="bg-heritage-red text-white py-3 px-6 rounded-full no-underline text-sm hover:bg-opacity-90 transition-all transform hover:scale-105 font-bold">View Products</a>
+          <div class="mt-3 md:mt-4">
+            <h3 class="text-lg md:text-xl lg:text-2xl font-bold text-heritage-gold font-number">Under ₹2,599</h3>
+            <p class="text-heritage-cream mt-1 md:mt-2 text-xs md:text-sm lg:text-base">Affordable elegance for every occasion</p>
           </div>
         </div>
 
-        <!-- Under 2599 Category -->
-        <div class="bg-heritage-light-gold rounded-xl p-8 text-center text-black shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 fade-in-up">
-          <div class="w-20 h-20 bg-heritage-red rounded-full mx-auto mb-6 flex items-center justify-center">
-            <span class="text-heritage-gold text-xl sm:text-2xl font-bold font-number">₹₹₹</span>
+        <!-- Category 2: Under ₹3,499 -->
+        <div class="price-category-tile cursor-pointer" data-category="under-3499">
+          <div class="image-container group relative overflow-hidden rounded-xl shadow-lg">
+            <!-- 2:3 Aspect Ratio Container -->
+            <div class="aspect-[2/3] relative">
+              <img src="assets/tile2.jpeg" alt="Under ₹3,499 Collection" class="w-full h-full object-cover transition-all duration-300 group-hover:blur-sm group-hover:scale-110">
+              <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center">
+                <button class="view-products-btn bg-heritage-gold text-heritage-red px-4 md:px-6 py-2 md:py-3 rounded-full font-bold text-sm md:text-base opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0 shadow-lg hover:bg-yellow-300" onclick="navigateToProducts('under-3499')">
+                  View Products
+                </button>
+              </div>
+            </div>
           </div>
-          <h3 class="text-xl sm:text-2xl font-bold text-heritage-red mb-4 font-number">Under ₹2,599</h3>
-          <p class="text-lg mb-6 text-gray-700 leading-relaxed">Luxury collection for special moments</p>
-          <div class="flex flex-col gap-3 mt-6">
-            <a href="products.html?minPrice=0&maxPrice=2599&sort=price-desc" class="bg-heritage-red text-white py-3 px-6 rounded-full no-underline text-sm hover:bg-opacity-90 transition-all transform hover:scale-105 font-bold">View Products</a>
+          <div class="mt-3 md:mt-4">
+            <h3 class="text-lg md:text-xl lg:text-2xl font-bold text-heritage-gold font-number">Under ₹3,499</h3>
+            <p class="text-heritage-cream mt-1 md:mt-2 text-xs md:text-sm lg:text-base">Premium designs at great value for money</p>
           </div>
         </div>
+
+        <!-- Category 3: Under ₹4,999 -->
+        <div class="price-category-tile cursor-pointer lg:col-span-1" data-category="under-4999">
+          <div class="image-container group relative overflow-hidden rounded-xl shadow-lg">
+            <!-- 2:3 Aspect Ratio Container -->
+            <div class="aspect-[2/3] relative">
+              <img src="assets/tile3.jpeg" alt="Under ₹4,999 Collection" class="w-full h-full object-cover transition-all duration-300 group-hover:blur-sm group-hover:scale-110">
+              <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center">
+                <button class="view-products-btn bg-heritage-gold text-heritage-red px-4 md:px-6 py-2 md:py-3 rounded-full font-bold text-sm md:text-base opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0 shadow-lg hover:bg-yellow-300" onclick="navigateToProducts('under-4999')">
+                  View Products
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="mt-3 md:mt-4">
+            <h3 class="text-lg md:text-xl lg:text-2xl font-bold text-heritage-gold font-number">Under ₹4,999</h3>
+            <p class="text-heritage-cream mt-1 md:mt-2 text-xs md:text-sm lg:text-base">Luxury collection for special moments</p>
+          </div>
+        </div>
+
       </div>
     </section>
 
@@ -643,6 +931,30 @@
       updateCartCount();
     }
 
+    // Navigation function for price categories
+    function navigateToProducts(category) {
+      console.log('navigateToProducts called with category:', category); // Debug log
+      
+      let url = 'products.html?';
+      
+      switch(category) {
+        case 'under-2599':
+          url += 'minPrice=0&maxPrice=2599&sort=price-desc';
+          break;
+        case 'under-3499':
+          url += 'minPrice=0&maxPrice=3499&sort=price-desc';
+          break;
+        case 'under-4999':
+          url += 'minPrice=0&maxPrice=4999&sort=price-desc';
+          break;
+        default:
+          url = 'products.html';
+      }
+      
+      console.log('Navigating to URL:', url); // Debug log
+      window.location.href = url;
+    }
+
     // Launch Popup Functions
     function showLaunchPopup() {
       const popup = document.getElementById('launch-popup');
@@ -712,6 +1024,174 @@
     
     window.addEventListener('DOMContentLoaded', function() {
       updateCartCount();
+
+      // Mobile touch functionality for price category tiles
+      const priceTiles = document.querySelectorAll('.price-category-tile');
+      
+      // Check if device supports touch
+      const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+      
+      if (isTouchDevice) {
+        priceTiles.forEach(tile => {
+          let isButtonVisible = false;
+          let hideTimeout;
+          
+          // Handle tile touch to show button (first click)
+          tile.addEventListener('touchstart', function(e) {
+            // Check if we're clicking the button directly
+            const button = e.target.closest('.view-products-btn');
+            if (button) {
+              // If clicking button directly, just handle the navigation
+              e.stopPropagation();
+              e.preventDefault();
+              
+              console.log('Button clicked directly!'); // Debug log
+              
+              const category = this.getAttribute('data-category');
+              if (category) {
+                console.log('Navigating to category:', category); // Debug log
+                navigateToProducts(category);
+              }
+              return;
+            }
+            
+            // If clicking the tile (not button), show the button
+            e.preventDefault();
+            
+            const imageContainer = this.querySelector('.image-container');
+            const img = imageContainer.querySelector('img');
+            const overlay = imageContainer.querySelector('.absolute');
+            const btnElement = imageContainer.querySelector('.view-products-btn');
+            
+            // Clear any existing timeout
+            if (hideTimeout) {
+              clearTimeout(hideTimeout);
+            }
+            
+            // Check if button is already visible
+            const buttonOpacity = window.getComputedStyle(btnElement).opacity;
+            isButtonVisible = parseFloat(buttonOpacity) > 0.5;
+            
+            // If button not visible, show it (first tap)
+            if (!isButtonVisible) {
+              console.log('First tap - showing button'); // Debug log
+              img.style.filter = 'blur(2px)';
+              img.style.transform = 'scale(1.05)';
+              overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.4)';
+              btnElement.style.opacity = '1';
+              btnElement.style.transform = 'translateY(0)';
+              // Add mobile glow effect
+              btnElement.classList.add('mobile-visible');
+              isButtonVisible = true;
+              
+              // Hide button after 5 seconds if not clicked
+              hideTimeout = setTimeout(() => {
+                if (isButtonVisible) {
+                  console.log('Auto-hiding button'); // Debug log
+                  img.style.filter = '';
+                  img.style.transform = '';
+                  overlay.style.backgroundColor = '';
+                  btnElement.style.opacity = '';
+                  btnElement.style.transform = '';
+                  btnElement.classList.remove('mobile-visible');
+                  isButtonVisible = false;
+                }
+              }, 5000);
+            }
+          });
+          
+          // Also handle clicks for better compatibility
+          tile.addEventListener('click', function(e) {
+            // Check if we're clicking the button directly
+            const button = e.target.closest('.view-products-btn');
+            if (button) {
+              e.stopPropagation();
+              e.preventDefault();
+              
+              console.log('Button clicked via click event!'); // Debug log
+              
+              // Add visual feedback for click
+              button.style.transform = 'scale(0.95)';
+              button.style.boxShadow = '0 0 25px rgba(191, 161, 74, 1), 0 0 50px rgba(191, 161, 74, 0.8)';
+              
+              setTimeout(() => {
+                button.style.transform = '';
+                button.style.boxShadow = '';
+              }, 150);
+              
+              const category = this.getAttribute('data-category');
+              if (category) {
+                console.log('Navigating to category:', category); // Debug log
+                navigateToProducts(category);
+              }
+              return;
+            }
+            
+            // Handle tile click to show button if on touch device
+            if (isTouchDevice) {
+              const imageContainer = this.querySelector('.image-container');
+              const btnElement = imageContainer.querySelector('.view-products-btn');
+              const buttonOpacity = window.getComputedStyle(btnElement).opacity;
+              
+              if (parseFloat(buttonOpacity) < 0.5) {
+                // Show button logic (same as touchstart)
+                const img = imageContainer.querySelector('img');
+                const overlay = imageContainer.querySelector('.absolute');
+                
+                console.log('Click - showing button'); // Debug log
+                img.style.filter = 'blur(2px)';
+                img.style.transform = 'scale(1.05)';
+                overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.4)';
+                btnElement.style.opacity = '1';
+                btnElement.style.transform = 'translateY(0)';
+                // Add mobile glow effect
+                btnElement.classList.add('mobile-visible');
+                isButtonVisible = true;
+                
+                // Clear existing timeout
+                if (hideTimeout) {
+                  clearTimeout(hideTimeout);
+                }
+                
+                // Auto-hide after 5 seconds
+                hideTimeout = setTimeout(() => {
+                  if (isButtonVisible) {
+                    img.style.filter = '';
+                    img.style.transform = '';
+                    overlay.style.backgroundColor = '';
+                    btnElement.style.opacity = '';
+                    btnElement.style.transform = '';
+                    btnElement.classList.remove('mobile-visible');
+                    isButtonVisible = false;
+                  }
+                }, 5000);
+              }
+            }
+          });
+          
+          // Reset state when touching outside
+          document.addEventListener('touchstart', function(e) {
+            if (!tile.contains(e.target)) {
+              if (hideTimeout) {
+                clearTimeout(hideTimeout);
+              }
+              
+              const imageContainer = tile.querySelector('.image-container');
+              const img = imageContainer.querySelector('img');
+              const overlay = imageContainer.querySelector('.absolute');
+              const btnElement = imageContainer.querySelector('.view-products-btn');
+              
+              img.style.filter = '';
+              img.style.transform = '';
+              overlay.style.backgroundColor = '';
+              btnElement.style.opacity = '';
+              btnElement.style.transform = '';
+              btnElement.classList.remove('mobile-visible');
+              isButtonVisible = false;
+            }
+          });
+        });
+      }
 
       // Show launch popup logic
       const hasVisitedIndex = localStorage.getItem('hasVisitedIndex');

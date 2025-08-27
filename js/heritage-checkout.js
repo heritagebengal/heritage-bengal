@@ -60,6 +60,7 @@ class HeritageCheckout {
     if (isBuyNow) {
       // Load buy now item from localStorage
       const buyNowItem = JSON.parse(localStorage.getItem('buyNowItem') || 'null');
+      console.log('Buy Now item loaded:', buyNowItem); // Debug log
       if (buyNowItem) {
         cart = [buyNowItem];
         // Update page title to indicate buy now
@@ -122,9 +123,14 @@ class HeritageCheckout {
         const itemTotal = item.price * (item.quantity || 1);
         total += itemTotal;
         
+        console.log('Rendering checkout item:', item.name, 'Image:', item.image); // Debug log
+        
+        // Ensure image has a fallback
+        const imageUrl = item.image && item.image.trim() !== '' ? item.image : 'assets/placeholder.svg';
+        
         return `
           <div class="flex items-center gap-4 p-4 bg-heritage-cream rounded-lg">
-            <img src="${item.image}" alt="${item.name}" class="w-16 h-16 object-cover rounded-lg">
+            <img src="${imageUrl}" alt="${item.name}" class="w-16 h-16 object-cover rounded-lg" onerror="console.error('Image failed to load:', this.src); this.src='assets/placeholder.svg';">
             <div class="flex-1">
               <h4 class="font-semibold text-heritage-red">${item.name}</h4>
               <p class="text-sm text-gray-600">Quantity: ${item.quantity || 1}</p>
@@ -418,8 +424,15 @@ class HeritageCheckout {
       if (verificationResult.success && verificationResult.payment_verified) {
         console.log('Payment verified and order created:', verificationResult);
         
-        // Clear cart
-        localStorage.removeItem('cart');
+        // Clear cart or buyNowItem based on checkout type
+        const urlParams = new URLSearchParams(window.location.search);
+        const isBuyNow = urlParams.get('buynow') === 'true';
+        
+        if (isBuyNow) {
+          localStorage.removeItem('buyNowItem');
+        } else {
+          localStorage.removeItem('cart');
+        }
         this.updateCartCount();
         
         // Prepare data for order confirmation page
@@ -532,8 +545,15 @@ class HeritageCheckout {
       
       console.log('COD order created:', codOrderResult);
       
-      // Clear cart
-      localStorage.removeItem('cart');
+      // Clear cart or buyNowItem based on checkout type
+      const urlParams = new URLSearchParams(window.location.search);
+      const isBuyNow = urlParams.get('buynow') === 'true';
+      
+      if (isBuyNow) {
+        localStorage.removeItem('buyNowItem');
+      } else {
+        localStorage.removeItem('cart');
+      }
       this.updateCartCount();
       
       // Prepare data for order confirmation page

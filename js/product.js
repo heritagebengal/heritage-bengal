@@ -6,6 +6,7 @@ class ProductDetailsManager {
     this.resizeListener = null;
     this.currentImageIndex = 0;
     this.productImages = [];
+    this.quantityControlsInitialized = false;
     this.init();
   }
 
@@ -157,7 +158,10 @@ class ProductDetailsManager {
 
     // Initialize quantity controls after product data is loaded
     setTimeout(() => {
-      this.setupQuantityControls();
+      if (!this.quantityControlsInitialized) {
+        this.setupQuantityControls();
+        this.quantityControlsInitialized = true;
+      }
     }, 100);
   }
 
@@ -1012,8 +1016,7 @@ class ProductDetailsManager {
       this.buyNow();
     });
 
-    // Quantity controls
-    this.setupQuantityControls();
+    // Note: Quantity controls are set up in renderProductDetails()
   }
 
   setupQuantityControls() {
@@ -1146,31 +1149,28 @@ class ProductDetailsManager {
       return;
     }
 
-    // Get appropriate image for checkout
-    const isMobile = window.innerWidth < 1024;
+    // Get appropriate image for checkout - use the same logic as products-api.js
     let productImage = 'assets/placeholder.svg';
     
-    if (typeof this.currentProduct.image === 'string') {
+    console.log('Product image data:', this.currentProduct.image); // Debug log
+    
+    // Check for multiple images first (new simplified format)
+    if (Array.isArray(this.currentProduct.image) && this.currentProduct.image.length > 0) {
+      // Use the first image from the array
+      productImage = this.currentProduct.image[0] || 'assets/placeholder.svg';
+      console.log('Using array image:', productImage); // Debug log
+    } else if (typeof this.currentProduct.image === 'string' && this.currentProduct.image && this.currentProduct.image.trim() !== '' && this.currentProduct.image !== 'assets/placeholder.svg') {
+      // Legacy format - single image (only if not empty and not already placeholder)
       productImage = this.currentProduct.image;
-    } else if (typeof this.currentProduct.image === 'object' && this.currentProduct.image !== null) {
-      if (isMobile) {
-        productImage = this.currentProduct.image.products_mobile || 
-                      this.currentProduct.image.products_desktop || 
-                      this.currentProduct.image.details_mobile || 
-                      this.currentProduct.image.details_desktop || 
-                      this.currentProduct.image.mobile || 
-                      this.currentProduct.image.desktop || 
-                      'assets/placeholder.svg';
-      } else {
-        productImage = this.currentProduct.image.products_desktop || 
-                      this.currentProduct.image.products_mobile || 
-                      this.currentProduct.image.details_desktop || 
-                      this.currentProduct.image.details_mobile || 
-                      this.currentProduct.image.desktop || 
-                      this.currentProduct.image.mobile || 
-                      'assets/placeholder.svg';
-      }
+      console.log('Using string image:', productImage); // Debug log
     }
+
+    // Ensure we always have a valid image source
+    if (!productImage || productImage.trim() === '') {
+      productImage = 'assets/placeholder.svg';
+    }
+
+    console.log('Final productImage for buyNow:', productImage); // Debug log
 
     // Create a temporary cart with just this item
     const buyNowItem = {
@@ -1180,6 +1180,8 @@ class ProductDetailsManager {
       image: productImage,
       quantity: quantity
     };
+
+    console.log('Buy Now item created:', buyNowItem); // Debug log
 
     // Store the buy now item in localStorage for checkout
     localStorage.setItem('buyNowItem', JSON.stringify(buyNowItem));
