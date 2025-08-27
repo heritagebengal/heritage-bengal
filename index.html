@@ -265,6 +265,15 @@
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
     
+    /* Image display control - Desktop shows desktop images, mobile shows mobile images */
+    .desktop-image {
+      display: block;
+    }
+    
+    .mobile-image {
+      display: none;
+    }
+    
     /* Ensure 2:3 aspect ratio fallback */
     .aspect-\[2\/3\] {
       aspect-ratio: 2/3;
@@ -319,6 +328,9 @@
     @media (hover: none) and (pointer: coarse) {
       .price-category-tile {
         -webkit-tap-highlight-color: transparent;
+        /* Ensure smooth scrolling */
+        -webkit-overflow-scrolling: touch;
+        touch-action: pan-y; /* Allow vertical scrolling */
       }
       
       /* Ensure button is touchable when visible */
@@ -372,7 +384,8 @@
     @media (max-width: 768px) {
       .price-category-tile {
         -webkit-tap-highlight-color: transparent;
-        touch-action: manipulation;
+        touch-action: pan-y; /* Allow vertical scrolling */
+        -webkit-overflow-scrolling: touch;
       }
       
       /* Ensure button is clearly visible and touchable */
@@ -470,24 +483,45 @@
 
       /* Price Category Tiles Mobile Optimizations */
       .price-category-tile {
-        touch-action: manipulation;
+        touch-action: pan-y; /* Allow vertical scrolling */
         -webkit-tap-highlight-color: transparent;
+        -webkit-overflow-scrolling: touch;
+      }
+      
+      /* Make text area non-clickable on mobile */
+      .price-category-tile .mt-3,
+      .price-category-tile .mt-4,
+      .price-category-tile h3,
+      .price-category-tile p {
+        pointer-events: none;
+        -webkit-user-select: none;
+        user-select: none;
+      }
+      
+      /* Mobile image switching - Hide desktop, show mobile */
+      .desktop-image {
+        display: none;
+      }
+      
+      .mobile-image {
+        display: block;
       }
       
       /* Mobile grid layout - special handling */
       .mobile-tiles-grid {
         display: grid;
         grid-template-columns: 1fr;
-        gap: 1.5rem;
-        max-width: 300px;
+        gap: 1.5rem; /* Increased for better spacing */
+        max-width: 280px; /* Increased from 240px for larger tiles */
         margin: 0 auto;
       }
       
-      /* All tiles same size on mobile */
+      /* All tiles same size on mobile - larger and better proportioned */
       .price-category-tile {
         width: 100%;
         max-width: none;
         margin: 0;
+        transform: scale(1); /* Removed scaling to make tiles larger */
       }
       
       /* Remove any special positioning for third tile on mobile */
@@ -499,10 +533,10 @@
       
       /* Optimize button size for mobile */
       .price-category-tile .view-products-btn {
-        padding: 0.5rem 1rem;
-        font-size: 0.75rem;
-        min-height: 36px;
-        min-width: 100px;
+        padding: 0.6rem 1.2rem; /* Increased padding for better visibility */
+        font-size: 0.875rem; /* Increased from 0.7rem */
+        min-height: 44px; /* Increased from 32px for better touch target */
+        min-width: 120px; /* Increased from 85px */
         font-weight: bold;
         border: 2px solid rgba(255, 255, 255, 0.9);
         backdrop-filter: blur(8px);
@@ -513,11 +547,11 @@
       
       /* Mobile button active/press effect */
       .price-category-tile .view-products-btn:active {
-        transform: translateY(-1px) scale(1.02);
+        transform: translateY(-2px) scale(1.02);
         box-shadow: 
           0 0 15px rgba(191, 161, 74, 0.8),
           0 0 30px rgba(191, 161, 74, 0.6),
-          0 4px 12px rgba(0, 0, 0, 0.3);
+          0 6px 15px rgba(0, 0, 0, 0.3);
         background-color: #f9e6b1 !important;
         color: #4B0000 !important;
       }
@@ -527,35 +561,73 @@
         box-shadow: 
           0 0 12px rgba(191, 161, 74, 0.7),
           0 0 24px rgba(191, 161, 74, 0.5),
-          0 3px 10px rgba(0, 0, 0, 0.2);
+          0 4px 12px rgba(0, 0, 0, 0.2);
         animation: mobileButtonGlow 2s ease-in-out infinite alternate;
       }
       
       /* Better spacing for mobile */
       .price-category-tile h3 {
-        font-size: 1rem;
+        font-size: 1.125rem; /* Increased from 0.9rem */
         line-height: 1.2;
+        margin-top: 1rem; /* Increased spacing */
+        font-weight: 700; /* Made bolder */
       }
       
       .price-category-tile p {
-        font-size: 0.75rem;
+        font-size: 0.875rem; /* Increased from 0.7rem */
         line-height: 1.3;
+        margin-top: 0.5rem; /* Increased spacing */
       }
       
       /* Optimize touch targets */
       .price-category-tile .image-container {
         border-radius: 0.75rem;
+        /* Ensure image container matches the square image size exactly */
+        width: 100%;
+        max-width: 280px;
+        margin: 0 auto;
+        overflow: hidden;
+      }
+      
+      /* Ensure perfect square aspect ratio for mobile */
+      .price-category-tile .aspect-\[2\/3\] {
+        aspect-ratio: 1/1 !important; /* Force square aspect ratio for mobile */
+        width: 100%;
+        max-width: 280px; /* Match container max-width */
+        margin: 0 auto;
+        position: relative;
+        overflow: hidden;
+      }
+      
+      /* Fallback for browsers that don't support aspect-ratio - square */
+      @supports not (aspect-ratio: 1/1) {
+        .price-category-tile .aspect-\[2\/3\] {
+          height: 0;
+          padding-bottom: 100% !important; /* Force 1:1 ratio = 100% */
+          position: relative;
+          width: 100%;
+          max-width: 280px;
+          margin: 0 auto;
+        }
+        
+        .price-category-tile .aspect-\[2\/3\] > * {
+          position: absolute !important;
+          top: 0;
+          left: 0;
+          width: 100% !important;
+          height: 100% !important;
+        }
       }
       
       /* Featured Price Categories section padding */
       section:has(.price-category-tile) {
-        padding-top: 2rem;
-        padding-bottom: 2rem;
+        padding-top: 2rem; /* Increased from 1.5rem */
+        padding-bottom: 2rem; /* Increased from 1.5rem */
       }
       
       /* Grid gap adjustment for mobile */
       .grid:has(.price-category-tile) {
-        gap: 1.5rem;
+        gap: 1.5rem; /* Increased from 1rem */
       }
 
       .copy-button {
@@ -752,7 +824,10 @@
           <div class="image-container group relative overflow-hidden rounded-xl shadow-lg">
             <!-- 2:3 Aspect Ratio Container -->
             <div class="aspect-[2/3] relative">
-              <img src="assets/tile1.jpeg" alt="Under ₹2,599 Collection" class="w-full h-full object-cover transition-all duration-300 group-hover:blur-sm group-hover:scale-110">
+              <!-- Desktop Image -->
+              <img src="assets/tile1.jpeg" alt="Under ₹2,599 Collection" class="desktop-image w-full h-full object-cover transition-all duration-300 group-hover:blur-sm group-hover:scale-110">
+              <!-- Mobile Image -->
+              <img src="assets/tile1_mobile.jpeg" alt="Under ₹2,599 Collection" class="mobile-image w-full h-full object-cover transition-all duration-300 group-hover:blur-sm group-hover:scale-110">
               <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center">
                 <button class="view-products-btn bg-heritage-gold text-heritage-red px-4 md:px-6 py-2 md:py-3 rounded-full font-bold text-sm md:text-base opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0 shadow-lg hover:bg-yellow-300" onclick="navigateToProducts('under-2599')">
                   View Products
@@ -771,7 +846,10 @@
           <div class="image-container group relative overflow-hidden rounded-xl shadow-lg">
             <!-- 2:3 Aspect Ratio Container -->
             <div class="aspect-[2/3] relative">
-              <img src="assets/tile2.jpeg" alt="Under ₹3,499 Collection" class="w-full h-full object-cover transition-all duration-300 group-hover:blur-sm group-hover:scale-110">
+              <!-- Desktop Image -->
+              <img src="assets/tile2.jpeg" alt="Under ₹3,499 Collection" class="desktop-image w-full h-full object-cover transition-all duration-300 group-hover:blur-sm group-hover:scale-110">
+              <!-- Mobile Image -->
+              <img src="assets/tile2_mobile.jpeg" alt="Under ₹3,499 Collection" class="mobile-image w-full h-full object-cover transition-all duration-300 group-hover:blur-sm group-hover:scale-110">
               <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center">
                 <button class="view-products-btn bg-heritage-gold text-heritage-red px-4 md:px-6 py-2 md:py-3 rounded-full font-bold text-sm md:text-base opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0 shadow-lg hover:bg-yellow-300" onclick="navigateToProducts('under-3499')">
                   View Products
@@ -790,7 +868,10 @@
           <div class="image-container group relative overflow-hidden rounded-xl shadow-lg">
             <!-- 2:3 Aspect Ratio Container -->
             <div class="aspect-[2/3] relative">
-              <img src="assets/tile3.jpeg" alt="Under ₹4,999 Collection" class="w-full h-full object-cover transition-all duration-300 group-hover:blur-sm group-hover:scale-110">
+              <!-- Desktop Image -->
+              <img src="assets/tile3.jpeg" alt="Under ₹4,999 Collection" class="desktop-image w-full h-full object-cover transition-all duration-300 group-hover:blur-sm group-hover:scale-110">
+              <!-- Mobile Image -->
+              <img src="assets/tile3_mobile.jpeg" alt="Under ₹4,999 Collection" class="mobile-image w-full h-full object-cover transition-all duration-300 group-hover:blur-sm group-hover:scale-110">
               <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center">
                 <button class="view-products-btn bg-heritage-gold text-heritage-red px-4 md:px-6 py-2 md:py-3 rounded-full font-bold text-sm md:text-base opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0 shadow-lg hover:bg-yellow-300" onclick="navigateToProducts('under-4999')">
                   View Products
@@ -1035,9 +1116,17 @@
         priceTiles.forEach(tile => {
           let isButtonVisible = false;
           let hideTimeout;
+          let touchStartY = 0;
+          let touchStartX = 0;
+          let isScrolling = false;
           
           // Handle tile touch to show button (first click)
           tile.addEventListener('touchstart', function(e) {
+            // Store initial touch position
+            touchStartY = e.touches[0].clientY;
+            touchStartX = e.touches[0].clientX;
+            isScrolling = false;
+            
             // Check if we're clicking the button directly
             const button = e.target.closest('.view-products-btn');
             if (button) {
@@ -1055,7 +1144,60 @@
               return;
             }
             
-            // If clicking the tile (not button), show the button
+            // Check if clicking on text area - ignore on mobile
+            const textArea = e.target.closest('.mt-3, .mt-4, h3, p');
+            if (textArea) {
+              // Ignore clicks on text areas on mobile
+              return;
+            }
+            
+            // Don't prevent default initially - let it be handled in touchmove/touchend
+          });
+          
+          // Handle touch move to detect scrolling
+          tile.addEventListener('touchmove', function(e) {
+            if (!touchStartY || !touchStartX) return;
+            
+            const touchCurrentY = e.touches[0].clientY;
+            const touchCurrentX = e.touches[0].clientX;
+            const diffY = Math.abs(touchCurrentY - touchStartY);
+            const diffX = Math.abs(touchCurrentX - touchStartX);
+            
+            // If user is scrolling (vertical movement > horizontal movement and > threshold)
+            if (diffY > diffX && diffY > 10) {
+              isScrolling = true;
+              // Don't show button if user is scrolling
+              return;
+            }
+          });
+          
+          // Handle touch end
+          tile.addEventListener('touchend', function(e) {
+            // Check if we were scrolling
+            if (isScrolling) {
+              touchStartY = 0;
+              touchStartX = 0;
+              isScrolling = false;
+              return; // Don't trigger tile interaction if scrolling
+            }
+            
+            // Check if we're clicking the button directly
+            const button = e.target.closest('.view-products-btn');
+            if (button) {
+              return; // Button click already handled in touchstart
+            }
+            
+            // Check if clicking on text area - ignore on mobile
+            const textArea = e.target.closest('.mt-3, .mt-4, h3, p');
+            if (textArea) {
+              // Ignore clicks on text areas on mobile
+              touchStartY = 0;
+              touchStartX = 0;
+              isScrolling = false;
+              return;
+            }
+            
+            // If clicking the tile image area (not button, not text) and not scrolling, show the button
             e.preventDefault();
             
             const imageContainer = this.querySelector('.image-container');
@@ -1075,9 +1217,24 @@
             // If button not visible, show it (first tap)
             if (!isButtonVisible) {
               console.log('First tap - showing button'); // Debug log
-              img.style.filter = 'blur(2px)';
-              img.style.transform = 'scale(1.05)';
+              
+              // Apply blur effect to the visible image (desktop or mobile)
+              const desktopImg = imageContainer.querySelector('.desktop-image');
+              const mobileImg = imageContainer.querySelector('.mobile-image');
+              
+              // Apply effects to both images to ensure it works regardless of which is visible
+              if (desktopImg) {
+                desktopImg.style.filter = 'blur(2px)';
+                desktopImg.style.transform = 'scale(1.05)';
+              }
+              if (mobileImg) {
+                mobileImg.style.filter = 'blur(2px)';
+                mobileImg.style.transform = 'scale(1.05)';
+              }
+              
+              // Apply dark overlay
               overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.4)';
+              // Show button
               btnElement.style.opacity = '1';
               btnElement.style.transform = 'translateY(0)';
               // Add mobile glow effect
@@ -1088,8 +1245,20 @@
               hideTimeout = setTimeout(() => {
                 if (isButtonVisible) {
                   console.log('Auto-hiding button'); // Debug log
-                  img.style.filter = '';
-                  img.style.transform = '';
+                  
+                  // Reset effects on both images
+                  const desktopImg = imageContainer.querySelector('.desktop-image');
+                  const mobileImg = imageContainer.querySelector('.mobile-image');
+                  
+                  if (desktopImg) {
+                    desktopImg.style.filter = '';
+                    desktopImg.style.transform = '';
+                  }
+                  if (mobileImg) {
+                    mobileImg.style.filter = '';
+                    mobileImg.style.transform = '';
+                  }
+                  
                   overlay.style.backgroundColor = '';
                   btnElement.style.opacity = '';
                   btnElement.style.transform = '';
@@ -1098,10 +1267,20 @@
                 }
               }, 5000);
             }
+            
+            // Reset touch tracking
+            touchStartY = 0;
+            touchStartX = 0;
+            isScrolling = false;
           });
           
-          // Also handle clicks for better compatibility
+          // Also handle clicks for better compatibility (for non-touch devices)
           tile.addEventListener('click', function(e) {
+            // Only handle click events if not a touch device
+            if (isTouchDevice) {
+              return; // Let touch events handle the interaction
+            }
+            
             // Check if we're clicking the button directly
             const button = e.target.closest('.view-products-btn');
             if (button) {
@@ -1127,45 +1306,61 @@
               return;
             }
             
-            // Handle tile click to show button if on touch device
-            if (isTouchDevice) {
-              const imageContainer = this.querySelector('.image-container');
-              const btnElement = imageContainer.querySelector('.view-products-btn');
-              const buttonOpacity = window.getComputedStyle(btnElement).opacity;
+            // Handle tile click to show button for non-touch devices
+            const imageContainer = this.querySelector('.image-container');
+            const btnElement = imageContainer.querySelector('.view-products-btn');
+            const buttonOpacity = window.getComputedStyle(btnElement).opacity;
+            
+            if (parseFloat(buttonOpacity) < 0.5) {
+              // Show button logic (same as touchend)
+              const desktopImg = imageContainer.querySelector('.desktop-image');
+              const mobileImg = imageContainer.querySelector('.mobile-image');
+              const overlay = imageContainer.querySelector('.absolute');
               
-              if (parseFloat(buttonOpacity) < 0.5) {
-                // Show button logic (same as touchstart)
-                const img = imageContainer.querySelector('img');
-                const overlay = imageContainer.querySelector('.absolute');
-                
-                console.log('Click - showing button'); // Debug log
-                img.style.filter = 'blur(2px)';
-                img.style.transform = 'scale(1.05)';
-                overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.4)';
-                btnElement.style.opacity = '1';
-                btnElement.style.transform = 'translateY(0)';
-                // Add mobile glow effect
-                btnElement.classList.add('mobile-visible');
-                isButtonVisible = true;
-                
-                // Clear existing timeout
-                if (hideTimeout) {
-                  clearTimeout(hideTimeout);
-                }
-                
-                // Auto-hide after 5 seconds
-                hideTimeout = setTimeout(() => {
-                  if (isButtonVisible) {
-                    img.style.filter = '';
-                    img.style.transform = '';
-                    overlay.style.backgroundColor = '';
-                    btnElement.style.opacity = '';
-                    btnElement.style.transform = '';
-                    btnElement.classList.remove('mobile-visible');
-                    isButtonVisible = false;
-                  }
-                }, 5000);
+              console.log('Click - showing button'); // Debug log
+              
+              // Apply effects to both images
+              if (desktopImg) {
+                desktopImg.style.filter = 'blur(2px)';
+                desktopImg.style.transform = 'scale(1.05)';
               }
+              if (mobileImg) {
+                mobileImg.style.filter = 'blur(2px)';
+                mobileImg.style.transform = 'scale(1.05)';
+              }
+              
+              overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.4)';
+              btnElement.style.opacity = '1';
+              btnElement.style.transform = 'translateY(0)';
+              // Add mobile glow effect
+              btnElement.classList.add('mobile-visible');
+              isButtonVisible = true;
+              
+              // Clear existing timeout
+              if (hideTimeout) {
+                clearTimeout(hideTimeout);
+              }
+              
+              // Auto-hide after 5 seconds
+              hideTimeout = setTimeout(() => {
+                if (isButtonVisible) {
+                  // Reset effects on both images
+                  if (desktopImg) {
+                    desktopImg.style.filter = '';
+                    desktopImg.style.transform = '';
+                  }
+                  if (mobileImg) {
+                    mobileImg.style.filter = '';
+                    mobileImg.style.transform = '';
+                  }
+                  
+                  overlay.style.backgroundColor = '';
+                  btnElement.style.opacity = '';
+                  btnElement.style.transform = '';
+                  btnElement.classList.remove('mobile-visible');
+                  isButtonVisible = false;
+                }
+              }, 5000);
             }
           });
           
@@ -1177,12 +1372,21 @@
               }
               
               const imageContainer = tile.querySelector('.image-container');
-              const img = imageContainer.querySelector('img');
+              const desktopImg = imageContainer.querySelector('.desktop-image');
+              const mobileImg = imageContainer.querySelector('.mobile-image');
               const overlay = imageContainer.querySelector('.absolute');
               const btnElement = imageContainer.querySelector('.view-products-btn');
               
-              img.style.filter = '';
-              img.style.transform = '';
+              // Reset effects on both images
+              if (desktopImg) {
+                desktopImg.style.filter = '';
+                desktopImg.style.transform = '';
+              }
+              if (mobileImg) {
+                mobileImg.style.filter = '';
+                mobileImg.style.transform = '';
+              }
+              
               overlay.style.backgroundColor = '';
               btnElement.style.opacity = '';
               btnElement.style.transform = '';
