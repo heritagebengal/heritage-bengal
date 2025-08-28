@@ -178,7 +178,7 @@ function generateOrderConfirmationEmail(orderData) {
                 <p style="margin: 5px 0;"><strong>WhatsApp:</strong> ${process.env.WHATSAPP_PHONE || '+917439543717'}</p>
             </div>
             
-            <p>We will prepare your order and ship it within 1-2 business days.</p>
+            <p>We will prepare your order and ship it within 12-14 business days.</p>
             
             <p>Thank you for choosing Heritage Bengal Jewellery!</p>
         </div>
